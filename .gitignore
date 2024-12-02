@@ -1,0 +1,6 @@
+*.zarr
+*.npz
+*.nc
+logs/
+training/Nonecheckpoint/
+training/outputs/
