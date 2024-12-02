@@ -30,27 +30,27 @@ dataloader:
     end: 2024-01-01
     dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/norkystv3_2024010100-2024010220.zarr
     frequency: 1
-    mask_from_dataset:
-      dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
-      field: land_binary_mask_0 #[land_binary_mask_0, land_binary_mask_1, land_binary_mask_2, land_binary_mask_3,land_binary_mask_5, land_binary_mask_7, land_binary_mask_10, land_binary_mask_15, land_binary_mask_25, land_binary_mask_50, land_binary_mask_65, land_binary_mask_75, land_binary_mask_100, land_binary_mask_200, land_binary_mask_300]
+    #mask_from_dataset:
+    #  dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
+    #  field: land_binary_mask_0 #[land_binary_mask_0, land_binary_mask_1, land_binary_mask_2, land_binary_mask_3,land_binary_mask_5, land_binary_mask_7, land_binary_mask_10, land_binary_mask_15, land_binary_mask_25, land_binary_mask_50, land_binary_mask_65, land_binary_mask_75, land_binary_mask_100, land_binary_mask_200, land_binary_mask_300]
     #drop: [temperature_1, temperature_2, temperature_3, temperature_5, temperature_7, temperature_10, temperature_15, temperature_25, temperature_50, temperature_65, temperature_75, temperature_100, temperature_200, temperature_300]
   validation:
     start: 2024-01-02
     end: 2024-01-02
     dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/norkystv3_2024010100-2024010220.zarr
     frequency: 1
-    mask_from_dataset:
-      dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
-      field: land_binary_mask_0
+    #mask_from_dataset:
+    #  dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
+    #  field: land_binary_mask_0
     #drop: [temperature_1, temperature_2, temperature_3, temperature_5, temperature_7, temperature_10, temperature_15, temperature_25, temperature_50, temperature_65, temperature_75, temperature_100, temperature_200, temperature_300]
   test:
     start: 2024-01-01
     end: 2024-01-02
     dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/norkystv3_2024010100-2024010220.zarr
     frequency: 1
-    mask_from_dataset:
-      dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
-      field: land_binary_mask_0
+    #mask_from_dataset:
+    #  dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
+    #  field: land_binary_mask_0
     #drop: [temperature_1, temperature_2, temperature_3, temperature_5, temperature_7, temperature_10, temperature_15, temperature_25, temperature_50, temperature_65, temperature_75, temperature_100, temperature_200, temperature_300]
 
 hardware:
@@ -75,8 +75,6 @@ diagnostics:
       offline: False
       experiment_name: 'metno'
       run_name: ${training.run_id}
-  plot:
-    enabled: False #False
   print_memory_summary: True
 
 # Set clobber: False and specify the correct path and file in hardware to load graph, the path below is 

@@ -1,6 +1,6 @@
 ---
 defaults:
-  - plot: detailed
+  - plot: none #detailed
   - callbacks: pretraining
   - benchmark_profiler: detailed
 
