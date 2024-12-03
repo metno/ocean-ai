@@ -1,0 +1,12 @@
+dates:
+  start: 2024-01-01 00:00:00
+  end: 2024-01-02 20:00:00
+  frequency: 1h
+
+resolution: o96
+input:
+  netcdf:
+    path: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/h.nc
+    param:
+    - h
+missing: []
