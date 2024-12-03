@@ -65,7 +65,7 @@ normalizer:
 imputer:
   default: "none"
   999:
-    - temperature_0
+#    - temperature_0
     - temperature_1
     - temperature_2
     - temperature_3

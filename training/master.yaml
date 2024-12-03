@@ -61,6 +61,8 @@ hardware:
     warm_start: null #specific checkpoint to start from, defaults to last.ckpt
 
 diagnostics:
+  plot: 
+    callbacks: []
   log:
     mlflow:
       enabled: False
@@ -77,6 +79,16 @@ graph:
       node_builder:
         _target_: anemoi.graphs.nodes.ZarrDatasetNodes # options: ZarrDatasetNodes, NPZFileNodes
         dataset: ${dataloader.training.dataset}
+      attributes:
+        area_weight:
+          _target_: anemoi.graphs.nodes.attributes.UniformWeights
+          norm: unit-max
+    hidden:
+      node_builder:
+        _target_: anemoi.graphs.nodes.LimitedAreaTriNodes # options: ZarrDatasetNodes, NPZFileNodes, TriNodes
+        resolution: 5 # grid resolution for npz (o32, o48, ...)
+        reference_node_name: ${graph.data}
+
   edges:
     # Encoder configuration
     - source_name: ${graph.data}
@@ -118,12 +130,11 @@ data:
 
   normalizer:
     default: "mean-std"
+    std: []
 
     min-max:
     max: []
-
     none: []
-
 
   imputer:
     default: "none"
@@ -146,7 +157,6 @@ data:
 
   remapper:
     default: "none"
-
 
   processors:
 
@@ -174,8 +184,9 @@ model:
     data2hidden: 0
     hidden2data: 0
     hidden2hidden: 0 # GNN and GraphTransformer Processor only
-#  bounding:
-#    - {_target_: aifs.models.bounding.ReluBounding, variables: [tp]}
+  bounding: #These are applied in order
+    - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
+      variables: []
 
 training:
   run_id: null #path to store the experiment in with output_base as root, null for random name, =fork_run_id to continue training in the same folder.

@@ -2,11 +2,11 @@
 #$ -N ocean-training
 #$ -b n
 #$ -S /bin/bash
-#$ -l h_data=10G
-#$ -l h_rss=10G
+#$ -l h_data=20G
+#$ -l h_rss=20G
 #$ -l h_rt=01:00:00
 #$ -q gpu-r8.q
-#$ -l h=gpu-03.ppi.met.no
+#$ -l h=gpu-04.ppi.met.no
 #$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/OUT_$JOB_NAME.$JOB_ID
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/ERR_$JOB_NAME.$JOB_ID
 
