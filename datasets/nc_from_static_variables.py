@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas
 import datetime as datetime
 
-def static_h(ds, time_start=datetime.datetime(2024,1,1,0), time_end=datetime.datetime(2024,1,3,20)):
+def static_h(ds, time_start=datetime.datetime(2024,1,1,0), time_end=datetime.datetime(2025,1,1,0)):
     # TODO kan dette generaliseres mer?
     time_start_string = time_start.strftime("%Y-%m-%d %H:%M:%S")
     x = np.array(ds.X.values)
@@ -41,9 +41,9 @@ def static_h(ds, time_start=datetime.datetime(2024,1,1,0), time_end=datetime.dat
             lat=(['Y', 'X'], np.array(ds.lat.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'}),
             h=(['time', 'Y', 'X'], h_array, {'standard_name':'sea_floor_depth_below_sea_level', 'long_name':'sea_floor_depth_below_sea_level', 'grid_mapping':'projection_stere', 'units':'meter'})
         )
-    )   
+    )
     h_ds['projection_stere'] = ds.projection_stere
-    h_ds.to_netcdf('h.nc', encoding={'time': {'dtype':'double'}})
+    h_ds.to_netcdf('h.nc', encoding={'time': {'dtype':'double'}, 'h':{'zlib': True, 'complevel': 4}})
 
 
 if __name__ == '__main__':
