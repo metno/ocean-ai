@@ -122,7 +122,8 @@ data:
   frequency: 1h
   timestep: 1h
   format: zarr
-  forcing: []
+  forcing: 
+    - "h"
 
   diagnostic: []
 
