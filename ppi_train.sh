@@ -7,14 +7,15 @@
 #$ -l h_rt=01:00:00
 #$ -q gpu-r8.q
 #$ -l h=gpu-03.ppi.met.no
-#$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/logs/OUT_$JOB_NAME.$JOB_ID
-#$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/logs/ERR_$JOB_NAME.$JOB_ID
+#$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/OUT_$JOB_NAME.$JOB_ID
+#$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/ERR_$JOB_NAME.$JOB_ID
 
-DIR=/lustre/storeB/project/fou/hi/foccus/mateuszm/aifs-mono-ocean//lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/
+DIR=/lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/
 export HYDRA_FULL_ERROR=1
+export ANEMOI_BASE_SEED=1337420
 conda deactivate
 source /lustre/storeB/project/fou/hi/foccus/python-envs/new-anemoi-env/bin/activate
-anemoi-training train --config-name=//lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/training/config.yaml
+anemoi-training train --config-dir=//lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/training/ --config-name=master.yaml
 
 
 #conda deactivate
