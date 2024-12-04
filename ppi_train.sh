@@ -12,7 +12,7 @@
 
 DIR=/lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/
 export HYDRA_FULL_ERROR=1
-export ANEMOI_BASE_SEED=1337420
+export ANEMOI_BASE_SEED=1
 conda deactivate
 source /lustre/storeB/project/fou/hi/foccus/python-envs/new-anemoi-env/bin/activate
 anemoi-training train --config-dir=//lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/training/ --config-name=master.yaml
