@@ -57,7 +57,7 @@ hardware:
     output: null #do not change this, it will be modified in code to be output_base + run_id.
     graph: /lustre/storeB/project/fou/hi/foccus/graphs/
   files:
-    dataset: norkyst800_his_zdepth_2024_surface_temperature_m00_AN_ml.zarr #norkystv3_2024010100-2024010220.zarr
+    dataset: norkyst800_his_zdepth_2024_01_01-03_temp_m00_AN_ml.zarr #norkystv3_2024010100-2024010220.zarr
     graph: graph-3-12.pt
     warm_start: null #specific checkpoint to start from, defaults to last.ckpt
 
