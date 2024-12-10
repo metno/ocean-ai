@@ -1,6 +1,16 @@
-# Find all nans that are not below seafloor or land and impute them
+# Authors: Ina Kullmann (Nov/Dec 2024)
 
-# Authors: Ina Kullmann 
+# Script to preprocess data before using anemoi-datasets.
+# Find all nans that are not below seafloor or land (i.e. in the ocean) and impute them.
+# Save result to .nc
+
+# Required: a seafloor mask for all layers, see code [..] (TODO: add codename here)
+
+# The code will use an interpolation method (nearest neighbor/linear) to impute the nan values in the ocean. 
+# These nan values may be dynamic, i.e. move in time. 
+# NOTE: the linear interpolation method did not manage to remove all nans, thus it is not recomended. 
+
+# TODO: document better
 
 import xarray as xr
 import matplotlib.pyplot as plt
