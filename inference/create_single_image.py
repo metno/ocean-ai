@@ -30,7 +30,7 @@ def main():
 
     s_time = time.time()
 
-    edata = get(args.file_era, args.leadtime)
+    #edata = get(args.file_era, args.leadtime)
     mdata = get(args.file_meps, args.leadtime)
     print(f"{time.time() - s_time}: Done loading data")
 
@@ -93,20 +93,24 @@ def main():
     cargs = dict(levels=levels, colors='b', linewidths=contour_lw, transform=trans)
 
     # Draw the global domain
-    edata["air_pressure_at_sea_level"] = gridpp.neighbourhood(edata["air_pressure_at_sea_level"], 1, gridpp.Mean)
-    mdata["air_pressure_at_sea_level"] = gridpp.neighbourhood(mdata["air_pressure_at_sea_level"], 1, gridpp.Mean)
-    cm = map.pcolormesh(edata["lons"], edata["lats"], edata["wind_speed_10m"], zorder=-10, **pargs)
-    # map.pcolormesh(edata["lons"], edata["lats"], edata["wind_speed_10m"], facecolor='none',
+    #edata["zeta"] = gridpp.neighbourhood(edata["zeta"], 1, gridpp.Mean)
+    #mdata["zeta"] = gridpp.neighbourhood(mdata["zeta"], 1, gridpp.Mean)
+    #cm = map.pcolormesh(edata["lons"], edata["lats"], edata["current_speed_1m"], zorder=-10, **pargs)
+    cm = map.pcolormesh(mdata["lons"], mdata["lats"], mdata["temperature_1"], zorder=-10, **pargs)
+    
+    # map.pcolormesh(edata["lons"], edata["lats"], edata["current_speed_1m"], facecolor='none',
     #         edgecolor=gray, lw=0.1, transform=trans)
-    map.contour(edata["lons"], edata["lats"], edata["air_pressure_at_sea_level"], zorder=-5, **cargs)
+    map.contour(mdata["lons"], mdata["lats"], mdata["zeta"], zorder=-5, **cargs)
 
     # Draw a magenta box around the regional domain
-    map.pcolormesh(mdata["lons"], mdata["lats"], mdata["wind_speed_10m"], facecolors='none', edgecolor='m', lw=3, transform=trans)
+    #map.pcolormesh(mdata["lons"], mdata["lats"], mdata["current_speed_1m"], facecolors='none', edgecolor='m', lw=3, transform=trans)
+    map.pcolormesh(mdata["lons"], mdata["lats"], mdata["temperature_1"], facecolors='none', edgecolor='m', lw=3, transform=trans)
 
     # Draw the regional domain
-    map.pcolormesh(mdata["lons"], mdata["lats"], mdata["wind_speed_10m"], **pargs)
-    # print(np.mean(mdata["air_pressure_at_sea_level"]))
-    map.contour(mdata["lons"], mdata["lats"], mdata["air_pressure_at_sea_level"], **cargs)
+    #map.pcolormesh(mdata["lons"], mdata["lats"], mdata["current_speed_1m"], **pargs)
+    map.pcolormesh(mdata["lons"], mdata["lats"], mdata["temperature_1"], **pargs)
+    # print(np.mean(mdata["zeta"]))
+    map.contour(mdata["lons"], mdata["lats"], mdata["zeta"], **cargs)
     if regular:
         map.set_extent([-65, 55, 30, 72], ccrs.PlateCarree())
     else:
@@ -117,10 +121,10 @@ def main():
         mpl.gca().set_aspect(2)
     leadtime = args.leadtime * 6
 
-    time_string = unixtime_to_string(edata["forecast_reference_time"])
+    time_string = unixtime_to_string(mdata["forecast_reference_time"])
     label = f"{time_string} forecast lead time: {leadtime:d}h"
 
-    time_string = unixtime_to_string(edata["time"][args.leadtime])
+    time_string = unixtime_to_string(mdata["time"][args.leadtime])
     label = f"{time_string}"
 
     # mpl.text(-43, 75, label, backgroundcolor='white')
@@ -132,7 +136,9 @@ def main():
     if show_colorbar:
         cax = map.inset_axes([1.01, 0, 0.02, 1.0])
         cbar = mpl.colorbar(cm, cax, extend="max")
-        cbar.set_label(label="10m wind speed (m/s)", fontsize=8) # weight='bold', 
+        #cbar.set_label(label="10m wind speed (m/s)", fontsize=8) # weight='bold', 
+        #cbar.set_label(label="10m wind speed (m/s)", fontsize=8) # weight='bold', 
+        cbar.set_label(label="1m temperature (C)", fontsize=8) # weight='bold', 
 
         for t in cbar.ax.get_yticklabels():
              t.set_fontsize(8)
@@ -164,14 +170,15 @@ def get(filename, leadtime):
         data["lons"] = lons
         data["forecast_reference_time"] = file.variables["time"][0]
         data["time"] = file.variables["time"][:]
-        x = file.variables["x_wind_10m"][leadtime, 0, ...]
-        y = file.variables["y_wind_10m"][leadtime, 0, ...]
-        data["wind_speed_10m"] = np.sqrt(x**2 + y**2)
-        if "air_pressure_at_sea_level" in file.variables:
-            data["air_pressure_at_sea_level"] = file.variables["air_pressure_at_sea_level"][leadtime, 0, ...] / 100
+        #x = file.variables["u_eastward_1"][leadtime, 0, ...]
+        #y = file.variables["v_northward_1"][leadtime, 0, ...]
+        #data["current_speed_1m"] = np.sqrt(x**2 + y**2)
+        data["temperature_1"] = file.variables["temperature_1"][leadtime, 0, ...]
+        if "zeta" in file.variables:
+            data["zeta"] = file.variables["zeta"][leadtime, 0, ...] / 100
         else:
-            print("Missing air_pressure_at_sea_level")
-            data["air_pressure_at_sea_level"] = np.zeros(x.shape, np.float32)
+            print("Missing zeta")
+            data["zeta"] = np.zeros(x.shape, np.float32)
 
     return data
 
