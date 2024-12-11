@@ -1,0 +1,32 @@
+dates:
+  start: 2024-01-01 00:00:00
+  #end:   2024-01-01 23:00:00
+  end:   2024-12-02 23:00:00
+  frequency: 1h
+build:
+  group_by: 24 #or daily
+resolution: o96
+statistics:
+  allow_nans:
+    - temperature
+    - salinity
+    - u_eastward
+    - v_northward
+    - w
+input:
+  netcdf:
+    path: /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/*
+    param:
+    - temperature
+    - salinity
+    - u_eastward
+    - v_northward
+    - w
+    - zeta
+    - Uwind_eastward
+    - Vwind_northward
+
+missing: []
+
+# run
+# anemoi-datasets create norkyst-prepro.yaml /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst_zarr/norkyst_v3_2024_01_01_temp.zarr --overwrite
