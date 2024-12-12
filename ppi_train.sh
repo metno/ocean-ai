@@ -6,7 +6,7 @@
 #$ -l h_rss=20G
 #$ -l h_rt=01:00:00
 #$ -q gpu-r8.q
-#$ -l h=gpu-04.ppi.met.no
+#$ -l h=sm-nx10077659-bc-compute.int.met.no
 #$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/OUT_$JOB_NAME.$JOB_ID
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/ERR_$JOB_NAME.$JOB_ID
 
