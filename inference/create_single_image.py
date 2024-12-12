@@ -89,28 +89,29 @@ def main():
         # map.coastlines(resolution='50m', zorder=20, linewidth=0.5)
     print(f"{time.time() - s_time}: Done coastlines")
 
-    pargs = dict(cmap=cmap, norm=norm, transform=trans, alpha=1.0)
+    pargs = dict(cmap=cmap, norm=norm, transform=trans, alpha=1.0, s=5)
     cargs = dict(levels=levels, colors='b', linewidths=contour_lw, transform=trans)
 
     # Draw the global domain
     #edata["zeta"] = gridpp.neighbourhood(edata["zeta"], 1, gridpp.Mean)
     #mdata["zeta"] = gridpp.neighbourhood(mdata["zeta"], 1, gridpp.Mean)
     #cm = map.pcolormesh(edata["lons"], edata["lats"], edata["current_speed_1m"], zorder=-10, **pargs)
-    cm = map.pcolormesh(mdata["lons"], mdata["lats"], mdata["temperature_1"], zorder=-10, **pargs)
+    #cm = map.pcolormesh(mdata["lons"], mdata["lats"], c=mdata["temperature_1"], zorder=-10, **pargs)
+    cm = map.scatter(mdata["lons"], mdata["lats"], c=mdata["temperature_1"], zorder=-10, **pargs)
     
     # map.pcolormesh(edata["lons"], edata["lats"], edata["current_speed_1m"], facecolor='none',
     #         edgecolor=gray, lw=0.1, transform=trans)
-    map.contour(mdata["lons"], mdata["lats"], mdata["zeta"], zorder=-5, **cargs)
+    #map.contour(mdata["lons"], mdata["lats"], mdata["zeta"], zorder=-5, **cargs)
 
     # Draw a magenta box around the regional domain
     #map.pcolormesh(mdata["lons"], mdata["lats"], mdata["current_speed_1m"], facecolors='none', edgecolor='m', lw=3, transform=trans)
-    map.pcolormesh(mdata["lons"], mdata["lats"], mdata["temperature_1"], facecolors='none', edgecolor='m', lw=3, transform=trans)
+    map.scatter(mdata["lons"], mdata["lats"], c=mdata["temperature_1"], facecolors='none', edgecolor='m', lw=3, transform=trans)
 
     # Draw the regional domain
     #map.pcolormesh(mdata["lons"], mdata["lats"], mdata["current_speed_1m"], **pargs)
-    map.pcolormesh(mdata["lons"], mdata["lats"], mdata["temperature_1"], **pargs)
+    map.scatter(mdata["lons"], mdata["lats"], c=mdata["temperature_1"], **pargs)
     # print(np.mean(mdata["zeta"]))
-    map.contour(mdata["lons"], mdata["lats"], mdata["zeta"], **cargs)
+    #map.contour(mdata["lons"], mdata["lats"], mdata["zeta"], **cargs)
     if regular:
         map.set_extent([-65, 55, 30, 72], ccrs.PlateCarree())
     else:
@@ -119,7 +120,8 @@ def main():
 
     if regular:
         mpl.gca().set_aspect(2)
-    leadtime = args.leadtime * 6
+    leadtime = args.leadtime 
+    print(leadtime)
 
     time_string = unixtime_to_string(mdata["forecast_reference_time"])
     label = f"{time_string} forecast lead time: {leadtime:d}h"
@@ -162,23 +164,19 @@ def get(filename, leadtime):
     with netCDF4.Dataset(filename) as file:
         lats = file.variables["latitude"][:]
         lons = file.variables["longitude"][:]
-        if len(lats.shape) == 1:
-            lons, lats = np.meshgrid(lons, lats)
-            # lons = lons.transpose()
-            # lats = lats.transpose()
+        
+        if False:
+            lmax = 1000 #int(lats.shape[0]/2)
+            lats = lats[:lmax]
+            lons = lons[:lmax]
+            data["temperature_1"] = file.variables["temperature_1"][leadtime, :lmax]
+        else:
+            data["temperature_1"] = file.variables["temperature_1"][leadtime, :]
+
         data["lats"] = lats
         data["lons"] = lons
         data["forecast_reference_time"] = file.variables["time"][0]
         data["time"] = file.variables["time"][:]
-        #x = file.variables["u_eastward_1"][leadtime, 0, ...]
-        #y = file.variables["v_northward_1"][leadtime, 0, ...]
-        #data["current_speed_1m"] = np.sqrt(x**2 + y**2)
-        data["temperature_1"] = file.variables["temperature_1"][leadtime, 0, ...]
-        if "zeta" in file.variables:
-            data["zeta"] = file.variables["zeta"][leadtime, 0, ...] / 100
-        else:
-            print("Missing zeta")
-            data["zeta"] = np.zeros(x.shape, np.float32)
 
     return data
 

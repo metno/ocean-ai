@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from data import get_data, get_era5_data, read_era5
+from data import get_data, get_norkyst_data, read_norkyst
 from utils import mesh, panel_config_auto, interpolate, plot
 from map_keys import map_keys
 
@@ -16,7 +16,7 @@ def field_plotter(
         time: str or pd.Timestamp,
         fields: list[str] or str,
         path: str,
-        file_era: str = None, 
+        file_norkyst: str = None, 
         lead_times: list[int] or int = 0,
         ens_size: int = None,
         plot_ens_mean: bool = False,
@@ -24,7 +24,7 @@ def field_plotter(
         xlim: tuple[float] = None,
         ylim: tuple[float] = None,
         resolution: float = None,
-        freq: str ='6h',
+        freq: str ='1h',
         **kwargs,
     ) -> None:
     """Plot ensemble field and potentially compare to ERA5.
@@ -71,13 +71,13 @@ def field_plotter(
     lat_grid, lon_grid = mesh(ds.latitude, ds.longitude, resolution) 
 
     # ERA5
-    include_era = False if file_era is None else True
-    if include_era:
-        ds_era5 = read_era5(fields, file_era, [time], max(lead_times)+1, freq=freq)
-        data_era5 = get_era5_data(ds_era5, 0, fields, max(lead_times)+1)
-        lat_grid_era, lon_grid_era = mesh(ds_era5.latitudes, ds_era5.longitudes, resolution)
+    include_norkyst = False if file_norkyst is None else True
+    if include_norkyst:
+        ds_nor = read_norkyst(fields, file_norkyst, [time], max(lead_times)+1, freq=freq)
+        data_nor = get_norkyst_data(ds_nor, 0, fields, max(lead_times)+1)
+        lat_grid_nor, lon_grid_nor = mesh(ds_nor.latitudes, ds_nor.longitudes, resolution)
 
-    n, ens_size = panel_config_auto(ens_size, include_era + plot_ens_mean)
+    n, ens_size = panel_config_auto(ens_size, include_norkyst + plot_ens_mean)
     
     for field in fields:
         units = map_keys[field]['units']
@@ -85,9 +85,9 @@ def field_plotter(
             # find vmin and vmax
             vmin = ds[field][:,lead_idx].min()
             vmax = ds[field][:,lead_idx].max()
-            if include_era:
-                vmin = min(vmin, data_era5[field][lead_time].min())
-                vmax = max(vmax, data_era5[field][lead_time].max())
+            if include_norkyst:
+                vmin = min(vmin, data_nor[field][lead_time].min())
+                vmax = max(vmax, data_nor[field][lead_time].max())
             cen = (vmax-vmin)/10.
             vmin += cen
             vmax -= cen
@@ -108,8 +108,8 @@ def field_plotter(
             for i in range(n[0]):
                 for j in range(n[1]):
                     data = ds[field][k, lead_idx]
-                    if data.ndim == 1:
-                        data = interpolate(data, ds.latitude, ds.longitude, resolution)
+                    #if data.ndim == 1:
+                    #    data = interpolate(data, ds.latitude, ds.longitude, resolution)
 
                     # plot
                     im = plot(axs[i,j], data, lat_grid, lon_grid, **kwargs)
@@ -126,20 +126,20 @@ def field_plotter(
             # extra panels
             if plot_ens_mean:
                 data = ds[field][:,lead_idx].mean(axis=0)
-                if data.ndim == 1:
-                    data = interpolate(data, ds.latitude, ds.longitude, resolution)
+                #if data.ndim == 1:
+                #    data = interpolate(data, ds.latitude, ds.longitude, resolution)
                 sec_last_ax = axs[n[0]-1, n[1]-2]
                 im = plot(sec_last_ax, data, lat_grid, lon_grid, **kwargs)
                 sec_last_ax.set_title("Ensemble mean")
                 sec_last_ax.set_xlim(xlim)
                 sec_last_ax.set_ylim(ylim)
 
-            if include_era:
-                data = data_era5[field][lead_time]
-                data = interpolate(data, ds_era5.latitudes, ds_era5.longitudes, resolution)
+            if include_norkyst:
+                data = data_nor[field][lead_time]
+                #data = interpolate(data, ds_nor.latitudes, ds_nor.longitudes, resolution)
                 last_ax = axs[n[0]-1, n[1]-1]
-                im = plot(last_ax, data, lat_grid_era, lon_grid_era, **kwargs)
-                last_ax.set_title("ERA5")
+                im = plot(last_ax, data, lat_grid_nor, lon_grid_nor, **kwargs)
+                last_ax.set_title("Norkyst v3")
                 last_ax.set_xlim(xlim)
                 last_ax.set_ylim(ylim)
 
@@ -158,9 +158,9 @@ if __name__ == "__main__":
 
     field_plotter(
         time="2022-01-13T00", 
-        fields='wind_speed_10m', 
+        fields='temperature_1', 
         path="/pfs/lustrep3/scratch/project_465000454/anemoi/experiments/ni1_b_new/inference/epoch_010/predictions/", 
-        file_era="/pfs/lustrep3/scratch/project_465000454/anemoi/datasets/ERA5/aifs-ea-an-oper-0001-mars-n320-1979-2022-6h-v6.zarr", 
+        file_norkyst="/pfs/lustrep3/scratch/project_465000454/anemoi/datasets/ERA5/aifs-ea-an-oper-0001-mars-n320-1979-2022-6h-v6.zarr", 
         lead_times=[10,40], 
         ens_size=2,
         plot_ens_mean=True,
