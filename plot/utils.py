@@ -4,14 +4,19 @@ import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
+#-----------------------------------------------------------------
+# These functions are either a copy of or inspired by
+# anemoi-utils/anemoi-utils/utils.py
+
 def mesh(lat, lon, increment):
+    """ TODO"""
     lat = np.arange(lat.min(), lat.max(), increment)
     lon = np.arange(lon.min(), lon.max(), increment)
     lat_grid, lon_grid = np.meshgrid(lat, lon)
     return lat_grid.T, lon_grid.T
 
 def interpolate(data, lat, lon, increment):
-    """ """
+    """ TODO"""
     era_lat_gridded, era_lon_gridded = mesh(lat, lon, increment)
 
     # Interpolate irregular ERA grid to regular lat/lon grid
@@ -115,5 +120,6 @@ def simple_mesh_plot(var_grid,lat_grid,lon_grid,time,var_name):
     return fig, ax1, heatmap#, cbar
 
 def update_anim(frame,ax,heatmap,var,time):
+    """TODO"""
     heatmap.set_array(var[frame].ravel())
     ax.set_title(f'Time step: {time[frame]}')
