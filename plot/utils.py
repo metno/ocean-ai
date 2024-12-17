@@ -94,12 +94,14 @@ def subset_variable(var,lat,lon,lat_min,lat_max,lon_min,lon_max):
 
     return filtered_var,filtered_lat,filtered_lon
 
-def simple_mesh_plot(var_grid,lat_grid,lon_grid,time,var_name):
+def simple_mesh_plot(var_grid,lat_grid,lon_grid,time,var_name,vmin=-4,vmax=26):
     """Simple pcolormesh plot"""
     # TODO: add options for **kwargs
     kwargs = {}
-    kwargs['shading'] = 'auto' #kwargs['vmin'] = vmin; kwargs['vmax'] = vmax #se også på norm
+    kwargs['shading'] = 'auto' ##se også på norm
     kwargs['cmap'] = 'viridis'
+    kwargs['vmin'] = vmin
+    kwargs['vmax'] = vmax 
 
     fig, ax = plt.subplots(figsize=(8, 6),squeeze=False, subplot_kw={'projection': ccrs.PlateCarree()})
     ax1=ax[0,0]
@@ -113,11 +115,11 @@ def simple_mesh_plot(var_grid,lat_grid,lon_grid,time,var_name):
     #ax1.contourf(lon_grid, lat_grid, var_grid)
 
     # TODO improve this cbar and fig size etc
-    #cbar = fig.colorbar(heatmap, ax=ax1, orientation='vertical')
-    #cbar.set_label(var_name)
+    cbar = fig.colorbar(heatmap, ax=ax1, orientation='vertical')
+    cbar.set_label(var_name)
     ax1.set_title(f'Time step: {time}')
 
-    return fig, ax1, heatmap#, cbar
+    return fig, ax1, heatmap
 
 def update_anim(frame,ax,heatmap,var,time):
     """TODO"""
