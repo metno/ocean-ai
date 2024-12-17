@@ -24,7 +24,7 @@ dataloader:
     dataset: ${hardware.paths.data}/${hardware.files.dataset}
     #trimedge branch
     mask_from_dataset: 
-      dataset: /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/mask_2024010100-2024010320.zarr
+      dataset: /lustre/storeB/project/fou/hi/foccus/datasets/mask_2024010100-2024010320.zarr
       field: land_binary_mask_0
 
   limit_batches: 
@@ -32,17 +32,17 @@ dataloader:
     validation: 10
   training:
     start: 2024-01-01
-    end: 2024-01-01
+    end: 2024-01-31
     dataset: ${dataloader.dataset} 
     frequency: 1
   validation:
-    start: 2024-01-02
-    end: 2024-01-02
+    start: 2024-02-01
+    end: 2024-02-28
     dataset: ${dataloader.dataset}
     frequency: 1
   test:
-    start: 2024-01-01
-    end: 2024-01-02
+    start: 2024-03-01
+    end: 2024-03-30
     dataset: ${dataloader.dataset}
     frequency: 1
 
@@ -52,12 +52,12 @@ hardware:
   num_gpus_per_model: 1
   accelerator: auto
   paths:
-    data: /lustre/storeB/project/fou/hi/foccus//datasets/prepro_norkyst_tests/ #/lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/
-    output_base: /lustre/storeB/project/fou/hi/foccus/training-output/ 
+    data: /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst_tests/ 
+    output_base: /lustre/storeB/project/fou/hi/foccus/outputs/ #does nothing?
     output: null #do not change this, it will be modified in code to be output_base + run_id.
     graph: /lustre/storeB/project/fou/hi/foccus/graphs/
   files:
-    dataset: norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr #norkyst800_his_zdepth_2024_01_01-03_temp_m00_AN_ml.zarr #norkystv3_2024010100-2024010220.zarr
+    dataset: norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr
     graph: graph-3-12.pt
     warm_start: null #specific checkpoint to start from, defaults to last.ckpt
 
