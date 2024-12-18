@@ -62,7 +62,7 @@ def plot(ax, data, lat_grid, lon_grid, **kwargs):
     return im
 
 #-----------------------------------------------------------------
-def subset_variable(var,lat,lon,lat_min,lat_max,lon_min,lon_max):
+def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.83083,lon_max=15.59072):
     """
     Subsets the dataset to the specified longitude and latitude range,
     and returns new arrays of the variable, longitude and latitude.
@@ -90,9 +90,22 @@ def subset_variable(var,lat,lon,lat_min,lat_max,lon_min,lon_max):
     # Apply the mask to filter the data
     filtered_lon = lon[combined_mask]
     filtered_lat = lat[combined_mask]
-    filtered_var = var[:, combined_mask]
+    if len(var.shape)==2:
+        filtered_var = var[combined_mask]
+    else: #time dimension
+        filtered_var = var[:, combined_mask]
 
     return filtered_var,filtered_lat,filtered_lon
+
+def plot_landmask(ax,color='black',file='/lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/surface_mask_contour_paths.npy'):
+    # See /lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/save_surface_contour.py
+    contour_loaded = np.load(file, allow_pickle=True)
+
+    # Plot each contour path
+    for vertices in contour_loaded:
+        ax.plot(vertices[:, 0], vertices[:, 1], color=color)
+
+    return
 
 def simple_mesh_plot(var_grid,lat_grid,lon_grid,time,var_name,vmin=-4,vmax=26):
     """Simple pcolormesh plot"""
@@ -105,19 +118,22 @@ def simple_mesh_plot(var_grid,lat_grid,lon_grid,time,var_name,vmin=-4,vmax=26):
 
     fig, ax = plt.subplots(figsize=(8, 6),squeeze=False, subplot_kw={'projection': ccrs.PlateCarree()})
     ax1=ax[0,0]
-    # TODO: get land seamask and plot that as coastline
-    ax1.add_feature(cfeature.COASTLINE)
-    ax1.add_feature(cfeature.BORDERS, linestyle=':')
-    ax1.add_feature(cfeature.LAND, edgecolor='black')
+    ax1.add_feature(cfeature.BORDERS, linestyle=':') # the coastline feature is not accurate enough
     
     heatmap = ax1.pcolormesh(lon_grid, lat_grid, var_grid, **kwargs)
     # TODO: idea to use contour?
     #ax1.contourf(lon_grid, lat_grid, var_grid)
+    
+    # Plot the land-sea mask
+    plot_landmask(ax1)
 
     # TODO improve this cbar and fig size etc
     cbar = fig.colorbar(heatmap, ax=ax1, orientation='vertical')
     cbar.set_label(var_name)
     ax1.set_title(f'Time step: {time}')
+
+    ax1.set_xlim([lon_grid.min(), lon_grid.max()])
+    ax1.set_ylim([lat_grid.min(), lat_grid.max()])
 
     return fig, ax1, heatmap
 
