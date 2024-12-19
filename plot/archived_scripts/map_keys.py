@@ -1,3 +1,5 @@
+# Used to transform fields from infer output into same metadata as input+++
+
 
 def one_field(ds, slc, field):
     """Get a field which does not need transformation."""

@@ -1,3 +1,4 @@
+# TODO: use functions from ocean-ai/plot to make better plots
 
 import xarray as xr
 import matplotlib.pyplot as plt
