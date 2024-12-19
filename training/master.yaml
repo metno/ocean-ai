@@ -60,7 +60,7 @@ hardware:
   files:
     #dataset: norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr #norkyst800_his_zdepth_2024_01_01-03_temp_m00_AN_ml.zarr #norkystv3_2024010100-2024010220.zarr
     dataset: norkystv3_2024010100-2024010220.zarr
-    graph: graph-17-12.pt
+    graph: graph-17-12-res7.pt
     warm_start: null #specific checkpoint to start from, defaults to last.ckpt
 
 diagnostics:
@@ -77,7 +77,7 @@ diagnostics:
 # Set clobber: False and specify the correct path and file in hardware to load graph, the path below is 
 # only used for saving graphs.
 graph:
-  overwrite: True
+  overwrite: False
   nodes:
     data: 
       node_builder:
@@ -90,7 +90,7 @@ graph:
     hidden:
       node_builder:
         _target_: anemoi.graphs.nodes.LimitedAreaTriNodes # options: ZarrDatasetNodes, NPZFileNodes, TriNodes
-        resolution: 5 # grid resolution for npz (o32, o48, ...)
+        resolution: 7 # grid resolution for npz (o32, o48, ...)
         reference_node_name: ${graph.data}
 
   #mulig dette kan fjernes

@@ -11,6 +11,7 @@
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/logs/ERR_$JOB_NAME.$JOB_ID
 
 DIR=/lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/
+cd $DIR
 export HYDRA_FULL_ERROR=1
 export ANEMOI_BASE_SEED=1
 conda deactivate
