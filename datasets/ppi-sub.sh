@@ -1,13 +1,20 @@
 #$ -S /bin/bash
-#$ -l h_rt=2:00:00
+#$ -l h_rt=48:00:00
 #$ -q research-r8.q
-#$ -l h_rss=64G,mem_free=64G,h_data=64G
-#$ -wd /lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/logs/
-#$ -N anemoi-datasets
+#$ -l h_rss=20G,mem_free=20G,h_data=20G
+#$ -o /lustre/storeB/project/fou/hi/foccus/outputs/OUT_$JOB_NAME.$JOB_ID
+#$ -e /lustre/storeB/project/fou/hi/foccus/outputs/ERR_$JOB_NAME.$JOB_ID
+#$ -N h
+#$ -t 1-366
 
-bash -l
+YEAR=2024
+FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
+OUTDIR=$FOCCUS_DIR/datasets/
+#YAMLFILE=$FOCCUS_DIR/mateuszm/OceanAI/datasets/mask_zarr.yaml
+ZARRFILE=$OUTDIR/h_norkyst_${YEAR}.zarr
+
 conda deactivate
-source /lustre/storeB/project/fou/hi/foccus/python-envs/anemoi-env/bin/activate
-anemoi-datasets create /lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/datasets/mask_zarr.yaml /lustre/storeB/project/fou/hi/foccus/mateuszm/anemoi/datasets/mask_2024010100-2024010320.zarr
-
-
+source $FOCCUS_DIR/python-envs/anemoi-env/bin/activate
+#anemoi-datasets init $YAMLFILE $ZARRFILE --overwrite 
+anemoi-datasets load $ZARRFILE --part $SGE_TASK_ID/366
+#anemoi-datasets finalize $ZARRFILE
