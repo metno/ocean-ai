@@ -17,4 +17,4 @@ export HYDRA_FULL_ERROR=1
 export ANEMOI_BASE_SEED=1
 conda deactivate
 source $DIR/python-envs/new-anemoi-env/bin/activate
-anemoi-training train --config-dir=$DIR/ina/ocean-ai/training/ --config-name=master.yaml
+anemoi-training train --config-dir=$DIR/ina/ocean-ai/training/ --config-name=main.yaml
