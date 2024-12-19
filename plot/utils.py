@@ -90,7 +90,7 @@ def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.830
     # Apply the mask to filter the data
     filtered_lon = lon[combined_mask]
     filtered_lat = lat[combined_mask]
-    if len(var.shape)==2:
+    if len(var.shape)==3:
         filtered_var = var[combined_mask]
     else: #time dimension
         filtered_var = var[:, combined_mask]
