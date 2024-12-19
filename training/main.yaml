@@ -23,7 +23,7 @@ dataloader:
   dataset:
     dataset: ${hardware.paths.data}/${hardware.files.dataset}
     #trimedge branch
-    mask_from_dataset
+    mask_from_dataset:
       dataset: //lustre/storeB/project/fou/hi/foccus/datasets/mask_norkyst_2024.zarr
       field: land_binary_mask_0
 
