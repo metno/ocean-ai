@@ -1,0 +1,346 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+%\usepackage{amsfonts}
+\usepackage{listings}
+
+\begin{document}
+
+\title{Some notes on Neural Networks}
+\author{Ina Kullmann}
+\date{\today}  % Automatically inserts today's date
+
+\maketitle  % Generates the title
+
+\section{Intro Definitions}
+    
+\subsection*{Layers and Neurons}
+A Neural Network is composed of layers of neurons. Each neuron receives input, applies a transformation, and passes the output to the next layer. The transformation typically involves a weighted sum of the inputs followed by an activation function.
+
+The neurons are the interconnected units which process data and learn. 
+There are ofte three types of layers in a neural network: input, hidden, and output layers, where there are usually many hidden layers. 
+
+\subsection*{Hyperparameters}
+Like for example learning rate, numper of layers, number of neurons per layer, batch size, number of epochs and the activation function. 
+
+\subsection*{Weights}
+A parameter that the model learns during training. The weights are multiplied by the input data to determine the output of a neuron. 
+So, it "connects the neurons" in different layers. Each weight is associated with a connection between two neurons and determines the strength and direction of the influence that one neuron has on another. 
+
+\subsection*{Biases}
+A parameter that the model learns during training. The bias is added to the weighted sum before the result is passed through the activation function. The bias allows the activation function to be shifted left or right, which can be critical for the model to learn complex patterns. 
+
+\section{Epochs and Batch Size}
+An Epoch is a single pass through the entire dataset. Usually we divide the dataset into smaller batches (e.g. chunks) to speed up the training process. The batch size is the number of samples processed in one iteration. 
+
+Usually, the training is performed in multiple epochs, where each epoch consists of multiple batches. A psedo code for training is as follows:
+
+\begin{lstlisting}[language=Python]
+for each epoch in range(num_epochs):
+    for each batch in range(num_batches):
+        # 1) Forward pass
+        # 2) Loss calculation
+        # 3) Backward pass
+        # 4) Optimization (update weights and biases)
+\end{lstlisting}
+which is repeated until convergence. The steps 1-4 above will be described in more detail in the following sections. Often the models parameters (weights and biases) are updated after each batch, but there are also other strategies. 
+
+\paragraph{Convergence Criteria}
+The iterative process continues until one or more of the following convergence criteria are met:
+
+\begin{enumerate}
+    \item Maximum Number of Epochs: The process runs for a predefined number of epochs.
+    \item Loss Threshold: The loss falls below a predefined threshold.
+    \item Early Stopping: The loss on a validation dataset stops improving for a certain number of consecutive epochs, indicating that the model has likely reached its optimal performance.
+\end{enumerate}
+
+\paragraph{Practical Considerations on how to choose batch size and number of epochs:}
+\begin{itemize}
+    \item Batch Size: Affects memory usage and computational efficiency. Larger batches offer more stable gradient estimates but require more memory.
+    \item Epochs: More epochs generally improve learning but at the risk of overfitting if continued too long.
+\end{itemize}
+    
+    
+\subsection{Forward Pass}
+Step 1 above. Involves passing the input data through the network once to get the predicted output. 
+
+\subsection{Loss Calculation}
+Step 2 above. The loss function measures how well the models's predictions match the actual target values. The loss function is a measure of the error between the predicted output and the actual output. Often something like the mean squared error is used. 
+
+\subsubsection*{Loss Functions}
+Add stuff here...
+
+\subsection{Backward pass}
+Step 3 above. The backward pass involves computing the gradients of the loss with respect to the weights and biases. This is done layer by layer, starting from the output layer and moving backwards to the input layer. 
+
+\subsection{Optimization}
+Step 4 above. This is where the weights and the biases are updated to minimize the loss. This is done using an optimization algorithm like gradient descent, Adam, etc. 
+
+\subsubsection*{Gradient Decent}
+
+Update the weights and biases by iteratively moving them in the opposite direction of the gradient of the loss function. This can be represented as:
+
+\[ 
+w_{ij}^{(new)} = w_{ij}^{(old)} - \eta \cdot \frac{\partial L}{\partial w_{ij}} 
+\]
+%
+Where ($w_{ij}$) is the weight connecting neuron ($i$) to neuron ($j$), ($\eta$) is the learning rate, and ($\frac{\partial L}{\partial w_{ij}}$) is the gradient of the loss ($L$) with respect to ($w_{ij}$).
+%
+Similarly, biases are updated using their respective gradients:
+
+\[ 
+b_{j}^{(new)} = b_{j}^{(old)} - \eta \cdot \frac{\partial L}{\partial b_{j}} 
+\]
+
+\subsubsection*{Learning Rate}
+The learning rate is a crucial hyperparameter that controls size of the steps taken during the optimization process when updating the model's parameters (weights and biases). It scales the gradient update to prevent overshooting the minimum of the loss function, which can cause divergence. That is, taking too large steps can cause the optimization to oscillate around the minimum (or diverge), while taking too small steps causes slow convergence. 
+
+\paragraph{Choosing the Learning Rate}
+\begin{enumerate}
+    \item Manual Tuning: Experimenting with different values to find the optimal learning rate.
+    \item Learning Rate Schedules: Adjusting the learning rate during training:
+    \begin{itemize}
+        \item Step Decay: Reducing the learning rate by a factor at certain intervals.
+        \item Exponential Decay: Reducing the learning rate exponentially over epochs.
+        \item Polynomial Decay: Reducing the learning rate based on a polynomial function of the epoch.
+    \end{itemize}
+    \item Adaptive Learning Rate Methods:
+    \begin{itemize}
+        \item Adam (Adaptive Moment Estimation): Combines the advantages of two other extensions of stochastic gradient descent, namely AdaGrad and RMSProp, and adapts the learning rate for each parameter.
+        \item RMSProp: Adjusts the learning rate based on a moving average of recent gradients.
+        \item AdaGrad: Adapts the learning rate based on the history of gradients.
+    \end{itemize}
+\end{enumerate}
+It is quite normal to plot the learning rate versus loss to identify an optimal learning rate. If the loss is not decreasing or is highly unstable during training, consider adjusting the learning rate.
+
+\section{Activation Functions}
+Activation functions introduce non-linearity to the model, allowing it to learn complex patterns. Without non-linear activation functions, a neural network would behave like a linear model, regardless of the number of layers.
+They are applied to the weighted sum of the inputs and the bias before passing the result to the next layer. 
+
+In neural network design, the choice of activation functions can vary depending on the specific architecture and the problem being addressed. Different layers might use different activation functions (but same for all neurons in a layer). 
+
+\subsection{Common Activation Functions}
+
+\begin{itemize}
+    \item Sigmoid: Commonly used in the output layer for binary classification problems.
+    \[\sigma(x) = \frac{1}{1 + e^{-x}} \]
+    it squashes the output between 0 and 1, useful for binary classification problems. 
+    \item Tanh: Often used in hidden layers, especially in recurrent neural networks. 
+    \[ \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} \]
+    it squashes the output between -1 and 1. May suffer from the vanishing gradient problem at extreme input values.
+    \item ReLU (Rectified Linear Unit): Very popular in hidden layers of deep neural networks due to its simplicity and efficiency.
+    \[ \text{ReLU}(x) = \max(0, x) \]
+    it will output the input directly if it is positive, otherwise zero. It overcomes the vanishing gradient problem. 
+    \item Leaky ReLU: A variant of ReLU that allows a small gradient when the unit is not active.
+    \[ \text{Leaky ReLU}(x) = \max(0.01x, x) \]
+    it will output the input directly if it is positive (and larger than 0.01x), otherwise a small fraction of the input. 
+    \item Softmax: Used in the output layer for multi-class classification problems. 
+    \[ \text{Softmax}(x_i) = \frac{e^{x_i}}{\sum_{j}e^{x_j}} \]
+    it squashes the output between 0 and 1, and makes sure the sum of the outputs is 1, i.e. it converts the output to a probability distribution. 
+    Also called softargmax or normalized exponential function.
+\end{itemize}
+
+\section{Covolutional Neural Networks (CNNs)}
+
+A specialized type of neural network particularly well-suited for processing grid-like data such as images.
+
+\paragraph{Key Components of CNNs}
+\begin{itemize}
+    \item Convolutional Layers: Convolutional layers apply convolution operations to the input data, detecting patterns such as edges, textures, and more complex features. The convolution operation involves sliding a filter (kernel) over the input data and computing the dot product at each position. This produces a feature map.
+    \item Pooling Layers: Pooling layers reduce the spatial dimensions of the feature maps, making the computation more manageable and introducing some degree of translational invariance. Common pooling operations include max pooling and average pooling. 
+    \item Fully Connected Layers: applied after convolutional and pooling layers. These layers operate like traditional neural networks, where each neuron is connected to every neuron in the previous layer.
+    \item Activation Functions: like above. 
+\end{itemize}
+Note that filters are learned during training, allowing the network to automatically detect features that are important for the task at hand. The filters are adjusted through the training process using backpropagation and optimization algorithms.
+
+\subsubsection{Workflow of a CNN}
+\begin{enumerate}
+    \item Forward pass:  the input data is passed through the network layer by layer, with each layer performing specific operations to transform the input. This includes: 
+    \begin{itemize}
+        \item input, convolutional (incl. activation func.), pooling layers, where the latter two may be repeated multiple times.
+        \item flattening to 1D vector 
+        \item fully connected layers (incl. activation func.)
+        \item output layer (incl. another type of activation func. usually)
+    \end{itemize}
+    \item Loss calculation
+    \item Backpropagation
+    \begin{itemize}
+        \item Compute Gradients: Calculate the gradient of the loss function with respect to the output of the network. Use the chain rule to propagate these gradients backward through the network, layer by layer.
+        \item Update Weights: Use the computed gradients to adjust the weights of each layer. An optimization algorithm (e.g., gradient descent, Adam) is used to update the weights in a direction that reduces the loss. NOTE: For CNNs the term "weights" includes both the filters in the convolutional layers and the weights in the fully connected layers. Both are updated during training using backpropagation and optimization algorithms.
+    \end{itemize}
+\end{enumerate}
+%
+Steps 1-3 are repeated for multiple iterations (epochs) over the training dataset.
+During each iteration, the network weights are adjusted to progressively reduce the loss and improve the model's performance.
+
+\subsection{Details of the Convolution Operation}
+
+Assume we have an input image ($I$) of size ($H \times W$) and a filter ($K$) of size ($h \times w$).
+
+\[ I = \begin{bmatrix} i_{11} & i_{12} & \cdots & i_{1W} \\ i_{21} & i_{22} & \cdots & i_{2W} \\ \vdots & \vdots & \ddots & \vdots \\ i_{H1} & i_{H2} & \cdots & i_{HW} \end{bmatrix} \]
+
+\[ K = \begin{bmatrix} k_{11} & k_{12} & \cdots & k_{1w} \\ k_{21} & k_{22} & \cdots & k_{2w} \\ \vdots & \vdots & \ddots & \vdots \\ k_{h1} & k_{h2} & \cdots & k_{hw} \end{bmatrix} \]
+%
+Convolution Calculation:
+The filter ($K$) is applied to the input image ($I$) by sliding it over the image. At each position, the dot product of the filter and the corresponding patch of the input image is computed. The result of this operation is a single value in the feature map.
+
+If ($I$) is convolved with ($K$) with a stride ($s$), the value at position ($(i, j)$) in the feature map ($F$) is given by:
+
+\[ F_{ij} = \sum_{m=1}^{h} \sum_{n=1}^{w} I_{(i-1)s+m, (j-1)s+n} \cdot K_{mn} 
+\]
+%
+Example Calculation:
+For simplicity, let's consider a 3x3 input image and a 2x2 filter with stride 1:
+
+\[ I = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9 \end{bmatrix} \]
+
+\[ K = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix} \]
+%
+The feature map ($F$) is calculated as follows:
+
+\begin{align*}
+F_{11} &= (1 \cdot 1) + (2 \cdot 0) + (4 \cdot 0) + (5 \cdot -1) = 1 - 5 = -4 \\
+F_{12} &= (2 \cdot 1) + (3 \cdot 0) + (5 \cdot 0) + (6 \cdot -1) = 2 - 6 = -4 \\
+F_{21} &= (4 \cdot 1) + (5 \cdot 0) + (7 \cdot 0) + (8 \cdot -1) = 4 - 8 = -4 \\
+F_{22} &= (5 \cdot 1) + (6 \cdot 0) + (8 \cdot 0) + (9 \cdot -1) = 5 - 9 = -4
+\end{align*}
+Thus, the resulting feature map ($F$) is:
+
+\[ F = \begin{bmatrix} -4 & -4 \\ -4 & -4 \end{bmatrix} \]
+%
+The dimensions of the feature map ($F$) depend on the dimensions of the input image ($I$), the filter ($K$), the stride ($s$), and whether padding is used.
+
+Feature Map Values: Each value in the feature map corresponds to the strength of the feature detected by the filter at that specific location in the input image. Positive and Negative Values: The sign and magnitude of the values indicate the presence and strength of the feature. For example, a positive value might indicate the presence of an edge.
+
+\section{Graph Neural Networks (GNNs)}
+TODO
+
+
+
+
+Prompt
+Lets consider another simplified example. Lets say we have data which are on a small 4x4 grid representing temperature and salinity at each grid point in the ocean. The salinity and temperature evolve in time, so that we have data for 24 hourly time steps in total. We would like the model to predict the next time step, e.g. the 25th time step of both the salinity and temperature at each grid point. This is different from producing a scalar image classification output. What type of network would suit this task?
+
+Ignore the fact that the training data is small and that the evolution of the temperature and salinity depend on other physical parameters which are not included in the training data. 
+
+
+
+
+\section{Other stuff}
+\subsection{Training, validation and test datasets}
+Usually, the dataset is divided into three parts: training, validation, and test datasets. The training dataset is used to train the model, the validation dataset is used to tune the hyperparameters, and the test dataset is used to evaluate the model's performance. 
+
+The three datasets should now overlap, so that the model is not trained on the validation or test datasets. So the first step after training, or during training, is to evaluate the model on the validation dataset (e.g. to monitor model performance given different hyperparameters). Then, after the model is trained, it is evaluated on the test dataset to get an unbiased estimate of the model's "final" performance, after all hyperparameters have been tuned. The training dataset provides a way to estimate the expected performance on new, unseen data.  
+
+\section{Example}
+
+1) Input Matrix (Grayscale Image)
+\[
+\text{Input Image} = \begin{bmatrix} 
+0.5 & 0.2 \\ 
+0.1 & 0.7 
+\end{bmatrix}
+\]
+%
+2) Flatten the Input
+\[
+x_\text{input} = \begin{bmatrix} 
+0.5 & 0.2 & 0.1 & 0.7 
+\end{bmatrix}
+\]
+%
+Weights and Biases for the Hidden Layer (arbitrarily initialization)
+\[
+W_1 = \begin{bmatrix} 
+0.1 & 0.2 \\ 
+0.3 & 0.4 \\ 
+0.5 & 0.6 \\ 
+0.7 & 0.8 
+\end{bmatrix}
+\]
+\[
+b_1 = \begin{bmatrix} 
+0.1 & 0.2 
+\end{bmatrix}
+\]
+%
+3) Input to Hidden Layer (e.g. a weighted sum)
+\begin{align*}
+H_\text{in} &= x_\text{input} \cdot W_1 + b_1 \\
+&= \begin{bmatrix} 
+0.5 & 0.2 & 0.1 & 0.7 
+\end{bmatrix} \cdot \begin{bmatrix} 
+0.1 & 0.2 \\ 
+0.3 & 0.4 \\ 
+0.5 & 0.6 \\ 
+0.7 & 0.8 
+\end{bmatrix} + \begin{bmatrix} 
+0.1 & 0.2 
+\end{bmatrix} \\
+&= \begin{bmatrix}
+0.5*0.1 + 0.2*0.3 + 0.1*0.5 + 0.7*0.7,
+    0.5*0.2 + 0.2*0.4 + 0.1*0.6 + 0.7*0.8
+\end{bmatrix} \\
+&+ \begin{bmatrix} 
+0.1 & 0.2 
+\end{bmatrix} \\
+&= \begin{bmatrix} 
+0.65 & 0.8 
+\end{bmatrix} + \begin{bmatrix} 
+0.1 & 0.2 
+\end{bmatrix}\\
+&= \begin{bmatrix} 
+0.75 & 1.0 
+\end{bmatrix}
+\end{align*}
+%
+4) Apply ReLU Activation Function ($\text{ReLU}(x) = \max(0, x)$)
+\[
+H_\text{out} = \text{ReLU}( \begin{bmatrix} 
+0.75 & 1.0 
+\end{bmatrix} )
+= \begin{bmatrix} 
+0.75 & 1.0 
+\end{bmatrix}
+\]
+%
+5) Weights and Bias for the Output Layer (again random initialization)
+\[
+W_2 = \begin{bmatrix} 
+0.9 \\ 
+1.0 
+\end{bmatrix}
+\]
+\[
+b_2 = 0.3
+\]
+%
+Input to Output Layer, e.g. compute the input to the output neuron:
+\begin{align*}
+O_\text{in} &= H_\text{out} \cdot W_2 + b_2 \\
+&= \begin{bmatrix} 
+0.75 & 1.0 
+\end{bmatrix} \cdot \begin{bmatrix} 
+0.9 \\ 
+1.0 
+\end{bmatrix} + 0.3 \\
+&= \begin{bmatrix} 
+0.75 \cdot 0.9 + 1.0 \cdot 1.0 
+\end{bmatrix} + 0.3 \\
+&= \begin{bmatrix} 
+0.675 + 1.0 
+\end{bmatrix} + 0.3 \\
+&= 1.975
+\end{align*}
+%
+Apply Sigmoid Activation Function $\big( \text{Sigmoid}(x) = \frac{1}{1 + e^{-x}} \big)$
+
+\[
+O_\text{out} = \text{Sigmoid}(1.975) = \frac{1}{1 + e^{-1.975}} \approx 0.878
+\]
+
+
+
+
+\end{document}
