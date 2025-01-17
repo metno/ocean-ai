@@ -19,7 +19,6 @@ echo $(pwd -P)
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch.sh
 CONFIG_DIR=$(pwd -P)/training/
 CONTAINER=$PROJECT_DIR/container/ocean-ai.sif
-#VENV=$PROJECT_DIR/python-envs/anemoi-env-trimedge-branch/
 VENV=/pfs/lustrep2/projappl/project_465001629/python-envs/anemoi-env-trimedge
 export VIRTUAL_ENV=$VENV
 

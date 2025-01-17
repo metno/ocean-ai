@@ -53,8 +53,8 @@ hardware:
   accelerator: auto
   paths:
     data: /scratch/project_465001629/datasets/ 
-    output_base: /scratch/project_465001629/outputs2/ #does nothing?
-    output: null #do not change this, it will be modified in code to be output_base + run_id.
+    output_base: /pfs/lustrep2/scratch/project_465001629/outputs/
+    output: scratch/project_465001629/outputs/
     graph: /scratch/project_465001629/graphs/
   files:
     dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_m00_AN_ml.zarr
