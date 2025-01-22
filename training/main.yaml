@@ -32,17 +32,17 @@ dataloader:
     validation: 10
   training:
     start: 2024-01-01
-    end: 2024-01-31
+    end: 2024-01-02
     dataset: ${dataloader.dataset} 
     frequency: 1
   validation:
-    start: 2024-02-01
-    end: 2024-02-28
+    start: 2024-01-03
+    end: 2024-01-03
     dataset: ${dataloader.dataset}
     frequency: 1
   test:
-    start: 2024-03-01
-    end: 2024-03-30
+    start: 2024-01-01
+    end: 2024-01-03
     dataset: ${dataloader.dataset}
     frequency: 1
 
@@ -54,10 +54,10 @@ hardware:
   paths:
     data: /scratch/project_465001629/datasets/ 
     output_base: /pfs/lustrep2/scratch/project_465001629/outputs/
-    output: scratch/project_465001629/outputs/
+    output: /scratch/project_465001629/outputs/
     graph: /scratch/project_465001629/graphs/
   files:
-    dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_m00_AN_ml.zarr
+    dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr
     graph: graph-17-12-res5.pt
     warm_start: null #specific checkpoint to start from, defaults to last.ckpt
 

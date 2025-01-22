@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH --job-name=ocean-ai   # Job name
-#SBATCH --output=output.o%j # Name of stdout output file
-#SBATCH --error=error.e%j  # Name of stderr error file
+#SBATCH --output=outputs/out_files/output.o%j # Name of stdout output file
+#SBATCH --error=outputs/err_files/error.e%j  # Name of stderr error file
 #SBATCH --partition=dev-g  # partition name
 #SBATCH --nodes=1               # Total number of nodes 
 #SBATCH --ntasks-per-node=1     # 8 MPI ranks per node, 16 total (2x8)
@@ -35,4 +35,6 @@ srun \
                      -B /var/spool/slurmd \
                      -B /opt/cray \
                      -B /usr/lib64 \
+                     -B /scratch/project_465001629 \
+                     -B /projappl/project_465001629 \
                      $CONTAINER $CONTAINER_SCRIPT $CONFIG_DIR $CONFIG_NAME
