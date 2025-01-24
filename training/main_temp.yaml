@@ -1,0 +1,203 @@
+defaults:
+- data: zarr
+- dataloader: native_grid
+- diagnostics: evaluation
+- hardware: example
+- graph: multi_scale
+- model: graphtransformer
+- training: default
+- _self_
+
+dataloader:
+  num_workers:
+    training: 2
+    validation: 2
+    test: 2
+    predict: 2
+  batch_size:
+    training: 1
+    validation: 1
+    test: 1
+    predict: 1
+
+  dataset:
+    dataset: ${hardware.paths.data}/${hardware.files.dataset}
+    #trimedge branch
+    mask_from_dataset:
+      dataset: /scratch/project_465001629/datasets/mask_norkyst_2024.zarr
+      field: land_binary_mask_0
+
+  limit_batches: 
+    training: null
+    validation: null
+    test: null
+    predict: null
+  training:
+    start: 2024-01-01
+    end: 2024-01-31
+    dataset: ${dataloader.dataset} 
+    frequency: 1
+  validation:
+    start: 2024-02-01
+    end: 2024-02-28
+    dataset: ${dataloader.dataset}
+    frequency: 1
+  test:
+    start: 2024-03-01
+    end: 2024-03-31
+    dataset: ${dataloader.dataset}
+    frequency: 1
+
+hardware:
+  num_gpus_per_node: 8
+  num_nodes: 1
+  num_gpus_per_model: 4
+  accelerator: auto
+  paths:
+    data: /scratch/project_465001629/datasets/ 
+    output_base: /pfs/lustrep2/scratch/project_465001629/outputs/
+    output: /scratch/project_465001629/outputs/
+    graph: /scratch/project_465001629/graphs/
+  files:
+    dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr
+    graph: graph-17-12-res7.pt
+    warm_start: null #specific checkpoint to start from, defaults to last.ckpt
+
+diagnostics:
+  plot: 
+    callbacks: []
+  log:
+    mlflow:
+      enabled: False
+      offline: False
+      experiment_name: 'metno'
+      run_name: ${training.run_id}
+  print_memory_summary: True
+
+# Set clobber: False and specify the correct path and file in hardware to load graph, the path below is 
+# only used for saving graphs.
+graph:
+  overwrite: False
+  nodes:
+    data: 
+      node_builder:
+        _target_: anemoi.graphs.nodes.ZarrDatasetNodes # options: ZarrDatasetNodes, NPZFileNodes
+        dataset: ${dataloader.training.dataset}
+      attributes:
+        area_weight:
+          _target_: anemoi.graphs.nodes.attributes.UniformWeights
+          norm: unit-max
+    hidden:
+      node_builder:
+        _target_: anemoi.graphs.nodes.LimitedAreaTriNodes # options: ZarrDatasetNodes, NPZFileNodes, TriNodes
+        resolution: 5 # grid resolution for npz (o32, o48, ...)
+        reference_node_name: ${graph.data}
+
+  #mulig dette kan fjernes
+  edges:
+    # Encoder configuration
+    - source_name: ${graph.data}
+      target_name: ${graph.hidden}
+      edge_builders:
+      - _target_: anemoi.graphs.edges.CutOffEdges # options: KNNEdges, CutOffEdges
+        cutoff_factor: 0.6 # only for cutoff method
+      attributes: ${graph.attributes.edges}
+      # Processor configuration
+    - source_name: ${graph.hidden}
+      target_name: ${graph.hidden}
+      edge_builders:
+      - _target_: anemoi.graphs.edges.MultiScaleEdges
+        x_hops: 1
+      attributes: ${graph.attributes.edges}
+      # Decoder configuration
+    - source_name: ${graph.hidden}
+      target_name: ${graph.data}
+      edge_builders:
+      - _target_: anemoi.graphs.edges.KNNEdges # options: KNNEdges, CutOffEdges
+        num_nearest_neighbours: 3 # only for knn method
+      attributes: ${graph.attributes.edges}
+
+graphs:
+  output_path: ${hardware.paths.graph}${hardware.files.graph}
+  save_graph_plots: False
+  clobber: False
+
+data:
+  resolution: o96
+  frequency: 1h
+  timestep: 1h
+  format: zarr
+  forcing: []
+
+  diagnostic: []
+
+  remapped:
+
+  normalizer:
+    default: "mean-std"
+    std: []
+
+    min-max:
+    max: []
+    none: []
+
+  imputer:
+    #legge til flere variabler her når vi har det
+    default: "none"
+    999:
+  #    - temperature_0
+  #    - temperature_1
+  #    - temperature_2
+  #    - temperature_3
+  #    - temperature_5
+  #    - temperature_7
+  #    - temperature_10
+      - temperature_15
+      - temperature_25
+      - temperature_50
+      - temperature_65
+      - temperature_75
+      - temperature_100
+      - temperature_200
+      - temperature_300
+
+  remapper:
+    default: "none"
+
+  processors:
+
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      _convert_: all
+      config: ${data.normalizer}
+    
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.ConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+
+  # Values set in the code
+  num_features: null # number of features in the forecast state
+
+
+model:
+  num_channels: 1024
+  trainable_parameters:
+    data: 0
+    hidden: 0
+    data2hidden: 0
+    hidden2data: 0
+    hidden2hidden: 0 # GNN and GraphTransformer Processor only
+  bounding: #These are applied in order
+    - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
+      variables: []
+
+training:
+  run_id: null #path to store the experiment in with output_base as root, null for random name, =fork_run_id to continue training in the same folder.
+  fork_run_id: null #path to the experiment to fork from with output_base as root
+  load_weights_only: False #loads entire model if False, loads only weights if True
+  max_epochs: null
+  max_steps: 150000
+  lr:
+    rate: 6.25e-5
+    min: 3e-7
