@@ -56,7 +56,6 @@ hardware:
   accelerator: auto
   paths:
     data: /scratch/project_465001629/datasets/ 
-    output_base: /pfs/lustrep2/scratch/project_465001629/outputs/
     output: /scratch/project_465001629/outputs/
     graph: /scratch/project_465001629/graphs/
   files:
