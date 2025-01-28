@@ -4,9 +4,10 @@
 #SBATCH --error=outputs/error.e%j  # Name of stderr error file
 #SBATCH --partition=dev-g  # partition name
 #SBATCH --nodes=1               # Total number of nodes 
-#SBATCH --ntasks-per-node=1     # 8 MPI ranks per node, 16 total (2x8)
-#SBATCH --gpus-per-node=1       # Allocate one gpu per MPI rank
-#SBATCH --time=00:10:00       # Run time (d-hh:mm:ss)
+#SBATCH --ntasks-per-node=4     # 8 MPI ranks per node, 16 total (2x8)
+#SBATCH --gpus-per-node=4       # Allocate one gpu per MPI rank
+#SBATCH --cpus-per-task=8
+#SBATCH --time=00:05:00       # Run time (d-hh:mm:ss)
 #SBATCH --account=project_465001629 # Project for billing
 
 CONFIG_DIR=$(pwd -P)/inference
@@ -15,7 +16,7 @@ PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
 CONTAINER=$PROJECT_DIR/container/ocean-ai.sif
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch_infer.sh
 chmod 770 ${CONTAINER_SCRIPT}
-VENV=/pfs/lustrep2/projappl/project_465001629/python-envs/anemoi-env-trimedge
+VENV=/pfs/lustrep2/projappl/project_465001629/python-envs/anemoi-env-inference
 
 module load LUMI/24.03 partition/G
 export SINGULARITYENV_LD_LIBRARY_PATH=/opt/ompi/lib:${EBROOTAWSMINOFIMINRCCL}/lib:/opt/cray/xpmem/2.4.4-2.3_9.1__gff0e1d9.shasta/lib64:${SINGULARITYENV_LD_LIBRARY_PATH}

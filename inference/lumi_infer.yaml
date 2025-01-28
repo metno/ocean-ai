@@ -2,6 +2,8 @@
 checkpoint: /pfs/lustrep2/scratch/project_465001629/outputs/checkpoint/77c1cdd9-18a3-47c0-b6bd-abdb6310d1cb/inference-last.ckpt
 date: 2024-03-03T00:00:00
 lead_time: 48
+runner: parallel
+
 #input: test
 
 output:
