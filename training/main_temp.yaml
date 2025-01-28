@@ -24,7 +24,7 @@ dataloader:
     dataset: ${hardware.paths.data}/${hardware.files.dataset}
     #trimedge branch
     mask_from_dataset:
-      dataset: /scratch/project_465001629/datasets/mask_norkyst_2024.zarr
+      dataset: /pfs/lustrep2/scratch/project_465001629/datasets/mask_norkyst_2024.zarr
       field: land_binary_mask_0
 
   limit_batches: 
@@ -54,10 +54,9 @@ hardware:
   num_gpus_per_model: 4
   accelerator: auto
   paths:
-    data: /scratch/project_465001629/datasets/ 
-    output_base: /pfs/lustrep2/scratch/project_465001629/outputs/
-    output: /scratch/project_465001629/outputs/
-    graph: /scratch/project_465001629/graphs/
+    data: /pfs/lustrep2/scratch/project_465001629/datasets/
+    output: /pfs/lustrep2/scratch/project_465001629/outputs/
+    graph: /pfs/lustrep2/scratch/project_465001629/graphs/
   files:
     dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr
     graph: graph-17-12-res7.pt

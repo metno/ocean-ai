@@ -27,7 +27,5 @@ srun \
                      -B /var/spool/slurmd \
                      -B /opt/cray \
                      -B /usr/lib64 \
-                     -B /scratch/project_465001629 \
-                     -B /projappl/project_465001629 \
                      $CONTAINER $CONTAINER_SCRIPT $CONFIG_NAME
 #anemoi-inference run inference.yaml
