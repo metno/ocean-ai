@@ -43,7 +43,7 @@ echo "Job-ID: $jobid, Node name: $node_name"
 
 
 # Monitoring mode (nvtop | htop | rocm)
-mode=rocm
+mode=nvtop
 
 # Enable partition
 module load LUMI/23.09  partition/G EasyBuild-user
