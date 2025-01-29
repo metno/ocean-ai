@@ -14,7 +14,6 @@ CONFIG_NAME=main.yaml #This file should be located in run-anemoi/lumi
 
 #Should not have to change these
 PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
-echo $(pwd -P)
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch.sh
 CONFIG_DIR=$(pwd -P)/training/
 CONTAINER=$PROJECT_DIR/container/ocean-ai.sif
@@ -29,6 +28,7 @@ CPU_BIND="mask_cpu:fe000000000000,fe00000000000000,fe0000,fe000000,fe,fe00,fe000
 
 # run run-pytorch.sh in singularity container like recommended
 # in LUMI doc: https://lumi-supercomputer.github.io/LUMI-EasyBuild-docs/p/PyTorch
+#srun --cpu-bind=$CPU_BIND \ # TODO: Use cpu bind later!
 srun \
     singularity exec -B /pfs:/pfs \
                      -B /var/spool/slurmd \
