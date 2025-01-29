@@ -32,7 +32,6 @@ dataloader:
     validation: null
     test: null
     predict: null
-
   training:
     start: 2024-01-01
     end: 2024-01-31
@@ -55,11 +54,11 @@ hardware:
   num_gpus_per_model: 4
   accelerator: auto
   paths:
-    data: /pfs/lustrep2/scratch/project_465001629/datasets/ 
+    data: /pfs/lustrep2/scratch/project_465001629/datasets/
     output: /pfs/lustrep2/scratch/project_465001629/outputs/
     graph: /pfs/lustrep2/scratch/project_465001629/graphs/
   files:
-    dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_m00_AN_ml.zarr
+    dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_temp_m00_AN_ml.zarr
     graph: graph-17-12-res7.pt
     warm_start: null #specific checkpoint to start from, defaults to last.ckpt
 
@@ -160,38 +159,6 @@ data:
       - temperature_100
       - temperature_200
       - temperature_300
-      - salinity_15
-      - salinity_25
-      - salinity_50
-      - salinity_65
-      - salinity_75
-      - salinity_100
-      - salinity_200
-      - salinity_300
-      - u_eastward_15
-      - u_eastward_25
-      - u_eastward_50
-      - u_eastward_65
-      - u_eastward_75
-      - u_eastward_100
-      - u_eastward_200
-      - u_eastward_300
-      - v_northward_15
-      - v_northward_25
-      - v_northward_50
-      - v_northward_65
-      - v_northward_75
-      - v_northward_100
-      - v_northward_200
-      - v_northward_300
-      - w_15
-      - w_25
-      - w_50
-      - w_65
-      - w_75
-      - w_100
-      - w_200
-      - w_300
 
   remapper:
     default: "none"

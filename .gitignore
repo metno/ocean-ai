@@ -5,3 +5,4 @@ logs/
 training/Nonecheckpoint/
 training/outputs/
 *.pyc
+outputs

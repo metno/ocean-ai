@@ -1,0 +1,112 @@
+# Bris-inference
+
+defaults:
+  - override hydra/job_logging: none
+  - override hydra/hydra_logging: none
+  - _self_
+  
+start_date: 2024-03-01T00:00:00 # Start of dataset -> start time = start_date + multistep * timestep
+end_date: 2024-03-01T03:00:00
+
+checkpoint_path: /pfs/lustrep2/scratch/project_465001629/outputs/checkpoint/77c1cdd9-18a3-47c0-b6bd-abdb6310d1cb/inference-last.ckpt
+
+leadtimes: 12 #Number of leadtimes (rollout) for each prediction time
+timestep: 1h #Time step of the model
+frequency: 1h #Frequency of the dataset
+
+deterministic: True
+
+run_name: template_run
+
+dataset: 
+  dataset: ${hardware.paths.data}/${hardware.files.dataset}
+    #trimedge branch
+  mask_from_dataset:
+    dataset: /pfs/lustrep2/scratch/project_465001629/datasets/mask_norkyst_2024.zarr
+    field: land_binary_mask_0
+
+# If the user wants to release GPU cache and memory
+# This option releases unused cached/memory used by torch
+release_cache: False
+
+dataloader:
+  batch_size: 1
+  prefetch_factor: 2
+  num_workers: 1
+  pin_memory: True
+
+  read_group_size: 1 #Do not change this, not implemented properly
+
+  predict:
+    dataset: ${dataset}
+    start: ${start_date}
+    end: ${end_date}
+    frequency: ${frequency}
+#    reorder: ${reorder}
+
+  datamodule:
+    _target_: anemoi.training.data.dataset.NativeGridDataset #anemoi.training.data.dataset.ZipDataset
+    _convert_: all
+
+hardware:
+  paths:
+    data: /pfs/lustrep2/scratch/project_465001629/datasets/ 
+    workdir: /pfs/lustrep2/scratch/project_465001629/outputs/ 
+    #workdir: /pfs/lustrep2/scratch/project_465001383/haugenha/anemoi-training-ref-updated/run-anemoi/lumi/workdir/ #Required verif filer (temp write dir
+    output: /pfs/lustrep2/scratch/project_465001629/outputs/
+  files:
+    dataset: prepro_norkyst_tests/norkyst800_his_zdepth_2024_m00_AN_ml.zarr
+
+  num_gpus_per_node: 8
+  num_gpus_per_model: 4
+  num_nodes: 1
+
+model:
+  _target_: bris.model.BrisPredictor 
+  _convert_: all
+
+# Outputs to write. 
+routing:
+  - decoder_index: 0
+    domain: 0
+    outputs:
+      #Forecast timeseries as netcdf
+      - netcdf: 
+          filename_pattern: ${hardware.paths.output}/predictions/template_pred_%Y%m%dT%HZ.nc
+          variables: [u_eastward_1,v_northward_1,temperature_1,salinity_1,zeta] # Leave this empty to include all variables (?)
+          #extra_variables:  [] # Extra outputs (for instance windspeed is not an output from the model and is calculated for each prediction)
+      #Create files for point verification - these can be used with the verif command line tool
+      #- verif: 
+      #    filename: ${hardware.paths.output}/verif/2t/template.nc
+      #    variable: 2t
+      #    thresholds: [0, 10, 20]
+      #    quantile_levels: [0.1, 0.9]
+      #    units: degC
+      #    elev_gradient: -0.0065 #Gradient to use for height correction when interpolating forecast to station locations
+      #    obs_sources: # Source of point observations. 
+      #      - verif:
+      #          filename: /pfs/lustrep2/scratch/project_465001383/aifs/verification/nordic/6h/202206_202305/t2m/newref_n320_2.5k_7p10_r4.nc 
+      #- verif:
+      #    filename: ${hardware.paths.output}/verif/10si/template.nc
+      #    variable: 10si
+      #    thresholds: [0, 10, 20]
+      #    quantile_levels: [0.1, 0.9]
+      #    units: m/s
+      #    obs_sources:
+      #      - verif:
+      #          filename: /pfs/lustrep2/scratch/project_465001383/aifs/verification/nordic/6h/202206_202305/ws10m/newref_n320_2.5k_7p10_r4.nc
+      #- verif:
+      #    filename: ${hardware.paths.output}/verif/msl/template.nc
+      #    variable: msl
+      #    units: hPa
+      #    obs_sources:
+      #      - verif:
+      #          filename: /pfs/lustrep2/scratch/project_465001383/aifs/verification/nordic/6h/202206_202305/mslp/newref_n320_2.5k_7p10_r4.nc
+      #- verif:
+      #    filename: ${hardware.paths.output}/verif/tp/template.nc
+      #    variable: tp
+      #    units: kg/m^2
+      #    obs_sources:
+      #      - verif:
+      #          filename: /pfs/lustrep2/scratch/project_465001383/aifs/verification/nordic/6h/202206_202305/precip6h/newref_n320_2.5k_7p10_r4.nc
+
