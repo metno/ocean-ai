@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 import scipy.interpolate
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
@@ -62,6 +63,32 @@ def plot(ax, data, lat_grid, lon_grid, **kwargs):
     return im
 
 #-----------------------------------------------------------------
+# Below are some "new" functions
+
+def transform_1d_to_2d(var,lat,lon,template_file='/lustre/storeB/project/fou/hi/foccus/datasets/surface_mask.nc'):
+    """The input arrays var, lat and lon are flat (1d), and the output gets the same shape as in the template file"""
+    # If use the mask file as template, we can drop the land_binary_mask 
+    # that may have a long time dimension when loading data
+    ds = xr.open_dataset(template_file,drop_variables=['land_binary_mask', 'time', 'projection_stere'])
+    
+    # Compute 1D->2D index to output 2D arrays
+    lat_full = ds.lat.values
+    lon_full = ds.lon.values
+    mask = np.isin(lat_full, lat) # unsafe??
+    ind = np.arange(np.size(lat_full)).reshape(np.shape(lat_full))
+    indices_1D_to_2D = ind[mask] 
+    # TODO: the np.isin() method above is not safe if the values of lon or lat 
+    # have been modified due to precision etc.. should use nearest neighbour search instead
+
+    # First fill the array with nans (where is land)
+    var_transformed = np.nan * np.zeros(np.shape(lat_full))
+    var_transformed.flat[indices_1D_to_2D] = var
+
+    return var_transformed, lat_full, lon_full
+
+
+
+
 def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.83083,lon_max=15.59072):
     """
     Subsets the dataset to the specified longitude and latitude range,
