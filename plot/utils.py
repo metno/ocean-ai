@@ -62,7 +62,7 @@ def plot(ax, data, lat_grid, lon_grid, **kwargs):
     return im
 
 #-----------------------------------------------------------------
-def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.83083,lon_max=15.59072, region=None):
+def subset_variable(var, lat, lon, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
     """
     Subsets the dataset to the specified longitude and latitude range,
     and returns new arrays of the variable, longitude and latitude.
@@ -95,7 +95,16 @@ def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.830
         lat_max = region_dict[region][1]
         lon_min = region_dict[region][2]
         lon_max = region_dict[region][3]
-            
+    
+    if region is None:    
+        if lat_min is None:
+            lat_min = min(lat)
+        if lat_max is None:
+            lat_max = max(lat)
+        if lon_min is None:
+            lon_min = min(lon)
+        if lon_max is None:
+            lon_max = max(lon) 
 
     # Create a mask for the bounding box
     lon_mask = (lon >= lon_min) & (lon <= lon_max)
