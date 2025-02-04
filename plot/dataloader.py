@@ -4,7 +4,6 @@ Uses xarray.
 
 Author: Mateusz Matuszak
 '''
-import time
 
 class open_dataset:
     def __init__(self, file, var=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
