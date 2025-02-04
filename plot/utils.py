@@ -62,23 +62,40 @@ def plot(ax, data, lat_grid, lon_grid, **kwargs):
     return im
 
 #-----------------------------------------------------------------
-def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.83083,lon_max=15.59072):
+def subset_variable(var,lat,lon,lat_min=67.41791,lat_max=69.20699,lon_min=11.83083,lon_max=15.59072, region=None):
     """
     Subsets the dataset to the specified longitude and latitude range,
     and returns new arrays of the variable, longitude and latitude.
     
     Parameters:
-    var (np.array): The input variable.
-    lat (np.array): The input latitude.
-    lon (np.array): The input longitude.
-    lat_min (float): Minimum latitude.
-    lat_max (float): Maximum latitude.
-    lon_min (float): Minimum longitude.
-    lon_max (float): Maximum longitude.
+        var (np.array): The input variable.
+        lat (np.array): The input latitude.
+        lon (np.array): The input longitude.
+        lat_min (float): Minimum latitude.
+        lat_max (float): Maximum latitude.
+        lon_min (float): Minimum longitude.
+        lon_max (float): Maximum longitude.
+        region (str): Name of predefined region. Chose from [lofoten, sulafjorden, oslofjorden]
 
     Returns:
     ...TODO add
     """
+
+    if region is not None:
+        region_dict = {
+            'lofoten': [66,71,10,19],
+            'sulafjorden': [62,63,4,8],
+            'oslofjorden': [58.5,60,9.5,11.5]
+        }
+        if type(region) != str:
+            raise TypeError(f'Region must be a str, got type {type(region)}')
+        if region not in region_dict.keys():
+            raise ValueError(f'Provided region {region} is not in list of predefined regions. Available regions are {list(region_dict.keys())}.')
+        lat_min = region_dict[region][0]
+        lat_max = region_dict[region][1]
+        lon_min = region_dict[region][2]
+        lon_max = region_dict[region][3]
+            
 
     # Create a mask for the bounding box
     lon_mask = (lon >= lon_min) & (lon <= lon_max)
