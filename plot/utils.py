@@ -62,66 +62,6 @@ def plot(ax, data, lat_grid, lon_grid, **kwargs):
     return im
 
 #-----------------------------------------------------------------
-def subset_variable(var, lat, lon, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
-    """
-    Subsets the dataset to the specified longitude and latitude range,
-    and returns new arrays of the variable, longitude and latitude.
-    
-    Parameters:
-        var (np.array): The input variable.
-        lat (np.array): The input latitude.
-        lon (np.array): The input longitude.
-        lat_min (float): Minimum latitude.
-        lat_max (float): Maximum latitude.
-        lon_min (float): Minimum longitude.
-        lon_max (float): Maximum longitude.
-        region (str): Name of predefined region. Chose from [lofoten, sulafjorden, oslofjorden]
-
-    Returns:
-    ...TODO add
-    """
-
-    if region is not None:
-        region_dict = {
-            'lofoten': [66,71,10,19],
-            'sulafjorden': [62,63,4,8],
-            'oslofjorden': [58.5,60,9.5,11.5]
-        }
-        if type(region) != str:
-            raise TypeError(f'Region must be a str, got type {type(region)}')
-        if region not in region_dict.keys():
-            raise ValueError(f'Provided region {region} is not in list of predefined regions. Available regions are {list(region_dict.keys())}.')
-        lat_min = region_dict[region][0]
-        lat_max = region_dict[region][1]
-        lon_min = region_dict[region][2]
-        lon_max = region_dict[region][3]
-    
-    if region is None:    
-        if lat_min is None:
-            lat_min = min(lat)
-        if lat_max is None:
-            lat_max = max(lat)
-        if lon_min is None:
-            lon_min = min(lon)
-        if lon_max is None:
-            lon_max = max(lon) 
-
-    # Create a mask for the bounding box
-    lon_mask = (lon >= lon_min) & (lon <= lon_max)
-    lat_mask = (lat >= lat_min) & (lat <= lat_max)
-    
-    # Combine masks
-    combined_mask = lon_mask & lat_mask
-    
-    # Apply the mask to filter the data
-    filtered_lon = lon[combined_mask]
-    filtered_lat = lat[combined_mask]
-    if len(var.shape)==3:
-        filtered_var = var[combined_mask]
-    else: #time dimension
-        filtered_var = var[:, combined_mask]
-
-    return filtered_var,filtered_lat,filtered_lon
 
 def plot_landmask(ax,color='black',file='/lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/surface_mask_contour_paths.npy'):
     # See /lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/save_surface_contour.py
