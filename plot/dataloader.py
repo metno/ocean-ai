@@ -29,15 +29,15 @@ class open_dataset:
         import xarray as xr
         import numpy as np
         self.dataset = xr.open_dataset(file)
-        self.dataset.load()
         self.var = var
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
         full_grid = np.array([np.min(self.dataset.latitude), np.max(self.dataset.latitude), np.min(self.dataset.longitude), np.max(self.dataset.longitude)])
-
+        
         if self.var is not None:
             self._select_variable
 
+        self.dataset.load()
         if self.region is not None:
             self._select_predefined_region
         elif self.region is None and not all(_ == None for _ in self.grid):
