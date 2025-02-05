@@ -29,6 +29,7 @@ class open_dataset:
         import xarray as xr
         import numpy as np
         self.dataset = xr.open_dataset(file)
+        self.dataset.load()
         self.var = var
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
@@ -70,13 +71,16 @@ class open_dataset:
         '''
         Selects a specified region in the dataset
         '''
+        print('cutting now')
         self.dataset = self.dataset.where(
             (self.dataset.latitude >= self.grid[0]) &
             (self.dataset.latitude <= self.grid[1]) &
             (self.dataset.longitude >= self.grid[2]) &
             (self.dataset.longitude <= self.grid[3]),
             drop=True 
-        )
+        ) 
+        print('done cutting')
+
     @property
     def _select_variable(self):
         '''
@@ -92,4 +96,3 @@ class open_dataset:
             self.var = [self.var]
         self.var.extend(['longitude', 'latitude'])
         self.dataset = self.dataset[self.var]
-        
