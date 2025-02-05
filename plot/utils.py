@@ -107,3 +107,45 @@ def update_anim(frame,ax,heatmap,var,time):
     """TODO"""
     heatmap.set_array(var[frame].ravel())
     ax.set_title(f'Time step: {time[frame]}')
+
+def plot_h_contours(ax, levels=20, file='/lustre/storeB/project/fou/hi/foccus/mateuszm/ocean-ai/datasets/h_for_contour.nc', lon_min=None, lon_max=None, lat_min=None, lat_max=None):
+    from dataloader import open_dataset
+    h = open_dataset(file, lon_min=lon_min, lon_max=lon_max, lat_min=lat_min, lat_max=lat_max).dataset.isel(time=0)
+    ax.contour(h.longitude, h.latitude, h.h, levels=levels, colors='dimgray', linestyles='dashed', linewidths=1, alpha=0.8)
+
+def plot_variable_field(ds, var, ax=None, time=None, outfile=None, cmap=None):
+    """
+    Simple plot of the field of a variable. 
+    Currently doing scatterplot, but may be updated to pcolormesh when we have 2D. 
+
+    Args:
+        ds  [dataarray] :   
+        var [str]       :   
+        ax  []          :   
+        time    [int]   :   
+        outfile [str]   :   
+        cmap    [str]   :   
+
+    """
+    
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+    
+    if time is not None:
+        ds = ds.isel(time=time)
+    
+    ax.scatter(ds.longitude, ds.latitude, c=ds[var], s=3, cmap=cmap)
+    ax.set_ylim(np.min(ds.latitude), np.max(ds.latitude))
+    ax.set_xlim(np.min(ds.longitude), np.max(ds.longitude))
+    ax.set_facecolor('xkcd:beige')
+    ax.set_title(var)
+    ax.grid(ls='--', color='lightgray')
+    plot_landmask(ax)
+    plot_h_contours(ax, lon_min=np.min(ds.longitude), lon_max=np.max(ds.longitude), lat_min=np.min(ds.latitude), lat_max=np.max(ds.latitude), levels=15)
+
+    if outfile is not None:
+        plt.savefig(outfile+'.png')
+    
+    return ax
+
