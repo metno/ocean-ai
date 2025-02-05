@@ -71,7 +71,6 @@ class open_dataset:
         '''
         Selects a specified region in the dataset
         '''
-        print('cutting now')
         self.dataset = self.dataset.where(
             (self.dataset.latitude >= self.grid[0]) &
             (self.dataset.latitude <= self.grid[1]) &
@@ -79,7 +78,6 @@ class open_dataset:
             (self.dataset.longitude <= self.grid[3]),
             drop=True 
         ) 
-        print('done cutting')
 
     @property
     def _select_variable(self):
