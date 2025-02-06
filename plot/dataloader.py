@@ -6,7 +6,7 @@ Author: Mateusz Matuszak
 '''
 
 class open_dataset:
-    def __init__(self, file, var=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
+    def __init__(self, file, var=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None, time=None):
         '''
         A class for opening a dataset.
         Example usage:
@@ -29,10 +29,16 @@ class open_dataset:
         import xarray as xr
         import numpy as np
         self.dataset = xr.open_dataset(file)
+        if time is not None:
+            self.dataset = self.dataset.isel(time=time)
         self.var = var
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
-        full_grid = np.array([np.min(self.dataset.latitude), np.max(self.dataset.latitude), np.min(self.dataset.longitude), np.max(self.dataset.longitude)])
+        if 'longitude' and 'latitude' in self.dataset.variables:
+            self.lon_name, self.lat_name = 'longitude', 'latitude'
+        elif 'lon' and 'lat' in self.dataset.variables:
+            self.lon_name, self.lat_name = 'lon', 'lat'
+        full_grid = np.array([np.min(self.dataset[self.lat_name]), np.max(self.dataset[self.lat_name]), np.min(self.dataset[self.lon_name]), np.max(self.dataset[self.lon_name])])
         
         if self.var is not None:
             self._select_variable
@@ -72,10 +78,10 @@ class open_dataset:
         Selects a specified region in the dataset
         '''
         self.dataset = self.dataset.where(
-            (self.dataset.latitude >= self.grid[0]) &
-            (self.dataset.latitude <= self.grid[1]) &
-            (self.dataset.longitude >= self.grid[2]) &
-            (self.dataset.longitude <= self.grid[3]),
+            (self.dataset[self.lat_name] >= self.grid[0]) &
+            (self.dataset[self.lat_name] <= self.grid[1]) &
+            (self.dataset[self.lon_name] >= self.grid[2]) &
+            (self.dataset[self.lon_name] <= self.grid[3]),
             drop=True 
         ) 
 
@@ -92,5 +98,5 @@ class open_dataset:
                     raise TypeError(f'All elements in the variables list must be str, got {type(var)}')
         if type(self.var) is str:
             self.var = [self.var]
-        self.var.extend(['longitude', 'latitude'])
+        self.var.extend([self.lon_name, self.lat_name])
         self.dataset = self.dataset[self.var]
