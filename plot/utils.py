@@ -113,7 +113,7 @@ def plot_h_contours(ax, levels=20, file='/lustre/storeB/project/fou/hi/foccus/ma
     h = open_dataset(file, lon_min=lon_min, lon_max=lon_max, lat_min=lat_min, lat_max=lat_max).dataset.isel(time=0)
     ax.contour(h.longitude, h.latitude, h.h, levels=levels, colors='dimgray', linestyles='dashed', linewidths=1, alpha=0.8)
 
-def plot_variable_field(ds, var, ax=None, time=None, outfile=None, cmap=None):
+def plot_variable_field(ds, var, ax=None, time=None, outfile=None, cmap=None, fig=None):
     """
     Simple plot of the field of a variable. 
     Currently doing scatterplot, but may be updated to pcolormesh when we have 2D. 
@@ -127,25 +127,60 @@ def plot_variable_field(ds, var, ax=None, time=None, outfile=None, cmap=None):
         cmap    [str]   :   
 
     """
-    
+    print(f'Plotting variable {var}')
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(dpi=150)
         ax = fig.add_subplot(111)
     
     if time is not None:
         ds = ds.isel(time=time)
-    
-    ax.scatter(ds.longitude, ds.latitude, c=ds[var], s=3, cmap=cmap)
-    ax.set_ylim(np.min(ds.latitude), np.max(ds.latitude))
-    ax.set_xlim(np.min(ds.longitude), np.max(ds.longitude))
+
+    if 'longitude' and 'latitude' in ds.variables:
+        lon_name, lat_name = 'longitude', 'latitude'
+    elif 'lon' and 'lat' in ds.variables:
+        lon_name, lat_name = 'lon', 'lat'
+
+    im = ax.scatter(ds[lon_name], ds[lat_name], c=ds[var], s=3, cmap=cmap)
+    ax.set_ylim(np.min(ds[lat_name]), np.max(ds[lat_name]))
+    ax.set_xlim(np.min(ds[lon_name]), np.max(ds[lon_name]))
     ax.set_facecolor('xkcd:beige')
     ax.set_title(var)
     ax.grid(ls='--', color='lightgray')
     plot_landmask(ax)
-    plot_h_contours(ax, lon_min=np.min(ds.longitude), lon_max=np.max(ds.longitude), lat_min=np.min(ds.latitude), lat_max=np.max(ds.latitude), levels=15)
-
+    plot_h_contours(ax, lon_min=np.min(ds[lon_name]), lon_max=np.max(ds[lon_name]), lat_min=np.min(ds[lat_name]), lat_max=np.max(ds[lat_name]), levels=15)
+    if fig is not None:
+        cax = fig.add_axes([ax.get_position().x1+0.015, ax.get_position().y0, 0.025, ax.get_position().height])
+        cbar = fig.colorbar(im, ax=ax, cax=cax)
     if outfile is not None:
         plt.savefig(outfile+'.png')
     
     return ax
 
+def plot_all_available_vars(ds, time=None, outfile=None, cmap=None):
+    """
+    Plot all variables
+    """
+    exclude = ['forecast_reference_time', 'time', 'location', 'latitude', 'longitude']
+    plotting_vars = []
+    for var in ds.variables:
+        if var not in exclude:
+            plotting_vars.append(var)
+    
+    cols = 3
+    rows = int(np.ceil(len(plotting_vars)/cols))
+    fig, axs = plt.subplots(cols, rows, figsize=(10*cols, 10*rows))
+    i = 0
+    for col in range(cols):
+        for row in range(rows):
+            if i < len(plotting_vars):
+                plot_variable_field(ds=ds, var=plotting_vars[i], ax=axs[col, row], time=time, fig=fig, cmap=cmap)
+                i+=1
+    if outfile is not None:
+        plt.savefig(outfile+'.png')
+
+def compare_variable(ds1, ds2, var1, var2, outfile=None, time=None):
+    fig, axs = plt.subplots(1,3)
+    plot_variable_field(ds1, var1, ax=axs[0], time=time)
+    plot_variable_field(ds2, var2, ax=axs[1])
+    if outfile is not None:
+        plt.savefig(outfile+'.png')
