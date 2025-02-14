@@ -13,7 +13,8 @@ print(z._attrs['frequency'])
 z._attrs['frequency'] = 1
 print("done")
 print(z._attrs['frequency'])
-
+z._attrs['resolution'] = 'o96'
+print(z._attrs['resolution'])
 # You can now check that it worked by:
 
 #from anemoi.datasets import open_dataset
