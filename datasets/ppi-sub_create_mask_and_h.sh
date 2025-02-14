@@ -9,14 +9,14 @@
 YEAR=2024
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 OUTDIR=$FOCCUS_DIR/datasets/
-YAMLFILE=$FOCCUS_DIR/mateuszm/OceanAI/datasets/mask_constant_zarr.yaml
+YAMLFILE=$FOCCUS_DIR/mateuszm/ocean-ai/datasets/mask_constant_zarr.yaml
 ZARRFILE=$OUTDIR/constant_mask_norkyst_${YEAR}.zarr
 
 conda deactivate
 source $FOCCUS_DIR/python-envs/anemoi-env-14-2-2025/bin/activate
 anemoi-datasets create $YAMLFILE $ZARRFILE --overwrite
 
-YAMLFILE=$FOCCUS_DIR/mateuszm/OceanAI/datasets/h_constant_zarr.yaml
+YAMLFILE=$FOCCUS_DIR/mateuszm/ocean-ai/datasets/h_constant_zarr.yaml
 ZARRFILE=$OUTDIR/constant_h_norkyst_${YEAR}.zarr
 
 anemoi-datasets create $YAMLFILE $ZARRFILE --overwrite
