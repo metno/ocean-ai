@@ -6,7 +6,7 @@
 #$ -e /lustre/storeB/project/fou/hi/foccus/outputs/ERR_$JOB_NAME.$JOB_ID
 #$ -N mask-and-h
 
-YEAR=2024
+YEAR=2025
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 OUTDIR=$FOCCUS_DIR/datasets/
 YAMLFILE=$FOCCUS_DIR/mateuszm/ocean-ai/datasets/mask_constant_zarr.yaml
