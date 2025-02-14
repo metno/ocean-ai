@@ -20,7 +20,7 @@ def find_valid_files(start = datetime.datetime(2024,1,1), end = datetime.datetim
 
     return valid_files, invalid_files, path
 
-def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], outfile = 'norkystv3.yaml', path='/lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/'):
+def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], outfile = 'norkystv3.yaml', path='/lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/', nan_list=[]):
     '''
         A function for creating yaml file for anemoi dataset. Creates a directory with symlinks to input files.
     Args:
@@ -46,8 +46,9 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
 
     input_dict = {
         'dates': {'start': start, 'end': end, 'frequency': frequency},
+        'build': {'groupby': 24},
         'resolution': 'o96',
-        'statistics': {'allow_nans': list(params_list)},
+        'statistics': {'allow_nans': list(nan_list)},
         'input': {'netcdf': {'path': path+'*', 'param': list(params_list)}},
         'missing': invalid_times
     }
@@ -56,4 +57,6 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         yaml.dump(input_dict, f, sort_keys=False)
 
 if __name__ == '__main__':
-    create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end=datetime.datetime(2024,12,2,20), params_list=['temperature', 'salinity', 'u_eastward', 'v_northward', 'w', 'zeta', 'Uwind_eastward', 'Vwind_northward'])
+    params_list = ['temperature', 'salinity', 'u_eastward', 'v_northward', 'w', 'zeta', 'Uwind_eastward', 'Vwind_northward']
+    nan_list = params_list[:-3]
+    create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end=datetime.datetime(2024,12,2,20), params_list=params_list, nan_list=nan_list)
