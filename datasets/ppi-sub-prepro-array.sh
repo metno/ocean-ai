@@ -2,10 +2,10 @@
 #$ -l h_rt=24:00:00
 #$ -q research-r8.q
 #$ -l h_rss=45G,mem_free=45G,h_data=45G
-#$ -t 1-31
+#$ -t 1-45
 #$ -o /lustre/storeB/project/fou/hi/foccus/ina/outputs/OUT_$JOB_NAME.$JOB_ID.$TASK_ID
 #$ -e /lustre/storeB/project/fou/hi/foccus/ina/outputs/ERR_$JOB_NAME.$JOB_ID.$TASK_ID
-#$ -N preprocess-dec-2024
+#$ -N preprocess-start-2025
 
 bash -l
 conda deactivate
@@ -16,7 +16,7 @@ MASKFILE=$FOCCUS_DIR/ina/norkyst-data/postpro_changes/landsea_mask.nc
 # OUTDIR is set in python script to 
 # /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/
 
-DATADIR=/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/
+DATADIR=/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2025/
 # TO find the nr of jobs to start do 
 # >> find $DATADIR -type f -name "*2025*m00_AN.nc" | wc -l
 
