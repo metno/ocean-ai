@@ -6,8 +6,6 @@
 
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas
 import datetime as datetime
 
 def static_h(ds, time_start=datetime.datetime(2024,1,1,0), time_end=datetime.datetime(2025,1,1,0)):
@@ -45,8 +43,16 @@ def static_h(ds, time_start=datetime.datetime(2024,1,1,0), time_end=datetime.dat
     h_ds['projection_stere'] = ds.projection_stere
     h_ds.to_netcdf('h.nc', encoding={'time': {'dtype':'double'}, 'h':{'zlib': True, 'complevel': 4}})
 
+def extract_variable_without_time(ds, var, outfile='h_no_time.nc'):
+    ds = ds[var]
+    ds.to_netcdf(outfile)
+
+def constant_landmask(outfile='surface_mask_no_time.nc'):
+    ds = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/surface_mask.nc').isel(time=0)
+    ds.to_netcdf(outfile)
 
 if __name__ == '__main__':
-    file = '/lustre/storeB/project/fou/hi/foccus/datasets/symlink_folder/symlinks_norkystv3/norkyst800_his_zdepth_20240102T00Z_m00_AN.nc'
+    file = '/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/01/01/norkyst800_his_zdepth_20240101T00Z_m00_AN.nc'
     ds = xr.open_dataset(file)
-    static_h(ds)
+    #extract_variable_without_time(ds, 'h')
+    constant_landmask()
