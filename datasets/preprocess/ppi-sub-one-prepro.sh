@@ -10,7 +10,7 @@ bash -l
 conda deactivate
 
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
-PYTHON_SCRIPT=$FOCCUS_DIR/ina/ocean-ai/datasets/impute_nans.py
+PYTHON_SCRIPT=$FOCCUS_DIR/ina/ocean-ai/datasets/preprocess/impute_nans.py
 MASKFILE=$FOCCUS_DIR/ina/norkyst-data/postpro_changes/landsea_mask.nc
 # OUTDIR is set in python script to 
 # /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/
