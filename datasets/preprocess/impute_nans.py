@@ -336,8 +336,7 @@ def run(file,maskfile,dir_out,outfile_ending='_ml',varname_list=['salinity','tem
     try:
         land_sea_mask_org = (ds_mask.isel(time=0)['land_binary_mask'].values == 0) # shape: (15, 1148, 2747)
     except ValueError:
-        # TODO: remove this when only work with one version of the file
-        land_sea_mask_org = (ds_mask['mask'].values == 0) # shape: (16, 1148, 2747)
+        print("ERROR: there is something wrong with the mask file!")
 
     # Open the full dataset:
     ds = xr.open_dataset(file)

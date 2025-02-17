@@ -4,13 +4,13 @@
 #$ -l h_rss=45G,mem_free=45G,h_data=45G
 #$ -o /lustre/storeB/project/fou/hi/foccus/ina/outputs/OUT_$JOB_NAME.$JOB_ID
 #$ -e /lustre/storeB/project/fou/hi/foccus/ina/outputs/ERR_$JOB_NAME.$JOB_ID
-#$ -N preprocess
+#$ -N preprocess-dec-2024
 
 bash -l
 conda deactivate
 
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
-PYTHON_SCRIPT=$FOCCUS_DIR/ina/aifs-mono-ocean/dev-ina/preprocess-data/impute_nans.py
+PYTHON_SCRIPT=$FOCCUS_DIR/ina/ocean-ai/datasets/preprocess/impute_nans.py
 MASKFILE=$FOCCUS_DIR/ina/norkyst-data/postpro_changes/landsea_mask.nc
 # OUTDIR is set in python script to 
 # /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/
