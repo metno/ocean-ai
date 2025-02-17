@@ -21,10 +21,13 @@ import matplotlib.pyplot as plt
 import pandas
 import datetime as datetime
 
-file = '/lustre/storeB/project/fou/hi/foccus/datasets/symlink_folder/symlinks_norkystv3/norkyst800_his_zdepth_20240102T00Z_m00_AN.nc'
-ds = xr.open_dataset(file)
+#file = '/lustre/storeB/project/fou/hi/foccus/datasets/symlink_folder/symlinks_norkystv3/norkyst800_his_zdepth_20240102T00Z_m00_AN.nc'
+#ds = xr.open_dataset(file)
 
 def define_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end = datetime.datetime(2024,1,3,20)):
+    '''
+    This extends the surface mask to all layers, and adds a time dimension
+    '''
     depths = np.array(ds.depth.values)
     surface_mask = xr.open_dataset('norkyst_landmask.nc')
     #time_dim = xr.date_range(time_start, time_end, freq='h', calendar='gregorian')
@@ -67,6 +70,10 @@ def define_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end = datet
     return full_mask
 
 def only_surface_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end = datetime.datetime(2025,1,1,0)):
+    '''
+    adds a time dimension to surface mask
+    '''
+
     surface_mask = xr.open_dataset('norkyst_landmask.nc')
     
     #TODO her kan man optimalisere masse senere
@@ -99,5 +106,34 @@ def only_surface_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end =
 
     return full_mask
 
+def extract_mask_from_file(file, output):
+    '''
+    Extracts the mask from file and writes it to file
+    '''
+    ds = xr.open_dataset(file)
+    proj = xr.open_dataset('/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/05/11/norkyst800_his_zdepth_20240511T00Z_m00_AN.nc')['projection_stere']
+    mask = ds.mask_rho.values
+    
+    x = np.array(ds.xi_rho.values)
+    y = np.array(ds.eta_rho.values)
+    mask_array = xr.Dataset(
+        coords = dict(    
+            X=(['X'], x, {'units':'meter','standard_name':'projection_x_coordinate'}),
+            Y=(['Y'], y, {'units':'meters', 'standard_name':'projection_y_coordinate'})),
+        data_vars = dict(
+            lon=(['Y', 'X'], np.array(ds.lon_rho.values), {'grid_mapping': 'projection_stere','units':'degree_east', 'standard_name':'longitude','long_name':'longitude'}),
+            lat=(['Y', 'X'], np.array(ds.lat_rho.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'}),
+            land_binary_mask=(['Y', 'X'], mask, {'standard_name': 'land_binary_mask', 'long_name':'land_binary_mask'})
+    ))
+    mask_array['projection_stere']=proj
+    mask_array.to_netcdf(output)
 
-only_surface_mask(ds)
+    
+
+if __name__ == '__main__':
+    path = '/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his/2024/05/01/'
+    files = ['norkyst800_his_sdepth_20240501T00Z_m00_AN.nc', 'norkyst160_his_sdepth_20240501T00Z_m70_AN.nc', 'norkyst160_his_sdepth_20240501T00Z_m71_AN.nc']
+    output_path = '/lustre/storeB/project/fou/hi/foccus/datasets/'
+    outputs = ['norkyst_v3-800m_mask.nc', 'norkyst_v3-160m-70_mask.nc', 'norkyst_v3-160m-71_mask.nc']
+    for i in range(len(files)):
+        extract_mask_from_file(path+files[i], output=output_path+outputs[i])
