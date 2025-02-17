@@ -6,3 +6,4 @@ training/Nonecheckpoint/
 training/outputs/
 *.pyc
 outputs
+.venv
