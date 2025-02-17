@@ -106,16 +106,30 @@ def only_surface_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end =
 
     return full_mask
 
-def extract_mask_from_file(file, output):
+def extract_mask_from_file(file, output, member):
     '''
     Extracts the mask from file and writes it to file
     '''
     ds = xr.open_dataset(file)
-    proj = xr.open_dataset('/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/05/11/norkyst800_his_zdepth_20240511T00Z_m00_AN.nc')['projection_stere']
-    mask = ds.mask_rho.values
-    
+    if member == 'm00':
+        res = 800
+    else:
+        res = 160
+    nk = xr.open_dataset(f'/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/05/11/norkyst{res}_his_zdepth_20240511T00Z_{member}_AN.nc')
+    depths = np.array(nk.depth.values)
+
     x = np.array(ds.xi_rho.values)
     y = np.array(ds.eta_rho.values)
+    full_mask = np.zeros([len(depths), np.shape(y)[0], np.shape(x)[0]])
+    print(np.shape(full_mask))
+    for i, depth in enumerate(depths):
+        if depth <= 10:
+            full_mask[i,:,:] = ds.mask_rho.values
+        else:
+            layer_mask = np.array(nk.h.values)
+            layer_mask = np.where(layer_mask < depth, 0, 1)
+            full_mask[i,:,:] = layer_mask
+    
     mask_array = xr.Dataset(
         coords = dict(    
             X=(['X'], x, {'units':'meter','standard_name':'projection_x_coordinate'}),
@@ -123,9 +137,9 @@ def extract_mask_from_file(file, output):
         data_vars = dict(
             lon=(['Y', 'X'], np.array(ds.lon_rho.values), {'grid_mapping': 'projection_stere','units':'degree_east', 'standard_name':'longitude','long_name':'longitude'}),
             lat=(['Y', 'X'], np.array(ds.lat_rho.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'}),
-            land_binary_mask=(['Y', 'X'], mask, {'standard_name': 'land_binary_mask', 'long_name':'land_binary_mask'})
+            land_binary_mask=(['depth', 'Y', 'X'], full_mask, {'standard_name': 'land_binary_mask', 'long_name':'land_binary_mask'})
     ))
-    mask_array['projection_stere']=proj
+    mask_array['projection_stere']=nk.projection_stere
     mask_array.to_netcdf(output)
 
     
@@ -135,5 +149,6 @@ if __name__ == '__main__':
     files = ['norkyst800_his_sdepth_20240501T00Z_m00_AN.nc', 'norkyst160_his_sdepth_20240501T00Z_m70_AN.nc', 'norkyst160_his_sdepth_20240501T00Z_m71_AN.nc']
     output_path = '/lustre/storeB/project/fou/hi/foccus/datasets/'
     outputs = ['norkyst_v3-800m_mask.nc', 'norkyst_v3-160m-70_mask.nc', 'norkyst_v3-160m-71_mask.nc']
+    m = ['m00', 'm70', 'm71']
     for i in range(len(files)):
-        extract_mask_from_file(path+files[i], output=output_path+outputs[i])
+        extract_mask_from_file(path+files[i], output=output_path+outputs[i], member=m[i])
