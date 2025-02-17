@@ -3,16 +3,17 @@
 #$ -q research-r8.q
 #$ -l h_rss=45G,mem_free=45G,h_data=45G
 #$ -t 1-45
-#$ -o /lustre/storeB/project/fou/hi/foccus/ina/outputs/OUT_$JOB_NAME.$JOB_ID.$TASK_ID
-#$ -e /lustre/storeB/project/fou/hi/foccus/ina/outputs/ERR_$JOB_NAME.$JOB_ID.$TASK_ID
-#$ -N preprocess-start-2025
+#$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID_$TASK_ID.out
+#$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID_$TASK_ID.err
+#$ -N prepro-2025-800m
+#$ -cwd
 
 bash -l
 conda deactivate
 
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
-PYTHON_SCRIPT=$FOCCUS_DIR/ina/ocean-ai/datasets/preprocess/impute_nans.py
-MASKFILE=$FOCCUS_DIR/ina/norkyst-data/postpro_changes/landsea_mask.nc
+PYTHON_SCRIPT=$(pwd -P)/impute_nans.py
+MASKFILE=$FOCCUS_DIR/datasets/norkyst_v3-800m_mask.nc
 # OUTDIR is set in python script to 
 # /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/
 
