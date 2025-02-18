@@ -20,17 +20,17 @@ MASKFILE=$FOCCUS_DIR/datasets/norkyst_v3-160m-70_mask.nc
 YEAR=2025
 DATADIR=/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/${YEAR}/
 # TO find the nr of jobs to start do 
-# >> find $DATADIR -type f -name "*2024*m70_AN.nc" | wc -l
+# >> find $DATADIR -type f -name "*norkyst160*2024*m70_AN.nc" | wc -l
 
 # Start one array job for each file in DATADIR (e.g. 2024/01/01, 2024/01/02, ...)
-# 295 files in 2024, 96 2025 for domain m70
-DATAFILE=$(find $DATADIR -type f -name "*${YEAR}*m70_AN.nc" | sort | sed -n "${SGE_TASK_ID}p")
+# 256 files in 2024, 48 2025 for domain m70 (17.02.20205)
+DATAFILE=$(find $DATADIR -type f -name "*norkyst160*${YEAR}*m70_AN.nc" | sort | sed -n "${SGE_TASK_ID}p")
 source $FOCCUS_DIR/python-envs/preprocess/bin/activate
 python3 $PYTHON_SCRIPT $DATAFILE $MASKFILE
 # file written to disk from PYTHON_SCRIPT will have the name {DATAFILE}_ml.nc ish
 
 # Then do the same for the other domain
-# 296 files in 2024, 96 2025 for domain m71
+# 257 files in 2024, 48 2025 for domain m71 (17.02.20205)
 #DATAFILE=$(find $DATADIR -type f -name "*${YEAR}*m71_AN.nc" | sort | sed -n "${SGE_TASK_ID}p")
 #source $FOCCUS_DIR/python-envs/preprocess/bin/activate
 #python3 $PYTHON_SCRIPT $DATAFILE $MASKFILE
