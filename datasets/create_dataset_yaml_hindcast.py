@@ -12,11 +12,11 @@ def find_valid_files(start = datetime.datetime(2024,1,1), end = datetime.datetim
 
     for day in range(delta+1):
         now = start + datetime.timedelta(days=day)
-        file = f'{now.year}/{now.month:02d}/norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
-        if os.path.exists(path+file):
-            valid_files.append(path+file)
+        file = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
+        if os.path.exists(path+f'{now.year}/{now.month:02d}/'+file):
+            valid_files.append(file)
         else:
-            invalid_files.append(path+file)
+            invalid_files.append(path+f'{now.year}/{now.month:02d}/'+file)
 
     return valid_files, invalid_files, path
 
@@ -37,6 +37,9 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         os.mkdir(path+'symlinks')
     if not os.path.exists(path+'symlinks/' + 'norkystv3-hindcast'):
         os.mkdir(path+'symlinks/'+'norkystv3-hindcast')
+    if not os.path.exists(path+'symlinks/'+'norkystv3-hindcast/'+f'{start.year}'):
+        os.mkdir(path+'symlinks/'+'norkystv3-hindcast/'+f'{start.year}')
+
     delta = (end-start).days
     for day in range(delta+1):
         now = start + datetime.timedelta(days=day)
@@ -45,7 +48,7 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         if p+file not in invalid_files:
             try:
                 symlink_name = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
-                os.symlink(p+file, path+'symlinks/norkystv3-hindcast/' + symlink_name)
+                os.symlink(p+file, path+f'symlinks/norkystv3-hindcast/{start.year}/' + symlink_name)
             except:
                 pass
 
@@ -64,7 +67,14 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         'build': {'groupby': 24},
         'resolution': 'o96',
         'statistics': {'allow_nans': list(nan_list)},
-        'input': {'netcdf': {'path': path+'symlinks/norkystv3-hindcast/*', 'param': list(params_list)}},
+        'input': {'join':
+                  {'netcdf':
+                   {'path':path+f'symlinks/norkystv3-hindcast/{start.year}/*',
+                    'param':list(params_list)},
+                    'repeated_dates':{
+                        'mode': 'constant',
+                        'source': {'netcdf':path+f'symlinks/norkystv3-hindcast/{start.year}/{valid_files[0]}', 'param':['h', 'sea_mask']}
+                    }}},
         'missing': invalid_times
     }
 
@@ -74,4 +84,4 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
 if __name__ == '__main__':
     params_list = ['ln_AKs', 'temperature', 'salinity', 'u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'w', 'zeta', 'Uwind_eastward', 'Vwind_northward']
     nan_list = params_list[:-3]
-    create_dataset_yaml_file(start = datetime.datetime(2012,1,1,0), end=datetime.datetime(2024,12,31), params_list=params_list, nan_list=nan_list)
+    create_dataset_yaml_file(start = datetime.datetime(2012,1,1,0), end=datetime.datetime(2012,1,10), params_list=params_list, nan_list=nan_list)
