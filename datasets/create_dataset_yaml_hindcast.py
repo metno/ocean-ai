@@ -68,13 +68,13 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         'resolution': 'o96',
         'statistics': {'allow_nans': list(nan_list)},
         'input': {'join':
-                  {'netcdf':
+                  [{'netcdf':
                    {'path':path+f'symlinks/norkystv3-hindcast/{start.year}/*',
-                    'param':list(params_list)},
-                    'repeated_dates':{
+                    'param':list(params_list)}},
+                    {'repeated_dates':{
                         'mode': 'constant',
-                        'source': {'netcdf':path+f'symlinks/norkystv3-hindcast/{start.year}/{valid_files[0]}', 'param':['h', 'sea_mask']}
-                    }}},
+                        'source': {'netcdf': {'path': path+f'symlinks/norkystv3-hindcast/{start.year}/{valid_files[0]}', 'param':['h', 'sea_mask']}}}
+                    }]},
         'missing': invalid_times
     }
 

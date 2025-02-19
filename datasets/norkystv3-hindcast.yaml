@@ -17,7 +17,7 @@ statistics:
   - w
 input:
   join:
-    netcdf:
+  - netcdf:
       path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/*
       param:
       - ln_AKs
@@ -31,13 +31,14 @@ input:
       - zeta
       - Uwind_eastward
       - Vwind_northward
-    repeated_dates:
+  - repeated_dates:
       mode: constant
       source:
-        netcdf: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20120105.nc
-        param:
-        - h
-        - sea_mask
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20120105.nc
+          param:
+          - h
+          - sea_mask
 missing:
 - 2012-01-01 00:00:00
 - 2012-01-01 01:00:00
