@@ -20,7 +20,7 @@ def find_valid_files(start = datetime.datetime(2024,1,1), end = datetime.datetim
 
     return valid_files, invalid_files, path
 
-def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], outfile = 'norkystv3-hindcast.yaml', path='/lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/', nan_list=[]):
+def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], outfile = 'norkystv3-hindcast.yaml', path='/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/', nan_list=[]):
     '''
         A function for creating yaml file for anemoi dataset. Creates a directory with symlinks to input files.
     Args:
@@ -43,8 +43,11 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         p = f'/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/{now.year}/{now.month:02d}/'
         file = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
         if p+file not in invalid_files:
-            symlink_name = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
-            os.symlink(p+file, path+'symlinks/norkystv3-hindcast/' + symlink_name)
+            try:
+                symlink_name = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
+                os.symlink(p+file, path+'symlinks/norkystv3-hindcast/' + symlink_name)
+            except:
+                pass
 
     invalid_times = []
     date_re = '(?<=)[0-9]*(?=\.nc)'
@@ -71,4 +74,4 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
 if __name__ == '__main__':
     params_list = ['ln_AKs', 'temperature', 'salinity', 'u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'w', 'zeta', 'Uwind_eastward', 'Vwind_northward']
     nan_list = params_list[:-3]
-    create_dataset_yaml_file(start = datetime.datetime(2012,1,1,0), end=datetime.datetime(2024,9,30), params_list=params_list, nan_list=nan_list)
+    create_dataset_yaml_file(start = datetime.datetime(2012,1,1,0), end=datetime.datetime(2024,12,31), params_list=params_list, nan_list=nan_list)
