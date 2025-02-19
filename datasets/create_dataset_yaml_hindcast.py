@@ -1,0 +1,74 @@
+import re
+import yaml
+import datetime
+import os
+import xarray as xr
+
+
+def find_valid_files(start = datetime.datetime(2024,1,1), end = datetime.datetime(2024,10,28), path='/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/'):
+    delta = (end-start).days
+    valid_files = []
+    invalid_files = []
+
+    for day in range(delta+1):
+        now = start + datetime.timedelta(days=day)
+        file = f'{now.year}/{now.month:02d}/norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
+        if os.path.exists(path+file):
+            valid_files.append(path+file)
+        else:
+            invalid_files.append(path+file)
+
+    return valid_files, invalid_files, path
+
+def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], outfile = 'norkystv3-hindcast.yaml', path='/lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/', nan_list=[]):
+    '''
+        A function for creating yaml file for anemoi dataset. Creates a directory with symlinks to input files.
+    Args:
+        start       [datetime]  :   start time for dataset creation.
+        end         [datetime]  :   end time for dataset creation.
+        frequency   [str]   :   string of dataset frequency in hours.
+        params_list [list]  :   list of strings of variable names.
+        outfile     [str]   :   name of output yaml file. The symlink directory created will be named after this as well. 
+    '''
+    valid_files, invalid_files, path = find_valid_files(start, end, path)
+    path = '/lustre/storeB/project/fou/hi/foccus/datasets/'
+    
+    if not os.path.exists(path+'symlinks'):
+        os.mkdir(path+'symlinks')
+    if not os.path.exists(path+'symlinks/' + 'norkystv3-hindcast'):
+        os.mkdir(path+'symlinks/'+'norkystv3-hindcast')
+    delta = (end-start).days
+    for day in range(delta+1):
+        now = start + datetime.timedelta(days=day)
+        p = f'/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/{now.year}/{now.month:02d}/'
+        file = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
+        if p+file not in invalid_files:
+            symlink_name = f'norkyst800-{now.year}{now.month:02d}{now.day:02d}.nc'
+            os.symlink(p+file, path+'symlinks/norkystv3-hindcast/' + symlink_name)
+
+    invalid_times = []
+    date_re = '(?<=)[0-9]*(?=\.nc)'
+    for file in invalid_files:
+        file = re.findall(date_re, file)[0]
+        date = datetime.datetime.strptime(file, '%Y%m%d')
+        invalid_times.append(date)
+        for t in range(1,24):
+            date = date + datetime.timedelta(hours=1)
+            invalid_times.append(date)
+
+    input_dict = {
+        'dates': {'start': start, 'end': end, 'frequency': frequency},
+        'build': {'groupby': 24},
+        'resolution': 'o96',
+        'statistics': {'allow_nans': list(nan_list)},
+        'input': {'netcdf': {'path': path+'symlinks/norkystv3-hindcast/*', 'param': list(params_list)}},
+        'missing': invalid_times
+    }
+
+    with open(outfile, 'w') as f:
+        yaml.dump(input_dict, f, sort_keys=False)
+
+if __name__ == '__main__':
+    params_list = ['ln_AKs', 'temperature', 'salinity', 'u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'w', 'zeta', 'Uwind_eastward', 'Vwind_northward']
+    nan_list = params_list[:-3]
+    create_dataset_yaml_file(start = datetime.datetime(2012,1,1,0), end=datetime.datetime(2024,9,30), params_list=params_list, nan_list=nan_list)
