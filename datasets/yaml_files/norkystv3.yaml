@@ -3,7 +3,7 @@ dates:
   end: 2024-12-02 20:00:00
   frequency: 1h
 build:
-  groupby: 24
+  group_by: 24
 resolution: o96
 statistics:
   allow_nans:
@@ -14,7 +14,7 @@ statistics:
   - w
 input:
   netcdf:
-    path: /lustre/storeB/project/fou/hi/foccus/datasets/*
+    path: /lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/*
     param:
     - temperature
     - salinity
