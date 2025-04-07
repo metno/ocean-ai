@@ -82,6 +82,6 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         yaml.dump(input_dict, f, sort_keys=False)
 
 if __name__ == '__main__':
-    params_list = ['ln_AKs', 'temperature', 'salinity', 'u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'w', 'zeta', 'Uwind_eastward', 'Vwind_northward']
+    params_list = ['ln_AKs', 'temperature', 'salinity', 'u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'zeta', 'Uwind_eastward', 'Vwind_northward']
     nan_list = params_list[:-3]
-    create_dataset_yaml_file(start = datetime.datetime(2012,1,1,0), end=datetime.datetime(2012,1,10), params_list=params_list, nan_list=nan_list)
+    create_dataset_yaml_file(start = datetime.datetime(2023,1,1,0), end=datetime.datetime(2023,12,31), params_list=params_list, nan_list=nan_list, outfile='yaml_files/norkystv3-hindcast-2023.yaml')
