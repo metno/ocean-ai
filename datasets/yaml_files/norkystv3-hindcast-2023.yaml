@@ -7,7 +7,7 @@ build:
   variable_naming: '{param}_{s_rho}'
 statistics:
   allow_nans:
-  - ln_AKs
+  #- ln_AKs
   - temperature
   - salinity
   - u_eastward
@@ -22,7 +22,7 @@ input:
   - netcdf:
       path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/*
       param:
-      - ln_AKs
+      #- ln_AKs
       - temperature
       - salinity
       - u_eastward
