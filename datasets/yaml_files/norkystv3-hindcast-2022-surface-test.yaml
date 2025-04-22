@@ -8,29 +8,31 @@ build:
 statistics:
   allow_nans:
   - temperature
-  - salinity
-  - u_eastward
-  - v_northward
-  - ubar_eastward
-  - vbar_northward
-  - zeta
-  - Uwind_eastward
-  - Vwind_northward
+  #- salinity
+  #- u_eastward
+  #- v_northward
+  #- ubar_eastward
+  #- vbar_northward
+  #- zeta
+  #- Uwind_eastward
+  #- Vwind_northward
 input:
   join:
   - netcdf:
       path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2022/*
       param:
       - temperature
-      - salinity
-      - u_eastward
-      - v_northward
-      - ubar_eastward
-      - vbar_northward
-      - zeta
-      - Uwind_eastward
-      - Vwind_northward
-      levelist: [39, 38, 37]
+      #- salinity
+      #- u_eastward
+      #- v_northward
+      #- ubar_eastward
+      #- vbar_northward
+      #- zeta
+      #- Uwind_eastward
+      #- Vwind_northward
+      select: 
+      - temperature_-0.00490384615384615
+      - temperature_-0.0152884615384615
   - repeated_dates:
       mode: constant
       source:
