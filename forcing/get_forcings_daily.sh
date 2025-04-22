@@ -32,14 +32,15 @@ echo "Check for missing files (in case dataroom B shutdown)"
 source /lustre/storeB/project/fou/hi/foccus/forcing_check_dates.sh $OUTDIR
 echo "See file /lustre/storeB/project/fou/hi/foccus/forcing_warning.out"
 
-# email if there are errors in the output file
-# (think it should work to do this inside qsub since the above tasks will have finished by now)
-source /lustre/storeB/project/fou/hi/foccus/cronjob_email_error.sh
-
 #---------------------------------------------------------------------
 # TODO: atm files are not cleaned up yet
 # remove uneccecary data from the forcing files (and save space)
 source forcing_cleanup.sh
+
+#---------------------------------------------------------------------
+# email if there are errors in the output file
+# (think it should work to do this inside qsub since the above tasks will have finished by now)
+source /lustre/storeB/project/fou/hi/foccus/cronjob_email_error.sh
 
 #---------------------------------------------------------------------
 # Open crontab: 
