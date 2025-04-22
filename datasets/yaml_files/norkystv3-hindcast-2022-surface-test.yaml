@@ -1,6 +1,6 @@
 dates:
   start: '2022-01-01T00:00:00'
-  end: '2022-01-01T23:00:00'
+  end: '2022-01-01T02:00:00'
   frequency: 1h
 build:
   group_by: 24
@@ -19,9 +19,12 @@ statistics:
 input:
   join:
   - netcdf:
-      path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2022/*
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2022/norkyst800-20220101.nc
+      patch:
+        coordinates: [s_rho]
       param:
-      - temperature
+      - temperature_-0.004903846153846154
+      - temperature_-0.00490384615384615
       #- salinity
       #- u_eastward
       #- v_northward
@@ -30,9 +33,12 @@ input:
       #- zeta
       #- Uwind_eastward
       #- Vwind_northward
-      select: 
-      - temperature_-0.00490384615384615
-      - temperature_-0.0152884615384615
+      #levtype: s_rho
+      #levelist: [-0.004903846153846154, -0.015288461538461539]
+      #levelist: [-1,2,3]
+      #select: 
+      #- temperature_-0.004903846153846154
+      #- temperature_-0.015288461538461539
   - repeated_dates:
       mode: constant
       source:
