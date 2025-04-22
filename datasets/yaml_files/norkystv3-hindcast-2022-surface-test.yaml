@@ -30,7 +30,7 @@ input:
       - zeta
       - Uwind_eastward
       - Vwind_northward
-      levelist: [-0.00490384615384615, -0.0152884615384615, -0.0264423076923077]
+      levelist: [39, 38, 37]
   - repeated_dates:
       mode: constant
       source:
