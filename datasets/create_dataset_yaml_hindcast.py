@@ -62,10 +62,11 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
             date = date + datetime.timedelta(hours=1)
             invalid_times.append(date)
 
+    start_str = start.strftime('%Y-%m-%dT%H:%M:%S')
+    end_str = end.strftime('%Y-%m-%dT%H:%M:%S')
     input_dict = {
-        'dates': {'start': start, 'end': end, 'frequency': frequency},
-        'build': {'group_by': 24},
-        'resolution': 'o96',
+        'dates': {'start': start_str, 'end': end_str, 'frequency': frequency},
+        'build': {'group_by': 24, 'variable_naming': '{param}_{s_rho}'},
         'statistics': {'allow_nans': list(nan_list)},
         'input': {'join':
                   [{'netcdf':
