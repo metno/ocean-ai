@@ -35,7 +35,7 @@ echo "See file /lustre/storeB/project/fou/hi/foccus/forcing_warning.out"
 #---------------------------------------------------------------------
 # TODO: atm files are not cleaned up yet
 # remove uneccecary data from the forcing files (and save space)
-source forcing_cleanup.sh
+source /lustre/storeB/project/fou/hi/foccus/forcing_cleanup.sh
 
 #---------------------------------------------------------------------
 # email if there are errors in the output file
