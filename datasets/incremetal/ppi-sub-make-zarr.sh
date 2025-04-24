@@ -32,7 +32,7 @@ anemoi-datasets load $ZARRFILE --part 1/3 #1/100
 #anemoi-datasets patch $ZARRFILE
 
 # Change frequency from string to int
-python3 $FOCCUS_DIR/ina/aifs-mono-ocean/make-datasets/set_ds_frequency.py $ZARRFILE
+python3 $FOCCUS_DIR/ina/aifs-mono-ocean/make-datasets/postpro_zarr.py $ZARRFILE
 # TODO: also fix resolution in above script!!
 
 
