@@ -6,7 +6,7 @@ See subdir /incremental on how to create datasets incrementally.
 ## Norkyst operational datasets
 1. preprocess & impute dynamical nan's
 2. anemoi-datasets create (incrementally)
-3. fix frequency, int->string and resolution (`set_ds_frequency.py`)
+3. fix frequency, int->string and resolution (`postpro_zarr.py`)
 
 ## Norkyst Hindcast 
 No dynamical nan's to remove. Steps:
