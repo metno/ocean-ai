@@ -1,0 +1,63 @@
+dates:
+  start: '2022-01-01T00:00:00'
+  end: '2022-01-01T02:00:00'
+  frequency: 1h
+build:
+  group_by: 24
+  variable_naming: '{param}_{s_rho}'
+statistics:
+  allow_nans:
+  - temperature
+  #- salinity
+  #- u_eastward
+  #- v_northward
+  #- ubar_eastward
+  #- vbar_northward
+  #- zeta
+  #- Uwind_eastward
+  #- Vwind_northward
+input:
+  join:
+  - netcdf:
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2022/norkyst800-20220101.nc
+      patch:
+        coordinates: [s_rho]
+      param:
+      - temperature_-0.004903846153846154
+      - temperature_-0.00490384615384615
+      #- salinity
+      #- u_eastward
+      #- v_northward
+      #- ubar_eastward
+      #- vbar_northward
+      #- zeta
+      #- Uwind_eastward
+      #- Vwind_northward
+      #levtype: s_rho
+      #levelist: [-0.004903846153846154, -0.015288461538461539]
+      #levelist: [-1,2,3]
+      #select: 
+      #- temperature_-0.004903846153846154
+      #- temperature_-0.015288461538461539
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2022/norkyst800-20220101.nc
+          param:
+          - h
+          - sea_mask
+missing: []
+
+# s_rho = -0.979903846153846, -0.940288461538462, -0.901442307692308, 
+#    -0.863365384615385, -0.826057692307692, -0.789519230769231, -0.75375, 
+#    -0.71875, -0.684519230769231, -0.651057692307692, -0.618365384615385, 
+#    -0.586442307692308, -0.555288461538462, -0.524903846153846, 
+#    -0.495288461538462, -0.466442307692308, -0.438365384615385, 
+#    -0.411057692307692, -0.384519230769231, -0.35875, -0.33375, 
+#    -0.309519230769231, -0.286057692307692, -0.263365384615385, 
+#    -0.241442307692308, -0.220288461538462, -0.199903846153846, 
+#    -0.180288461538462, -0.161442307692308, -0.143365384615385, 
+#    -0.126057692307692, -0.109519230769231, -0.09375, -0.07875, 
+#    -0.0645192307692308, -0.0510576923076923, -0.0383653846153846, 
+#    -0.0264423076923077, -0.0152884615384615, -0.00490384615384615
