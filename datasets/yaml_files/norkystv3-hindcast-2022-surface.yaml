@@ -25,13 +25,16 @@ input:
       - salinity
       - u_eastward
       - v_northward
+      s_rho:
+      - -0.004903846153846154
+  - netcdf:
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2022/*
+      param:
       - ubar_eastward
       - vbar_northward
       - zeta
       - Uwind_eastward
       - Vwind_northward
-      s_rho:
-      - -0.004903846153846154
   - repeated_dates:
       mode: constant
       source:

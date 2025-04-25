@@ -20,7 +20,7 @@ def find_valid_files(start = datetime.datetime(2024,1,1), end = datetime.datetim
 
     return valid_files, invalid_files, path
 
-def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], outfile = 'norkystv3-hindcast.yaml', path='/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/', nan_list=[], layers=[0,-1]):
+def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = datetime.datetime(2024,1,1,18), frequency = '1h', params_list = ['temperature', 'salinity'], surface_params_list = ['Uwind_eastward', 'Vwind_northward'], outfile = 'norkystv3-hindcast.yaml', path='/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/', nan_list=[], layers=[0,-1]):
     '''
         A function for creating yaml file for anemoi dataset. Creates a directory with symlinks to input files.
     Args:
@@ -117,6 +117,9 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
                    {'path':path+f'symlinks/norkystv3-hindcast/{start.year}/*',
                     'param':list(params_list),
                     's_rho':list(s_rho_layers)}},
+                    {'netcdf':
+                    {'path':path+f'symlinks/norkystv3-hindcast/{start.year}/*',
+                     'param':list(surface_params_list)}},
                     {'repeated_dates':{
                         'mode': 'constant',
                         'source': {'netcdf': {'path': path+f'symlinks/norkystv3-hindcast/{start.year}/{valid_files[0]}', 'param':['h', 'sea_mask']}}}
@@ -127,6 +130,7 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
         yaml.dump(input_dict, f, sort_keys=False)
 
 if __name__ == '__main__':
-    params_list = ['temperature', 'salinity', 'u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'zeta', 'Uwind_eastward', 'Vwind_northward']
-    nan_list = params_list
-    create_dataset_yaml_file(start = datetime.datetime(2022,1,1,0), end=datetime.datetime(2022,12,31,23), params_list=params_list, nan_list=nan_list, outfile='yaml_files/norkystv3-hindcast-2022-surface.yaml', layers=[0,1])
+    params_list = ['temperature', 'salinity', 'u_eastward', 'v_northward']
+    surface_params_list = ['ubar_eastward', 'vbar_northward', 'zeta', 'Uwind_eastward', 'Vwind_northward']
+    nan_list = params_list + surface_params_list
+    create_dataset_yaml_file(start = datetime.datetime(2023,1,1,0), end=datetime.datetime(2023,12,31,23), params_list=params_list, surface_params_list=surface_params_list, nan_list=nan_list, outfile='yaml_files/norkystv3-hindcast-2023-surface.yaml', layers=[0,1])
