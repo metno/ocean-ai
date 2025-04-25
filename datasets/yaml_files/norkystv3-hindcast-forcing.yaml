@@ -31,6 +31,12 @@ input:
       - sin_local_time
       - insolation
       template: ${input.join.0.netcdf}
-
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/river_positions.nc
+          param:
+          - river_binary_mask
 
 missing: []
