@@ -19,5 +19,18 @@ input:
       - Vwind
       - cloud
       - rain
+  - constants:
+      param:
+      - cos_latitude
+      - cos_longitude
+      - sin_latitude
+      - sin_longitude
+      - cos_julian_day
+      - cos_local_time
+      - sin_julian_day
+      - sin_local_time
+      - insolation
+      template: ${input.join.0.netcdf}
+
 
 missing: []
