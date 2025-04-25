@@ -47,7 +47,7 @@ def river_values():
 
 def river_binary_mask():
     river = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=0)
-    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat']]
+    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat', 'projection_stere']]
     river_pos = np.zeros([len(nk800.Y), len(nk800.X)])
     for r in range(len(river.river.values)):
         pos = [int(river.isel(river=r).river_Xposition.values), int(river.isel(river=r).river_Eposition.values)]
@@ -63,7 +63,7 @@ def river_binary_mask():
             lat=(['Y', 'X'], np.array(nk800.lat.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'}),
             river_binary_mask=(['Y', 'X'], river_pos, {'grid_mapping': 'projection_stere', 'standard_name': 'river_binary_mask', 'long_name': 'river_binary_mask'}))
         )
-
+    river_ds['projection_stere'] = nk800.projection_stere
     river_ds.to_netcdf('river_positions.nc')
 river_binary_mask()
 
