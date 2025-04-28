@@ -38,5 +38,11 @@ input:
           path: /lustre/storeB/project/fou/hi/foccus/datasets/river_positions.nc
           param:
           - river_binary_mask
-
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/f.nc
+          param:
+          - f
 missing: []

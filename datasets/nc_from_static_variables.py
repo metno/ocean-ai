@@ -52,7 +52,9 @@ def constant_landmask(outfile='surface_mask_no_time.nc'):
     ds.to_netcdf(outfile)
 
 if __name__ == '__main__':
-    file = '/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/01/01/norkyst800_his_zdepth_20240101T00Z_m00_AN.nc'
+    file = '/home/havis/sea/ROMS/metroms_apps/norkyst_v3/norkyst_oper/Run/Grid/norkyst_grd_v31.nc'
+    #file = '/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/01/01/norkyst800_his_zdepth_20240101T00Z_m00_AN.nc'
     ds = xr.open_dataset(file)
     #extract_variable_without_time(ds, 'h')
-    constant_landmask()
+    #constant_landmask()
+    extract_variable_without_time(ds, 'f', 'f.nc')
