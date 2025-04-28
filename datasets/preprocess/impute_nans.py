@@ -133,7 +133,7 @@ def impute_layer(var,land_sea_mask,lon,lat,idepth,itime,method='linear',plot=Fal
     #t0 = pytime.time()
 
     # Get only values in the ocean for one depth and time step
-    sea_mask = ~land_sea_mask[idepth] 
+    sea_mask = ~land_sea_mask[idepth] # This picks out ocean (True for ocean)
     ocean_slice = var[itime, idepth][sea_mask] # get a 1D (flat) array e.g. (6371,)
 
     # Get True where nan in ocean domain
@@ -333,11 +333,11 @@ def run(file,maskfile,dir_out,outfile_ending='_ml',varname_list=['salinity','tem
     # Get the land sea mask (3D DataArray)
     ds_mask = xr.open_dataset(maskfile)
     # Create a np bool array with True for ocean (==0)
-    try:
-        land_sea_mask_org = (ds_mask.isel(time=0)['land_binary_mask'].values == 0) # shape: (15, 1148, 2747)
-    except ValueError:
-        print("ERROR: there is something wrong with the mask file!")
-
+    if 'time' in ds_mask.dims:
+        land_sea_mask_org = (ds_mask.isel(time=0)['land_binary_mask'].values == 0) # shape: (depth, 1148, 2747)
+    else:
+        land_sea_mask_org = (ds_mask['land_binary_mask'].values == 0) 
+    
     # Open the full dataset:
     ds = xr.open_dataset(file)
 
