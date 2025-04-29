@@ -4,10 +4,10 @@
 #$ -l h_rss=30G,mem_free=30G,h_data=30G
 #$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
-#$ -N surfacehindcast2019
+#$ -N surfacehindcast2018
 #$ -t 1-366
 
-YEAR=2019
+YEAR=2018
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 OUTDIR=$FOCCUS_DIR/datasets/
 ZARRFILE=$OUTDIR/norkystv3_hindcast_${YEAR}_surface.zarr
