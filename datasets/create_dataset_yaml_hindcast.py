@@ -133,4 +133,4 @@ if __name__ == '__main__':
     params_list = ['temperature', 'salinity', 'u_eastward', 'v_northward']
     surface_params_list = ['ubar_eastward', 'vbar_northward', 'zeta', 'Uwind_eastward', 'Vwind_northward']
     nan_list = params_list + surface_params_list
-    create_dataset_yaml_file(start = datetime.datetime(2016,1,1,0), end=datetime.datetime(2016,12,31,23), params_list=params_list, surface_params_list=surface_params_list, nan_list=nan_list, outfile='yaml_files/norkystv3-hindcast-2016-surface.yaml', layers=[0,1])
+    create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end=datetime.datetime(2024,12,31,23), params_list=params_list, surface_params_list=surface_params_list, nan_list=nan_list, outfile='yaml_files/norkystv3-hindcast-2024-surface.yaml', layers=[0,1])
