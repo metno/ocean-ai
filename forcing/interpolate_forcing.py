@@ -75,7 +75,7 @@ def run_hor_interp(file, outdir):
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)
     
     file = file.split('/')[-1]
-    vars = ['Pair']#, 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
+    vars = ['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
     print(file)
     reference_date = np.datetime64('1970-01-01T00:00:00', 's')
     times = np.zeros_like(ds.time.values, dtype='int')
