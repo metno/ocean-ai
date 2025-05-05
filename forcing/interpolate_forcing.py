@@ -72,7 +72,7 @@ def run_hor_interp(file, outdir):
     import xarray as xr
 
     ds = xr.open_dataset(file).isel(time=slice(0,3))
-    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)
+    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)[['lon', 'lat']]
     
     file = file.split('/')[-1]
     vars = ['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
