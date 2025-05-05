@@ -117,7 +117,9 @@ def run_hor_interp(file):
     atm_ds.to_netcdf(file.replace('.nc', '_NF800.nc'))
 
 if __name__ == '__main__':
-    file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
+    import sys
+    file = sys.argv[1]
+    #file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
     run_hor_interp(file)
 
 
