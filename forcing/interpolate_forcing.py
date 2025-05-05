@@ -43,6 +43,7 @@ def interpolate_atm_forcing(atm_file):
 def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
     from scipy.interpolate import griddata
     import sys
+    import os
     #From Nils, https://gitlab.met.no/ocean-ice/tools/toolbox/-/blob/main/toolbox/roms/ROMStools.py?ref_type=heads
     #This will interpolate the input variable to the output grid
     if ( len(vari.shape) == 1 ):
@@ -54,7 +55,7 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
         y, x = lato.shape
         varo = np.zeros([t,y,x])
         for i in range(t):
-            print(f'{i+1} : {t}')
+            os.system(f'echo {i+1} : {t}')
             varo[i,:,:] = griddata((np.hstack(lati),np.hstack(loni)),np.hstack(vari[i,:,:]),(lato,lono), method)
     elif ( len(vari.shape) == 4 ):
         t, s, ydum, xdum = vari.shape
@@ -70,7 +71,7 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
 
 def run_hor_interp(file, outdir):
     import xarray as xr
-
+    import os
     ds = xr.open_dataset(file)
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)[['lon', 'lat']]
     
@@ -97,6 +98,7 @@ def run_hor_interp(file, outdir):
         ))
     for var in vars:
         print(var)
+        os.system(f'echo {var}')
         varo = hor_interp(ds.lat.values, ds.lon.values, nk800.lat.values, nk800.lon.values, ds[var], method='linear')
 
         # A little rough coding because atm_ds = atm_ds.assign(var=(['time', 'Y', 'X'], varo)) set the variable name to 'var' and overwrote the previous. 
