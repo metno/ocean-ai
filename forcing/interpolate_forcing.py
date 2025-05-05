@@ -68,14 +68,15 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
         sys.exit()
     return varo
 
-def run_hor_interp(file):
+def run_hor_interp(file, outdir):
     import xarray as xr
 
-    ds = xr.open_dataset(file)
+    ds = xr.open_dataset(file).isel(time=slice(0,3))
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)
     
-    vars = ['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
-    
+    file = file.split('/')[-1]
+    vars = ['Pair']#, 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
+    print(file)
     reference_date = np.datetime64('1970-01-01T00:00:00', 's')
     times = np.zeros_like(ds.time.values, dtype='int')
 
@@ -114,12 +115,13 @@ def run_hor_interp(file):
             atm_ds = atm_ds.assign(cloud=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'1', 'standard_name':'cloud_area_fraction'}))
         elif var == 'rain':
             atm_ds = atm_ds.assign(rain=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'kg m-2 s-1', 'standard_name':'precipitation_flux'}))
-    atm_ds.to_netcdf(file.replace('.nc', '_NF800.nc'))
+    atm_ds.to_netcdf(outdir + file.replace('.nc', '_NF800.nc'))
 
 if __name__ == '__main__':
     import sys
     file = sys.argv[1]
+    outdir = sys.argv[2]
     #file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
-    run_hor_interp(file)
+    run_hor_interp(file, outdir)
 
 
