@@ -68,11 +68,10 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
         sys.exit()
     return varo
 
-
-if __name__ == '__main__':
+def run_hor_interp(file):
     import xarray as xr
-    file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
-    ds = xr.open_dataset(file).isel(time=slice(1,3))
+
+    ds = xr.open_dataset(file)
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)
     
     vars = ['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
@@ -116,5 +115,9 @@ if __name__ == '__main__':
         elif var == 'rain':
             atm_ds = atm_ds.assign(rain=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'kg m-2 s-1', 'standard_name':'precipitation_flux'}))
     atm_ds.to_netcdf(file.replace('.nc', '_NF800.nc'))
+
+if __name__ == '__main__':
+    file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
+    run_hor_interp(file)
 
 
