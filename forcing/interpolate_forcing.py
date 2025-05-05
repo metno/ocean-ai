@@ -72,7 +72,7 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
 def run_hor_interp(file, outdir):
     import xarray as xr
     import os
-    ds = xr.open_dataset(file)
+    ds = xr.open_dataset(file).isel(time=slice(1,3))
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)[['lon', 'lat']]
     
     file = file.split('/')[-1]
@@ -100,7 +100,7 @@ def run_hor_interp(file, outdir):
         print(var)
         os.system(f'echo {var}')
         varo = hor_interp(ds.lat.values, ds.lon.values, nk800.lat.values, nk800.lon.values, ds[var], method='linear')
-
+        np.save(file.replace('.nc', f'_{var}.npy'), varo)
         # A little rough coding because atm_ds = atm_ds.assign(var=(['time', 'Y', 'X'], varo)) set the variable name to 'var' and overwrote the previous. 
         # This can probably be changed to something cleaner, but as long as it works its fine for now. 
         if var == 'Pair':
