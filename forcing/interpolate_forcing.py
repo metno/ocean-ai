@@ -54,6 +54,7 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
         y, x = lato.shape
         varo = np.zeros([t,y,x])
         for i in range(t):
+            print(f'{i+1} : {t}')
             varo[i,:,:] = griddata((np.hstack(lati),np.hstack(loni)),np.hstack(vari[i,:,:]),(lato,lono), method)
     elif ( len(vari.shape) == 4 ):
         t, s, ydum, xdum = vari.shape
@@ -70,13 +71,50 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
 
 if __name__ == '__main__':
     import xarray as xr
-    ds = xr.open_dataset('arome_meps_2_5km_2020010100-2020020412_ext.nc').isel(time=slice(1,3))
+    file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
+    ds = xr.open_dataset(file).isel(time=slice(1,3))
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)
-    var = hor_interp(ds.lat.values, ds.lon.values, nk800.lat.values, nk800.lon.values, ds.Qair, method='linear')
-    print(var)
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(1,2)
     
-    ax[0].scatter(ds.lon, ds.lat, c=ds.Qair.isel(time=0), vmin=0, vmax=100)
-    ax[1].scatter(nk800.lon, nk800.lat, c=var[0,:,:], vmin=0, vmax=100)
-    plt.savefig('atm_nk800_lin.png')
+    vars = ['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
+    
+    reference_date = np.datetime64('1970-01-01T00:00:00', 's')
+    times = np.zeros_like(ds.time.values, dtype='int')
+
+    for time in range(len(times)):
+        difference_in_seconds = (ds.isel(time=time).time.values - reference_date).astype('timedelta64[s]')
+        difference_in_hours = difference_in_seconds / np.timedelta64(1, 'h')
+        times[time] = difference_in_hours
+
+    atm_ds = xr.Dataset(
+        coords = dict(
+            X=(['X'], np.array(nk800.X.values), {'units':'meter','standard_name':'projection_x_coordinate'}),
+            Y=(['Y'], np.array(nk800.Y.values), {'units':'meters', 'standard_name':'projection_y_coordinate'}),
+            time=(['time'], times, {'long_name':'time since initialization', 'units':f'seconds since 1970-01-01 00:00:00', 'standard_name':'time', 'calendar':'gregorian'}),
+        ),
+        data_vars = dict(
+            lon=(['Y', 'X'], np.array(nk800.lon.values), {'grid_mapping': 'projection_stere','units':'degree_east', 'standard_name':'longitude','long_name':'longitude'}),
+            lat=(['Y', 'X'], np.array(nk800.lat.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'})
+        ))
+    for var in vars:
+        print(var)
+        varo = hor_interp(ds.lat.values, ds.lon.values, nk800.lat.values, nk800.lon.values, ds[var], method='linear')
+
+        # A little rough coding because atm_ds = atm_ds.assign(var=(['time', 'Y', 'X'], varo)) set the variable name to 'var' and overwrote the previous. 
+        # This can probably be changed to something cleaner, but as long as it works its fine for now. 
+        if var == 'Pair':
+            atm_ds = atm_ds.assign(Pair=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'Pa', 'standard_name':'surface_air_pressure'}))
+        elif var == 'Uwind':
+            atm_ds = atm_ds.assign(Uwind=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'meter second-1', 'standard_name':'eastward_wind'}))
+        elif var == 'Vwind':
+            atm_ds = atm_ds.assign(Vwind=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'meter second-1', 'standard_name':'northward_wind'}))
+        elif var == 'Tair':
+            atm_ds = atm_ds.assign(Tair=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'K', 'standard_name':'air_potential_temperature'}))
+        elif var == 'Qair':
+            atm_ds = atm_ds.assign(Qair=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'1', 'standard_name':'relative_humidity'}))
+        elif var == 'cloud':
+            atm_ds = atm_ds.assign(cloud=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'1', 'standard_name':'cloud_area_fraction'}))
+        elif var == 'rain':
+            atm_ds = atm_ds.assign(rain=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'kg m-2 s-1', 'standard_name':'precipitation_flux'}))
+    atm_ds.to_netcdf(file.replace('.nc', '_NF800.nc'))
+
+
