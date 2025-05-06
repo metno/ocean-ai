@@ -129,6 +129,6 @@ if __name__ == '__main__':
     outfile_extension = sys.argv[4]
     #file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
     for var in vars:
-        run_hor_interp(file, outdir, var, var)
+        run_hor_interp(file, outdir, [var], var)
 
 
