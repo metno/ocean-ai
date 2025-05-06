@@ -69,15 +69,14 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
         sys.exit()
     return varo
 
-def run_hor_interp(file, outdir):
+def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain'], outfile_extension=None):
     import xarray as xr
     import os
-    ds = xr.open_dataset(file).isel(time=slice(1,3))
+    ds = xr.open_dataset(file)
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)[['lon', 'lat']]
     
     file = file.split('/')[-1]
-    vars = ['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain']
-    print(file)
+    os.system(f'echo {file}')
     reference_date = np.datetime64('1970-01-01T00:00:00', 's')
     times = np.zeros_like(ds.time.values, dtype='int')
 
@@ -97,7 +96,6 @@ def run_hor_interp(file, outdir):
             lat=(['Y', 'X'], np.array(nk800.lat.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'})
         ))
     for var in vars:
-        print(var)
         os.system(f'echo {var}')
         varo = hor_interp(ds.lat.values, ds.lon.values, nk800.lat.values, nk800.lon.values, ds[var], method='linear')
         np.save(file.replace('.nc', f'_{var}.npy'), varo)
@@ -117,13 +115,19 @@ def run_hor_interp(file, outdir):
             atm_ds = atm_ds.assign(cloud=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'1', 'standard_name':'cloud_area_fraction'}))
         elif var == 'rain':
             atm_ds = atm_ds.assign(rain=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'kg m-2 s-1', 'standard_name':'precipitation_flux'}))
-    atm_ds.to_netcdf(outdir + file.replace('.nc', '_NF800.nc'))
+    if outfile_extension is not None:
+        atm_ds.to_netcdf(outdir + file.replace('.nc', '_NF800.nc'))
+    else:
+        atm_ds.to_netcdf(outdir + file.replace('.nc', f'_NF800_{outfile_extension}.nc'))
+    
 
 if __name__ == '__main__':
     import sys
     file = sys.argv[1]
     outdir = sys.argv[2]
+    vars = [(x) for x in sys.argv[3].split(',')]
+    outfile_extension = sys.argv[4]
     #file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
-    run_hor_interp(file, outdir)
+    run_hor_interp(file, outdir, vars, outfile_extension)
 
 
