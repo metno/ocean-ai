@@ -54,7 +54,7 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
         t, ydum, xdum = vari.shape
         y, x = lato.shape
         varo = np.zeros([t,y,x])
-        for i in range(t):
+        for i in range(t): # can't do varo[:,:,:] = ...vari[:,:,:]
             os.system(f'echo {i+1} : {t}')
             varo[i,:,:] = griddata((np.hstack(lati),np.hstack(loni)),np.hstack(vari[i,:,:]),(lato,lono), method)
     elif ( len(vari.shape) == 4 ):
@@ -128,6 +128,7 @@ if __name__ == '__main__':
     vars = [(x) for x in sys.argv[3].split(',')]
     outfile_extension = sys.argv[4]
     #file = 'arome_meps_2_5km_2020010100-2020020412_ext.nc'
-    run_hor_interp(file, outdir, vars, outfile_extension)
+    for var in vars:
+        run_hor_interp(file, outdir, var, var)
 
 
