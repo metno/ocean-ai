@@ -98,7 +98,7 @@ def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair',
     for var in vars:
         os.system(f'echo {var}')
         varo = hor_interp(ds.lat.values, ds.lon.values, nk800.lat.values, nk800.lon.values, ds[var], method='linear')
-        np.save(file.replace('.nc', f'_{var}.npy'), varo)
+        #np.save(file.replace('.nc', f'_{var}.npy'), varo)
         # A little rough coding because atm_ds = atm_ds.assign(var=(['time', 'Y', 'X'], varo)) set the variable name to 'var' and overwrote the previous. 
         # This can probably be changed to something cleaner, but as long as it works its fine for now. 
         if var == 'Pair':
