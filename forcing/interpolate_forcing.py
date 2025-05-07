@@ -115,9 +115,9 @@ def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair',
             atm_ds = atm_ds.assign(cloud=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'1', 'standard_name':'cloud_area_fraction'}))
         elif var == 'rain':
             atm_ds = atm_ds.assign(rain=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'kg m-2 s-1', 'standard_name':'precipitation_flux'}))
-    if outfile_extension is not None:
+    if outfile_extension is None:
         atm_ds.to_netcdf(outdir + file.replace('.nc', '_NF800.nc'))
-    else:
+    elif outfile_extension is not None:
         atm_ds.to_netcdf(outdir + file.replace('.nc', f'_NF800_{outfile_extension}.nc'))
     
 
