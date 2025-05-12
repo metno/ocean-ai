@@ -89,7 +89,8 @@ def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair',
         coords = dict(
             X=(['X'], np.array(nk800.X.values), {'units':'meter','standard_name':'projection_x_coordinate'}),
             Y=(['Y'], np.array(nk800.Y.values), {'units':'meters', 'standard_name':'projection_y_coordinate'}),
-            time=(['time'], times, {'long_name':'time since initialization', 'units':f'hours since 1970-01-01 00:00:00', 'standard_name':'time', 'calendar':'gregorian'}),
+            #time=(['time'], times, {'long_name':'time since initialization', 'units':f'hours since 1970-01-01 00:00:00', 'standard_name':'time', 'calendar':'gregorian'}),
+            time=ds.time,
         ),
         data_vars = dict(
             lon=(['Y', 'X'], np.array(nk800.lon.values), {'grid_mapping': 'projection_stere','units':'degree_east', 'standard_name':'longitude','long_name':'longitude'}),
