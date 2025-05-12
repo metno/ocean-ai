@@ -6,7 +6,7 @@
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
 #$ -N hor_interp
 
-ATM_FILE=arome_meps_2_5km_2020010100-2020020412_ext.nc
+ATM_FILE=arome_meps_2_5km_2024010100-2025010100_ext_newTair.nc
 #arome_meps_2_5km_2017090700_ext.nc #arome_meps_2_5km_2017090609-2018010100_ext.nc
 
 OUTDIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/
