@@ -44,8 +44,8 @@ for ivar in range(11):
         var = ds[itime,ivar,:,:]  # Request enough memory!! About 103 GiB for shape (8784, 1, 3153556) and data type float32
         var_ocean = var[sea_mask] # get a 1D (flat) array (1822664,)
         
-        if itime % 1000 == 0:
-            # print itime every 1000
+        if itime % 500 == 0:
+            # print itime every 500
             print('itime:', itime)
 
         if np.isnan(var_ocean).any():
