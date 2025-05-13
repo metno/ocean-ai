@@ -1,6 +1,6 @@
 dates:
-  start: '2017-01-01T00:00:00'
-  end: '2017-09-06T06:00:00'
+  start: '2023-01-01T00:00:00'
+  end: '2023-05-01T00:00:00'
   frequency: 3h
 build:
   group_by: 24
@@ -10,7 +10,7 @@ statistics:
 input:
   join:
   - netcdf:
-      path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2017010100-2017090606_ext_NF800_*
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2023010100-2023050100_ext_newTair_NF800_*
       param:
       - Pair
       - Qair
