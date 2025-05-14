@@ -5,7 +5,7 @@
 #$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
 #$ -N forcing
-#$ -t 1-41
+#$ -t 42-83
 
 DATE=2023010100-2023050100
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
