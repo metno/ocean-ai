@@ -13,7 +13,7 @@ class GraphInspector:
             self.graph_data = graph_data
         elif type(graph_data) == str:
             try:
-                self.graph_data = torch.load(graph_data, map_location=torch.device('cpu'))
+                self.graph_data = torch.load(graph_data, map_location=torch.device('cpu'), weights_only=False)
             except:
                 raise RuntimeError("Could not open graph data file")
         else:
