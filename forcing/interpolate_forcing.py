@@ -72,7 +72,7 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
 def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain'], outfile_extension=None):
     import xarray as xr
     import os
-    ds = xr.open_dataset(file).isel(time=slice(1,4))
+    ds = xr.open_dataset(file)
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)[['lon', 'lat', 'projection_stere']]
     
     file = file.split('/')[-1]
