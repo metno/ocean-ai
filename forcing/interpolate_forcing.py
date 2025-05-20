@@ -1,10 +1,10 @@
-import fimex
 import os
 import datetime
 import netCDF4
 import numpy as np
 
 def interpolate_atm_forcing(atm_file):
+    import fimex
     # can't use fimex when files don't have proj string built in. Go to hor_interop function below
     #TODO Fimex will most likely be faster than most other things, so remember to use this when we get files with actual proj strings
     with netCDF4.Dataset(atm_file, mode='a') as ncfile:
