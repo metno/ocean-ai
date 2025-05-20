@@ -5,9 +5,9 @@
 #$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/forcing/
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/forcing/
 #$ -N forcing
-#$ -t 1-122
+#$ -t 1-100
 
-DATE=2017
+DATE=2019
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 OUTDIR=$FOCCUS_DIR/datasets/norkystv3_forcing_zarr
 ZARRFILE=$OUTDIR/forcing_norkystv3_hindcast_${DATE}.zarr
@@ -15,5 +15,5 @@ ZARRFILE=$OUTDIR/forcing_norkystv3_hindcast_${DATE}.zarr
 conda deactivate
 source $FOCCUS_DIR/python-envs/anemoi-env-16-4-25/bin/activate
 #anemoi-datasets init $YAMLFILE $ZARRFILE --overwrite 
-anemoi-datasets load $ZARRFILE --part $SGE_TASK_ID/122 #8784
+anemoi-datasets load $ZARRFILE --part $SGE_TASK_ID/100 #8784
 #anemoi-datasets finalize $ZARRFILE
