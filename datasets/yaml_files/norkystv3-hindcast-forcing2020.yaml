@@ -2,9 +2,9 @@ dates:
   start: '2020-01-01T00:00:00'
   end: '2021-01-01T00:00:00'
   frequency: 3h
-  missing: 
+  missing:
   - 2020-01-11 15:00:00
-  - 2020-01-11 18:00:00
+  - 2020-01-11 18:00:00 #break
   - 2020-02-29 03:00:00
   - 2020-02-29 06:00:00
   - 2020-02-29 09:00:00
@@ -18,8 +18,6 @@ dates:
   - 2020-06-07 03:00:00
   - 2020-06-07 06:00:00
 
-
-
 build:
   group_by: 24
 statistics:
@@ -27,16 +25,35 @@ statistics:
 
 input:
   join:
-  - netcdf:
-      path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2020*
-      param:
-      - Pair
-      - Qair
-      - Tair
-      - Uwind
-      - Vwind
-      - cloud
-      - rain
+  - concat:
+    - dates:
+        start: '2020-01-01T00:00:00'
+        end: '2020-02-04T12:00:00'
+        frequency: 3h
+      netcdf:
+        path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2020010100-2020020412*
+        param:
+        - Pair
+        - Qair
+        - Tair
+        - Uwind
+        - Vwind
+        - cloud
+        - rain
+    - dates:
+        start: '2020-02-04T15:00:00'
+        end: '2021-01-01T00:00:00'
+        frequency: 3h
+      netcdf: 
+        path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2020020415-2021010100*
+        param:
+        - Pair
+        - Qair
+        - Tair
+        - Uwind
+        - Vwind
+        - cloud
+        - rain
   - constants:
       param:
       - cos_latitude
@@ -48,7 +65,7 @@ input:
       - sin_julian_day
       - sin_local_time
       - insolation
-      template: ${input.join.0.netcdf}
+      template: ${input.join.0.concat}
   - repeated_dates:
       mode: constant
       source:
