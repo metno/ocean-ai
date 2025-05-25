@@ -1,18 +1,17 @@
-# Due to upgrades to anemoi-datasets frequency have changed from string to int 
-# so we have to change it after having created the dataset
+# This script renames the variable layers and sets the resolution (which is default 'none')
+# NOTE: Previously it was needed to change frequency from string to int, due to version updates. Not needed anymore 
  
 import zarr
 import sys
 import re
-#dataset = "/lustre/storeB/project/fou/hi/foccus/aifs-mono-ocean/make-datasets/data/norkyst_v3_2024_01_01-02.zarr"
+
 dataset = sys.argv[1]
-print("Changing frequency from string to int for dataset: \n",dataset)
+print("Changing resolution in .zattrs for dataset: \n",dataset)
 
 z = zarr.convenience.open(dataset, 'r+')
-z._attrs['frequency'] = 1
 z._attrs['resolution'] = 'o96'
 
-
+print("Renaming rho layers in zarr dataset")
 def rename_srho_variables():
     r = '(?<=_)-.*'
     level_list = []
