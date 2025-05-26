@@ -1,15 +1,15 @@
-# This script renames the variable layers and sets the resolution (which is default 'none')
-# NOTE: Previously it was needed to change frequency from string to int, due to version updates. Not needed anymore 
+# This script renames the variable layers and sets the resolution (which is default 'none'). Only needed for datasets, not forcing files. 
+
+# NOTE: Previously it was needed to change frequency from string to int + set resolution, due to version updates. Not needed anymore.
  
 import zarr
 import sys
 import re
 
 dataset = sys.argv[1]
-print("Changing resolution in .zattrs for dataset: \n",dataset)
+print("Renaming variable layers\n",dataset)
 
 z = zarr.convenience.open(dataset, 'r+')
-z._attrs['resolution'] = 'o96'
 
 print("Renaming rho layers in zarr dataset")
 def rename_srho_variables():
@@ -59,7 +59,8 @@ def rename_srho_variables():
 
 
 rename_srho_variables()
-# You can now check that it worked by:
+
+# You can now check that setting frequency worked by:
 
 #from anemoi.datasets import open_dataset
 #ds = open_dataset("/lustre/storeB/project/fou/hi/foccus/aifs-mono-ocean/make-datasets/data/norkyst_v3_2024_01_01-02.zarr")
