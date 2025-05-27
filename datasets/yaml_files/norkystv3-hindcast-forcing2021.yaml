@@ -1,0 +1,51 @@
+dates:
+  start: '2021-01-01T00:00:00'
+  end: '2022-01-01T00:00:00'
+  frequency: 3h
+  missing: 
+  - 2021-07-07 09:00:00
+  - 2021-07-07 12:00:00
+
+build:
+  group_by: 24
+statistics:
+  allow_nans: []
+
+input:
+  join:
+  - netcdf:
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2021010100-2022010100_ext_newTair_NF800_*
+      param:
+      - Pair
+      - Qair
+      - Tair
+      - Uwind
+      - Vwind
+      - cloud
+      - rain
+  - constants:
+      param:
+      - cos_latitude
+      - cos_longitude
+      - sin_latitude
+      - sin_longitude
+      - cos_julian_day
+      - cos_local_time
+      - sin_julian_day
+      - sin_local_time
+      - insolation
+      template: ${input.join.0.netcdf}
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/river_positions.nc
+          param:
+          - river_binary_mask
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/f.nc
+          param:
+          - f
