@@ -1,3 +1,9 @@
+"""
+Functions for horizontally interpolating variables to the NK800m grid. 
+Has been used to interpolate atmospheric variables (forcings), but can probably be used to interpolate other variables as well. 
+Author: Mateusz Matuszak
+"""
+
 import os
 import datetime
 import netCDF4
@@ -41,6 +47,19 @@ def interpolate_atm_forcing(atm_file):
     cfg.run_fimex(fimex_kwargs={'-n': str(8)})
 
 def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
+    """
+    Interpolates variables from one grid to another, using method nearest or linear
+    Args:
+        lati    [arr]   :   input latitudes
+        loni    [arr]   :   input longitudes
+        lato    [arr]   :   output latitudes
+        lono    [arr]   :   output longitudes
+        vari    [arr]   :   variable to be interpolated
+        method  [str]   :   interpolation method, linear or nearest
+    
+    returns:
+        varo    [arr]   :   variable interpolated to lato lono grid. 
+    """
     from scipy.interpolate import griddata
     import sys
     import os
@@ -70,9 +89,21 @@ def hor_interp(lati,loni,lato,lono,vari,method='nearest'):
     return varo
 
 def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair', 'cloud', 'rain'], outfile_extension=None):
+    """
+    Script for running the hor_interp function above. 
+
+    Args:
+        file                [str]   :   netCDF file containing data to be interpolated
+        outdir              [str]   :   path to where interpolated data should be stored
+        vars                [list]  :   list of strings, names of variables
+        outfile_extension   [str]   :   file will be saved as <file>_NF800_<outfile_extension>.nc.
+                                        if set to None: just <file>_NF800.nc
+    """
+    
     import xarray as xr
     import os
     ds = xr.open_dataset(file)
+    # now set so that it always interpolates to nk800, but could be argument later
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2012/norkyst800-20121226.nc').isel(time=0, s_rho=0)[['lon', 'lat', 'projection_stere']]
     
     file = file.split('/')[-1]
@@ -121,9 +152,9 @@ def run_hor_interp(file, outdir, vars=['Pair', 'Uwind', 'Vwind', 'Tair', 'Qair',
             atm_ds = atm_ds.assign(rain=(['time', 'Y', 'X'], varo, {'grid_mapping': 'projection_stere', 'units':'kg m-2 s-1', 'standard_name':'precipitation_flux'}))
     atm_ds['projection_stere'] = nk800.projection_stere
     if outfile_extension is None:
-        atm_ds.to_netcdf(outdir + file.replace('.nc', '_NF800.nc'))
+        atm_ds.to_netcdf(outdir + file.replace('.nc', '_NK800.nc'))
     elif outfile_extension is not None:
-        atm_ds.to_netcdf(outdir + file.replace('.nc', f'_NF800_{outfile_extension}.nc'))
+        atm_ds.to_netcdf(outdir + file.replace('.nc', f'_NK800_{outfile_extension}.nc'))
     
 
 if __name__ == '__main__':
