@@ -1,0 +1,72 @@
+dates:
+  start: '2013-01-01T00:00:00'
+  end: '2014-01-01T00:00:00'
+  frequency: 3h
+  missing: 
+  - 2013-01-01 00:00:00
+  - 2013-01-01 03:00:00
+  - 2013-01-01 06:00:00
+  - 2013-01-01 09:00:00
+  - 2013-01-01 12:00:00
+  - 2013-01-01 15:00:00
+  - 2013-01-01 18:00:00
+  - 2013-01-01 21:00:00
+  - 2013-12-31 00:00:00
+  - 2013-12-31 03:00:00
+  - 2013-12-31 06:00:00
+  - 2013-12-31 09:00:00
+  - 2013-12-31 12:00:00
+  - 2013-12-31 15:00:00
+  - 2013-12-31 18:00:00
+  - 2013-12-31 21:00:00
+  - 2014-01-01 00:00:00
+
+
+
+build:
+  group_by: 24
+statistics:
+  allow_nans: []
+
+input:
+  join:
+  - netcdf:
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/wrf_3km_norkyst800_2013*
+      param:
+      - Pair
+      - Qair
+      - Tair
+      - Uwind
+      - Vwind
+      #- cloud
+      #- rain
+  - netcdf:
+      path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/wrf_3km_norkyst800_prec_2013_*
+      param:
+      - rain
+  - constants:
+      param:
+      - cos_latitude
+      - cos_longitude
+      - sin_latitude
+      - sin_longitude
+      - cos_julian_day
+      - cos_local_time
+      - sin_julian_day
+      - sin_local_time
+      - insolation
+      template: ${input.join.0.netcdf}
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/river_positions.nc
+          param:
+          - river_binary_mask
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/f.nc
+          param:
+          - f
