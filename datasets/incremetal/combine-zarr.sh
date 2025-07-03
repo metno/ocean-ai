@@ -1,6 +1,6 @@
 #$ -S /bin/bash
 #$ -l h_rt=3:00:00
-#$ -q bigmem-r8.q
+#$ -q research-r8.q
 #$ -l h_rss=80G,mem_free=80G,h_data=80G
 #$ -o /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
 #$ -e /lustre/storeB/project/fou/hi/foccus/mateuszm/outputs/
