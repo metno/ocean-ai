@@ -6,7 +6,7 @@ Author: Mateusz Matuszak
 '''
 
 class open_dataset:
-    def __init__(self, file, var=None, time=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
+    def __init__(self, file, var=None, time=None, depth=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
         '''
         A class for opening a dataset.
         Example usage:
@@ -33,6 +33,7 @@ class open_dataset:
         self.time = time
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
+        self.depth = depth
 
         if 'latitude' in self.dataset.variables:
             self.ll = 'latitude'
@@ -51,6 +52,9 @@ class open_dataset:
         
         if self.time is not None:
             self._select_time
+        
+        if self.depth is not None:
+            self._select_depth
 
         self.dataset.load()
         if self.region is not None:
@@ -113,7 +117,7 @@ class open_dataset:
     @property
     def _select_time(self):
         '''
-        Select specified time
+        Select specified time(s)
 
         Can be an int, a list of ints, a str or a list of str
         '''
@@ -130,4 +134,23 @@ class open_dataset:
         
         elif type(self.time) is str or type(self.time) is list and type(self.time[0]) is str:
             self.dataset = self.dataset.sel(time=self.time)
+    
+    @property
+    def _select_depth(self):
+        '''
+        Select specified depth(s)
+        '''
+        if type(self.depth) is not int and type(self.depth) is not list:
+            raise TypeError(f'Argument "depth" must be of type int or a list of ints, got {type(self.depth)}')
+        
+        if type(self.depth) is list:
+            for depth in self.depth:
+                if type(depth) is not int:
+                    raise TypeError(f'All elements in the depth list must be str or int, got {type(depth)}')
+        
+        if 'depth' in self.dataset.variables:
+            self.dataset = self.dataset.isel(depth=self.depth)
+        elif 's_rho' in self.dataset.variables:
+            self.dataset = self.dataset.isel(s_rho=self.depth)
+        
         
