@@ -6,7 +6,7 @@ Author: Mateusz Matuszak
 '''
 
 class open_dataset:
-    def __init__(self, file, var=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
+    def __init__(self, file, var=None, time=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
         '''
         A class for opening a dataset.
         Example usage:
@@ -30,6 +30,7 @@ class open_dataset:
         import numpy as np
         self.dataset = xr.open_dataset(file)
         self.var = var
+        self.time = time
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
 
@@ -47,6 +48,9 @@ class open_dataset:
         
         if self.var is not None:
             self._select_variable
+        
+        if self.time is not None:
+            self._select_time
 
         self.dataset.load()
         if self.region is not None:
@@ -105,3 +109,25 @@ class open_dataset:
             self.var = [self.var]
         self.var.extend([self.lg, self.ll])
         self.dataset = self.dataset[self.var]
+    
+    @property
+    def _select_time(self):
+        '''
+        Select specified time
+
+        Can be an int, a list of ints, a str or a list of str
+        '''
+        if type(self.time) is not int and type(self.time) is not list and type(self.time) is not str:
+            raise TypeError(f'Argument "time" must be of type int, list or str, got {type(self.time)}')
+        
+        if type(self.time) is list:
+            for time in self.time:
+                if type(time) is not str and type(time) is not int:
+                    raise TypeError(f'All elements in the time list must be str or int, got {type(time)}')
+        
+        if type(self.time) is int or type(self.time) is list and type(self.time[0]) is int:
+            self.dataset = self.dataset.isel(time=self.time)
+        
+        elif type(self.time) is str or type(self.time) is list and type(self.time[0]) is str:
+            self.dataset = self.dataset.sel(time=self.time)
+        
