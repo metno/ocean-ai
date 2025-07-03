@@ -119,20 +119,21 @@ class open_dataset:
         '''
         Select specified time(s)
 
-        Can be an int, a list of ints, a str or a list of str
+        Can be an int, a list of ints, a str or a list of str, a datetime or list of datetimes
         '''
-        if type(self.time) is not int and type(self.time) is not list and type(self.time) is not str:
+        import datetime
+        if type(self.time) is not int and type(self.time) is not list and type(self.time) is not str and type(self.time) is not datetime.datetime:
             raise TypeError(f'Argument "time" must be of type int, list or str, got {type(self.time)}')
         
         if type(self.time) is list:
             for time in self.time:
-                if type(time) is not str and type(time) is not int:
-                    raise TypeError(f'All elements in the time list must be str or int, got {type(time)}')
+                if type(time) is not str and type(time) is not int and type(time) is not datetime.datetime:
+                    raise TypeError(f'All elements in the time list must be str, int or datetime.datetime, got {type(time)}')
         
         if type(self.time) is int or type(self.time) is list and type(self.time[0]) is int:
             self.dataset = self.dataset.isel(time=self.time)
         
-        elif type(self.time) is str or type(self.time) is list and type(self.time[0]) is str:
+        elif type(self.time) is str or type(self.time) is datetime.datetime or type(self.time) is list and type(self.time[0]) is str or type(self.time) is list and type(self.time[0]) is datetime.datetime:
             self.dataset = self.dataset.sel(time=self.time)
     
     @property
