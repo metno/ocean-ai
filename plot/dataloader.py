@@ -32,7 +32,18 @@ class open_dataset:
         self.var = var
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
-        full_grid = np.array([np.min(self.dataset.latitude), np.max(self.dataset.latitude), np.min(self.dataset.longitude), np.max(self.dataset.longitude)])
+
+        if 'latitude' in self.dataset.variables:
+            self.ll = 'latitude'
+        elif 'lat' in self.dataset.variables:
+            self.ll = 'lat'
+        
+        if 'longitude' in self.dataset.variables:
+            self.lg = 'longitude'
+        elif 'lon' in self.dataset.variables:
+            self.lg = 'lon'
+        
+        full_grid = np.array([np.min(self.dataset[self.ll]), np.max(self.dataset[self.ll]), np.min(self.dataset[self.lg]), np.max(self.dataset[self.lg])])
         
         if self.var is not None:
             self._select_variable
@@ -72,10 +83,10 @@ class open_dataset:
         Selects a specified region in the dataset
         '''
         self.dataset = self.dataset.where(
-            (self.dataset.latitude >= self.grid[0]) &
-            (self.dataset.latitude <= self.grid[1]) &
-            (self.dataset.longitude >= self.grid[2]) &
-            (self.dataset.longitude <= self.grid[3]),
+            (self.dataset[self.ll] >= self.grid[0]) &
+            (self.dataset[self.ll] <= self.grid[1]) &
+            (self.dataset[self.lg] >= self.grid[2]) &
+            (self.dataset[self.lg] <= self.grid[3]),
             drop=True 
         ) 
 
@@ -92,5 +103,5 @@ class open_dataset:
                     raise TypeError(f'All elements in the variables list must be str, got {type(var)}')
         if type(self.var) is str:
             self.var = [self.var]
-        self.var.extend(['longitude', 'latitude'])
+        self.var.extend([self.lg, self.ll])
         self.dataset = self.dataset[self.var]
