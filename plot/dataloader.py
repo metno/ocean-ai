@@ -4,15 +4,40 @@ Uses xarray.
 
 Author: Mateusz Matuszak
 '''
+import xarray as xr
+import numpy as np
 
 class Methods:
     @property
-    def Transform1D(self):
-        for var in self.dataset.variables:
-            print(var)
+    def Transform1DArr(self):
+        '''
+        Returns an array of 1D variables of lon, lat and vars
+        Can probably be done better. 
+        '''
+        vars = [self.lg, self.ll] + [var for var in self.dataset.variables if var not in self.dataset._coord_names]
+
+        new_arr = np.zeros([len(vars), len(np.array(self.dataset[self.lg].values.flatten()))])
+
+
+        for i in range(len(vars)):
+            new_arr[i] = np.array(self.dataset[vars[i]].values.flatten())
+
+        return new_arr
 
     def MaskNans(self):
-        pass
+        """
+        #TODO implement this
+            temp = np.array(truth.temperature.values).flatten()
+        temp_0 = np.array(inf.temperature_0)
+        mask = np.where(~np.isnan(inf.temperature_0))
+
+        mask2 = np.where(~np.isnan(temp))
+        temp = temp[mask2]
+        temp_0 = temp_0[mask]
+        lon = np.array(inf.longitude)[mask]
+        lat = np.array(inf.latitude)[mask]
+        tlon = np.array(truth.lon).flatten()[mask2]
+        tlat = np.array(truth.lat).flatten()[mask2]"""
 
 class open_dataset(Methods):
     def __init__(self, file, var=None, time=None, depth=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
@@ -35,8 +60,6 @@ class open_dataset(Methods):
         
         If not all of [lat_min, lat_max, lon_min, lon_max] are defined, will select min/max values for undefined arguments based on min/max values in dataset. 
         '''
-        import xarray as xr
-        import numpy as np
         self.dataset = xr.open_dataset(file)
         self.var = var
         self.time = time
@@ -76,6 +99,8 @@ class open_dataset(Methods):
 
         if not all(_ == None for _ in self.grid) and not (self.grid == full_grid).all():
             self._cutout_region
+        
+        open_dataset = self.dataset
 
     @property
     def _select_predefined_region(self):
@@ -163,6 +188,11 @@ class open_dataset(Methods):
         elif 's_rho' in self.dataset.variables:
             self.dataset = self.dataset.isel(s_rho=self.depth)
 
+    def __str__(self):
+        return str(self.dataset)
+
+
+
 
 if __name__ == '__main__':
     import datetime as dt
@@ -172,5 +202,5 @@ if __name__ == '__main__':
     valid_time = dt.datetime.strptime(str(inf_time)[0:10], '%Y-%m-%d')
 
     truth = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/{valid_time.year}/norkyst800-{valid_time.year}{valid_time.month:02d}{valid_time.day:02d}.nc'
-    truth = open_dataset(truth, var='temperature', region='sulafjorden', time=str(inf_time), depth=-1).dataset
-    truth.Transform1D
+    truth = open_dataset(truth, var='temperature', region='sulafjorden', time=str(inf_time), depth=-1).Transform1DArr
+    print(truth)
