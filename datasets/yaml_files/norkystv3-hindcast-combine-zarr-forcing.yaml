@@ -177,28 +177,28 @@ statistics:
 input:
   anemoi-dataset:
     concat:
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2017.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2017.zarr
         start: 2017
         end: 2017
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2018.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2018.zarr
         start: 2018
         end: 2018
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2019.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2019.zarr
         start: 2019
         end: 2019
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2020.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2020.zarr
         start: 2020
         end: 2020
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2021.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2021.zarr
         start: 2021
         end: 2021
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2022.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2022.zarr
         start: 2022
         end: 2022
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2023.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2023.zarr
         start: 2023
         end: 2023
-      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_zarr/forcing_norkystv3_hindcast_2024.zarr
+      - dataset: /lustre/storeB/project/fou/hi/foccus/datasets/forcing_norkystv3_hindcast_zarr/forcing_norkystv3_hindcast_2024.zarr
         start: 2024
         end: 2024
 
