@@ -5,7 +5,16 @@ Uses xarray.
 Author: Mateusz Matuszak
 '''
 
-class open_dataset:
+class Methods:
+    @property
+    def Transform1D(self):
+        for var in self.dataset.variables:
+            print(var)
+
+    def MaskNans(self):
+        pass
+
+class open_dataset(Methods):
     def __init__(self, file, var=None, time=None, depth=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
         '''
         A class for opening a dataset.
@@ -153,5 +162,15 @@ class open_dataset:
             self.dataset = self.dataset.isel(depth=self.depth)
         elif 's_rho' in self.dataset.variables:
             self.dataset = self.dataset.isel(s_rho=self.depth)
-        
-        
+
+
+if __name__ == '__main__':
+    import datetime as dt
+    inference = '/lustre/storeB/project/fou/hi/foccus/experiments/ngpus-2017-24/inference/lam-48h.nc'
+    inf = open_dataset(inference, var='temperature_0', region='sulafjorden', time=0).dataset
+    inf_time = inf.time.values
+    valid_time = dt.datetime.strptime(str(inf_time)[0:10], '%Y-%m-%d')
+
+    truth = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/{valid_time.year}/norkyst800-{valid_time.year}{valid_time.month:02d}{valid_time.day:02d}.nc'
+    truth = open_dataset(truth, var='temperature', region='sulafjorden', time=str(inf_time), depth=-1).dataset
+    truth.Transform1D
