@@ -190,17 +190,3 @@ class open_dataset(Methods):
 
     def __str__(self):
         return str(self.dataset)
-
-
-
-
-if __name__ == '__main__':
-    import datetime as dt
-    inference = '/lustre/storeB/project/fou/hi/foccus/experiments/ngpus-2017-24/inference/lam-48h.nc'
-    inf = open_dataset(inference, var='temperature_0', region='sulafjorden', time=0).dataset
-    inf_time = inf.time.values
-    valid_time = dt.datetime.strptime(str(inf_time)[0:10], '%Y-%m-%d')
-
-    truth = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/{valid_time.year}/norkyst800-{valid_time.year}{valid_time.month:02d}{valid_time.day:02d}.nc'
-    truth = open_dataset(truth, var='temperature', region='sulafjorden', time=str(inf_time), depth=-1).Transform1DArr
-    print(truth)
