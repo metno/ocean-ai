@@ -8,7 +8,7 @@
 
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 OUTDIR=$FOCCUS_DIR/datasets/forcing_norkystv3_hindcast_zarr/
-ZARRFILE=$OUTDIR/forcing_norkystv3_hindcast_2017-2024.zarr
+ZARRFILE=$OUTDIR/forcing_norkystv3_hindcast_2012-2016.zarr
 
 conda deactivate
 source $FOCCUS_DIR/python-envs/anemoi-env-7-7-25/bin/activate
