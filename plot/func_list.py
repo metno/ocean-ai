@@ -13,48 +13,52 @@ import cartopy.crs as ccrs
 #for time_indx in [time0,time1,time_n]:
     #speed(file_name, variable, year, datetime, time_indx, cbar_title)
 
-def speed(file_name, variable, year, datetime, time_indx, cbar_title):
+def speed(file_name, variable, year, datetime, time_indx, cbar_title, **kwargs):
     file_name = file_name #the file you wish to use to plot the variables
     ds_file = open_dataset(file_name, select = variable) #open dataset and choose variable from dataset
     fig,ax = plt.subplots(figsize = (8,10), subplot_kw={"projection": ccrs.NorthPolarStereo()})
-    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, cmap = cmocean.cm.speed, transform = ccrs.PlateCarree()) #time_indx is a list of time indexes when calling the function
-    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, cmap = cmocean.cm.speed, **kwargs, transform = ccrs.PlateCarree()) #time_indx is a list of time indexes when calling the function
+    #ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    ax.coastlines()
     cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
     cbar = fig.colorbar(im, ax=ax, cax=cax, extend = "both")
     cbar.ax.set_title(cbar_title, fontsize = 14) #cbar_title: the title of the colorbar
     ax.set_title(f'+ {time_indx}h from {year} - {datetime}') #year of selected data + time
     plt.show()
 
-def salinity(file_name, variable, year, datetime, time_indx, cbar_title):
+def salinity(file_name, variable, year, datetime, time_indx, cbar_title, **kwargs):
     file_name = file_name #the file you wish to use to plot the variables
     ds_file = open_dataset(file_name, select = variable) #open dataset and choose variable from dataset
     fig,ax = plt.subplots(figsize = (8,10), subplot_kw={"projection": ccrs.NorthPolarStereo()})
-    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, vmin = 30, cmap = cmocean.cm.haline, transform = ccrs.PlateCarree()) #vmin can be changed and vmax can be added
-    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, vmin = 30, cmap = cmocean.cm.haline, **kwargs, transform = ccrs.PlateCarree()) #vmin can be changed and vmax can be added
+    #ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    ax.coastlines()
     cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
     cbar = fig.colorbar(im, ax=ax, cax=cax, extend = "both")
     cbar.ax.set_title(cbar_title, fontsize = 14)
     ax.set_title(f'+ {time_indx}h from {year} - {datetime}')
     plt.show()
 
-def temp(file_name, variable, year, datetime, time_indx, cbar_title):
+def temp(file_name, variable, year, datetime, time_indx, cbar_title, **kwargs):
     file_name = file_name #the file you wish to use to plot the variables
     ds_file = open_dataset(file_name, select = variable) #open dataset and choose variable from dataset
     fig,ax = plt.subplots(figsize = (8,10), subplot_kw={"projection": ccrs.NorthPolarStereo()})
-    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, cmap = cmocean.cm.thermal, transform = ccrs.PlateCarree())
-    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, cmap = cmocean.cm.thermal, **kwargs, transform = ccrs.PlateCarree())
+    #ax.add_feature(cartopy.feature.LAND, zorder = 200, edgecolor = "black")
+    ax.coastlines()
     cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
     cbar = fig.colorbar(im, ax=ax, cax=cax, extend = "both")
     cbar.ax.set_title(cbar_title, fontsize = 14)
     ax.set_title(f'+ {time_indx}h from {year} - {datetime}')
     plt.show()
 
-def moisture(file_name, variable, year, datetime, time_indx, cbar_title):
+def moisture(file_name, variable, year, datetime, time_indx, cbar_title, **kwargs):
     file_name = file_name #the file you wish to use to plot the variables
     ds_file = open_dataset(file_name, select = variable) #open dataset and choose variable from dataset
     fig,ax = plt.subplots(figsize = (8,10), subplot_kw={"projection": ccrs.NorthPolarStereo()})
-    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, cmap = cmocean.cm.rain, transform = ccrs.PlateCarree())
-    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    im = ax.scatter(ds_file.longitudes, ds_file.latitudes, c = ds_file[time_indx,0,0,:], s=2, cmap = cmocean.cm.rain, **kwargs, transform = ccrs.PlateCarree())
+    #ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = "black")
+    ax.coastlines()
     cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
     cbar = fig.colorbar(im, ax=ax, cax=cax, extend = "both")
     cbar.ax.set_title(cbar_title, fontsize = 14)
