@@ -23,6 +23,7 @@ def rotate_vectorfield(U,V,alpha):
 
 if __name__ == '__main__':
     import xarray as xr
+    import matplotlib.pyplot as plt
     path = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_atm_forcing/interpolated/'
     fileu = 'arome_meps_2_5km_2017010100-2017090606_ext_NK800_Uwind.nc'
     filev = 'arome_meps_2_5km_2017010100-2017090606_ext_NK800_Vwind.nc'
@@ -30,3 +31,8 @@ if __name__ == '__main__':
     dsv = xr.open_dataset(path+filev).isel(time=0)
     urot, vrot = rotate_vectorfield(dsu.Uwind.values, dsv.Vwind.values, dsu.lat.values)
     print(urot, vrot)
+    s = 50
+    fig, ax = plt.subplots(1,2)
+    ax[0].quiver(dsu.lon.values[::s,::s], dsu.lat.values[::s,::s], dsu.Uwind.values[::s,::s], dsv.Vwind.values[::s,::s])
+    ax[1].quiver(dsu.lon.values[::s, ::s], dsu.lat.values[::s,::s], urot[::s,::s], vrot[::s,::s])
+    plt.savefig('t.png')
