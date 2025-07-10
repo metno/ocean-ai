@@ -1,11 +1,11 @@
 import numpy as np
-import scipy as sc
+import scipy as sp
 
 def rotate_vectorfield(U,V,alpha):
     '''rotate wind vectors clockwise. alpha may be a scalar or an array
     alpha is in degrees
     returns u,v '''
-    alpha = np.array(alpha)*sp.pi/180
+    alpha = np.array(alpha)*np.pi/180
     alpha = alpha.flatten()
     R = np.array([[np.cos(alpha), -np.sin(alpha)], [np.sin(alpha), np.cos(alpha)] ])
     shpe = U.shape
@@ -23,4 +23,10 @@ def rotate_vectorfield(U,V,alpha):
 
 if __name__ == '__main__':
     import xarray as xr
-    pass
+    path = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_atm_forcing/interpolated/'
+    fileu = 'arome_meps_2_5km_2017010100-2017090606_ext_NK800_Uwind.nc'
+    filev = 'arome_meps_2_5km_2017010100-2017090606_ext_NK800_Vwind.nc'
+    dsu = xr.open_dataset(path+fileu).isel(time=0)
+    dsv = xr.open_dataset(path+filev).isel(time=0)
+    urot, vrot = rotate_vectorfield(dsu.Uwind.values, dsv.Vwind.values, dsu.lat.values)
+    print(urot, vrot)
