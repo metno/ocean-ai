@@ -1,0 +1,82 @@
+dates:
+  start: '2020-01-01T00:00:00'
+  end: '2021-01-01T00:00:00'
+  frequency: 3h
+  missing:
+  - 2020-01-11 15:00:00
+  - 2020-01-11 18:00:00 #break
+  - 2020-02-29 03:00:00
+  - 2020-02-29 06:00:00
+  - 2020-02-29 09:00:00
+  - 2020-02-29 12:00:00
+  - 2020-02-29 15:00:00
+  - 2020-02-29 18:00:00
+  - 2020-02-29 21:00:00
+  - 2020-03-01 00:00:00
+  - 2020-03-23 09:00:00
+  - 2020-03-23 12:00:00
+  - 2020-06-07 03:00:00
+  - 2020-06-07 06:00:00
+
+build:
+  group_by: 24
+statistics:
+  allow_nans: []
+
+input:
+  join:
+  - concat:
+    - dates:
+        start: '2020-01-01T00:00:00'
+        end: '2020-02-04T12:00:00'
+        frequency: 3h
+      netcdf:
+        path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2020010100-2020020412*
+        param:
+        - Pair
+        - Qair
+        - Tair
+        - Uwind
+        - Vwind
+        - cloud
+        - rain
+    - dates:
+        start: '2020-02-04T15:00:00'
+        end: '2021-01-01T00:00:00'
+        frequency: 3h
+      netcdf: 
+        path: /lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/interp_forcings/arome_meps_2_5km_2020020415-2021010100*
+        param:
+        - Pair
+        - Qair
+        - Tair
+        - Uwind
+        - Vwind
+        - cloud
+        - rain
+  - constants:
+      param:
+      - cos_latitude
+      - cos_longitude
+      - sin_latitude
+      - sin_longitude
+      - cos_julian_day
+      - cos_local_time
+      - sin_julian_day
+      - sin_local_time
+      - insolation
+      template: ${input.join.0.concat}
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/river_positions.nc
+          param:
+          - river_binary_mask
+  - repeated_dates:
+      mode: constant
+      source:
+        netcdf:
+          path: /lustre/storeB/project/fou/hi/foccus/datasets/f.nc
+          param:
+          - f

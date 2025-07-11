@@ -1,9 +1,17 @@
+"""
+script for obtaining river data on NK800 grid
+Author: Mateusz Matuszak
+"""
+
 import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime as datetime
 
 def river_values():
+    """
+    Creates a netCDF file with river variables stored on the NK800 grid.
+    """
     river = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=slice(0,2))
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat']]
     reference_date = np.datetime64('1970-01-01T00:00:00', 's')
@@ -46,6 +54,9 @@ def river_values():
     river_ds.to_netcdf('river.nc', encoding={'time': {'dtype':'double'}})
 
 def river_binary_mask():
+    """
+    Creates a netCDF file with river positions stored as a binary mask on the NK800 grid. 
+    """
     river = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=0)
     nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat', 'projection_stere']]
     river_pos = np.zeros([len(nk800.Y), len(nk800.X)])
