@@ -4,9 +4,43 @@ Uses xarray.
 
 Author: Mateusz Matuszak
 '''
+import xarray as xr
+import numpy as np
 
-class open_dataset:
-    def __init__(self, file, var=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
+class Methods:
+    @property
+    def Transform1DArr(self):
+        '''
+        Returns an array of 1D variables of lon, lat and vars
+        Can probably be done better. 
+        '''
+        vars = [self.lg, self.ll] + [var for var in self.dataset.variables if var not in self.dataset._coord_names]
+
+        new_arr = np.zeros([len(vars), len(np.array(self.dataset[self.lg].values.flatten()))])
+
+
+        for i in range(len(vars)):
+            new_arr[i] = np.array(self.dataset[vars[i]].values.flatten())
+
+        return new_arr
+
+    def MaskNans(self):
+        """
+        #TODO implement this
+            temp = np.array(truth.temperature.values).flatten()
+        temp_0 = np.array(inf.temperature_0)
+        mask = np.where(~np.isnan(inf.temperature_0))
+
+        mask2 = np.where(~np.isnan(temp))
+        temp = temp[mask2]
+        temp_0 = temp_0[mask]
+        lon = np.array(inf.longitude)[mask]
+        lat = np.array(inf.latitude)[mask]
+        tlon = np.array(truth.lon).flatten()[mask2]
+        tlat = np.array(truth.lat).flatten()[mask2]"""
+
+class open_dataset(Methods):
+    def __init__(self, file, var=None, time=None, depth=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
         '''
         A class for opening a dataset.
         Example usage:
@@ -26,16 +60,33 @@ class open_dataset:
         
         If not all of [lat_min, lat_max, lon_min, lon_max] are defined, will select min/max values for undefined arguments based on min/max values in dataset. 
         '''
-        import xarray as xr
-        import numpy as np
         self.dataset = xr.open_dataset(file)
         self.var = var
+        self.time = time
         self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
         self.region = region
-        full_grid = np.array([np.min(self.dataset.latitude), np.max(self.dataset.latitude), np.min(self.dataset.longitude), np.max(self.dataset.longitude)])
+        self.depth = depth
+
+        if 'latitude' in self.dataset.variables:
+            self.ll = 'latitude'
+        elif 'lat' in self.dataset.variables:
+            self.ll = 'lat'
+        
+        if 'longitude' in self.dataset.variables:
+            self.lg = 'longitude'
+        elif 'lon' in self.dataset.variables:
+            self.lg = 'lon'
+        
+        full_grid = np.array([np.min(self.dataset[self.ll]), np.max(self.dataset[self.ll]), np.min(self.dataset[self.lg]), np.max(self.dataset[self.lg])])
         
         if self.var is not None:
             self._select_variable
+        
+        if self.time is not None:
+            self._select_time
+        
+        if self.depth is not None:
+            self._select_depth
 
         self.dataset.load()
         if self.region is not None:
@@ -48,6 +99,8 @@ class open_dataset:
 
         if not all(_ == None for _ in self.grid) and not (self.grid == full_grid).all():
             self._cutout_region
+        
+        open_dataset = self.dataset
 
     @property
     def _select_predefined_region(self):
@@ -72,10 +125,10 @@ class open_dataset:
         Selects a specified region in the dataset
         '''
         self.dataset = self.dataset.where(
-            (self.dataset.latitude >= self.grid[0]) &
-            (self.dataset.latitude <= self.grid[1]) &
-            (self.dataset.longitude >= self.grid[2]) &
-            (self.dataset.longitude <= self.grid[3]),
+            (self.dataset[self.ll] >= self.grid[0]) &
+            (self.dataset[self.ll] <= self.grid[1]) &
+            (self.dataset[self.lg] >= self.grid[2]) &
+            (self.dataset[self.lg] <= self.grid[3]),
             drop=True 
         ) 
 
@@ -92,5 +145,48 @@ class open_dataset:
                     raise TypeError(f'All elements in the variables list must be str, got {type(var)}')
         if type(self.var) is str:
             self.var = [self.var]
-        self.var.extend(['longitude', 'latitude'])
+        self.var.extend([self.lg, self.ll])
         self.dataset = self.dataset[self.var]
+    
+    @property
+    def _select_time(self):
+        '''
+        Select specified time(s)
+
+        Can be an int, a list of ints, a str or a list of str, a datetime or list of datetimes
+        '''
+        import datetime
+        if type(self.time) is not int and type(self.time) is not list and type(self.time) is not str and type(self.time) is not datetime.datetime:
+            raise TypeError(f'Argument "time" must be of type int, list or str, got {type(self.time)}')
+        
+        if type(self.time) is list:
+            for time in self.time:
+                if type(time) is not str and type(time) is not int and type(time) is not datetime.datetime:
+                    raise TypeError(f'All elements in the time list must be str, int or datetime.datetime, got {type(time)}')
+        
+        if type(self.time) is int or type(self.time) is list and type(self.time[0]) is int:
+            self.dataset = self.dataset.isel(time=self.time)
+        
+        elif type(self.time) is str or type(self.time) is datetime.datetime or type(self.time) is list and type(self.time[0]) is str or type(self.time) is list and type(self.time[0]) is datetime.datetime:
+            self.dataset = self.dataset.sel(time=self.time)
+    
+    @property
+    def _select_depth(self):
+        '''
+        Select specified depth(s)
+        '''
+        if type(self.depth) is not int and type(self.depth) is not list:
+            raise TypeError(f'Argument "depth" must be of type int or a list of ints, got {type(self.depth)}')
+        
+        if type(self.depth) is list:
+            for depth in self.depth:
+                if type(depth) is not int:
+                    raise TypeError(f'All elements in the depth list must be str or int, got {type(depth)}')
+        
+        if 'depth' in self.dataset.variables:
+            self.dataset = self.dataset.isel(depth=self.depth)
+        elif 's_rho' in self.dataset.variables:
+            self.dataset = self.dataset.isel(s_rho=self.depth)
+
+    def __str__(self):
+        return str(self.dataset)
