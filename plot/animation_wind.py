@@ -39,4 +39,4 @@ def update(frame, file_name, variable):
 anim_wind(file_name='/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_2023.zarr', variable={"Vwind_northward"})
 anim_wind_abs(file_name='/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_2023.zarr', variable1 = "Uwind_eastward", variable2 = "Vwind_northward")
 
-#have ran the file but nothing is saved?? 
+#have ran the file but nothing is saved?? try again
