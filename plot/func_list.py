@@ -14,6 +14,8 @@ import os
 #for time_indx in [time0,time1,time_n]:
     #speed(file_name, variable, year, datetime, time_indx, cbar_title)
 
+#to run the code without getting double the figure just # out plt.show()
+
 def speed(file_name, variable, year, datetime, time_indx, cbar_title, new_file_name, **kwargs):
     file_name = file_name #the file you wish to use to plot the variables
     ds_file = open_dataset(file_name, select = variable) #open dataset and choose variable from dataset
@@ -24,7 +26,7 @@ def speed(file_name, variable, year, datetime, time_indx, cbar_title, new_file_n
     cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
     cbar = fig.colorbar(im, ax=ax, cax=cax, extend = "both")
     cbar.ax.set_title(cbar_title, fontsize = 14) #cbar_title: the title of the colorbar
-    ax.set_title(f'+ {time_indx*3}h from {year} - {datetime}') #year of selected data + time
+    ax.set_title(f'+ {time_indx*3}h from {year} - {datetime}') #year of selected data + time_indx is multiplied with three because of three hour frequency in the interp forcings dataset
     path = f'/lustre/storeB/project/fou/hi/foccus/datasets/zarr_figures_verif'
     name = new_file_name
     full_path = os.path.join(path, name)
