@@ -14,30 +14,41 @@ else:
     raise ValueError('Please provide year as command line argument')
 
 #----------------------------------------------------------------------------
-# Load dataset and prind some information
+# Load dataset and print some information to output file
 #----------------------------------------------------------------------------
 file = f'/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_{year}_surface.zarr'
-ds = open_dataset(file)
-print("Dataset:", file)
-print("Year:", year)
-print("Shape of dataset:", ds.shape)
-variable_names = ['Uwind_eastward','Vwind_northward','h','salinity','sea_mask','temperature','u_eastward','ubar_eastward','v_northward','vbar_northward','zeta']
-print("Variable names:", variable_names)
+outfile = f'/lustre/storeB/project/fou/hi/foccus/datasets/nan_in_vars_{year}.txt'
+
+# e.g. dropping ubar and vbar
+variable_names = ['Uwind_eastward','Vwind_northward','h','salinity_0','sea_mask','temperature_0','u_eastward_0','v_northward_0','zeta']
+ds = open_dataset(file, select=variable_names)
+
+f = open(outfile, 'w')
+f.write(f"# Dataset: {file}\n")
+f.write(f"# Year: {year}\n")
+f.write(f"# Shape of dataset: {ds.shape}\n")
+f.write(f"# Variable names: {variable_names}\n")
 
 #----------------------------------------------------------------------------
 # Check for nans in ocean domain
 #----------------------------------------------------------------------------
-# Mask is the fourth variable (see anemoi-datasets inspect)
-# it has time dimension (should be constant)
 
-sea_mask = np.bool(ds[0,4,:,:])
+# Some datasets have missing dates, e.g. 2012 which we hav to handle. 
+# get the index of the missing dates
+ind_missing = np.array(list(ds.missing))
+ind_all = np.arange(ds.shape[0])
+ind_not_missing = np.setdiff1d(ind_all, ind_missing)
 
-for ivar in range(11):
+# sea mask is constant in time, so just need to use a valid time index
+sea_mask = np.bool(ds[int(ind_not_missing[0]),ds.name_to_index['sea_mask'],0,:])
+
+# Loop over variables and time to save memory
+for ivar in range(ds.shape[1]):
     found_nans = False
     print('-----\nChecking variable:', variable_names[ivar])
     for itime in range(ds.shape[0]):
-        if ivar in [4,7,9]:
-            # skip sea_mask, ubar_eastward, vbar_northward (latter two has nans! surface)
+        if ivar == ds.name_to_index['sea_mask']:
+            # skip sea_mask
             continue
 
         # get one variable
@@ -53,6 +64,9 @@ for ivar in range(11):
     if found_nans:
         print('!! Nans in ocean for variable:', variable_names[ivar]) 
         # You could loop over time to see where there are nans
+
+
+f. close()
 
 #---------------------------------------------------------------------------
 # About the dataset
