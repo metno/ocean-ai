@@ -33,7 +33,7 @@ file_in = sys.argv[0]
 file_out = sys.argv[1]
 """
 
-def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time):
+def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time, title1, title2):
     ds1 = xr.open_dataset(file_path_1)
     ds2 = xr.open_dataset(file_path_2)
     ds1_var = ds1[f'{variable1}']
@@ -61,12 +61,32 @@ def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame
     ds1_var_vals = ds1_var.isel(time=start_time).values
     image1 = ax[0].scatter(longitude.values, latitude.values, c=ds1_var_vals, cmap = cmap)
     cbar1 = plt.colorbar(image1, cmap=cmap, ax=ax[0], label = f'{variable1}')
+    ax[0].set_title(title1)
+    ax[0].set_xlabel(f'Longitude [$\circ$]')
+    ax[0].set_ylabel(f'Latitude [$\circ]')
 
+    #image2
     ds2_var_vals = ds2_var.isel(time=start_time).values
     image2 = ax[1].scatter(longitude.values, latitude.values, c=ds2_var_vals, cmap = cmap)
     cbar2 = plt.colorbar(image2, ax=ax[1], label = f'{variable2}')
+    ax[1].set_title(title2)
+    ax[1].set_xlabel(f'Longitude [$\circ$]')
+    ax[1].set_ylabel(f'Latitude [$\circ]')
 
+    #image3
     image3 = ax[2].scatter(longitude.values, latitude.values, c=(ds2_var_vals - ds1_var_vals))
     cbar3 = plt.colorbar(image3, cmap=cmap, ax=ax[2], label = f'{variable2} - {variable1}')
+    ax[2].set_title(f'{variable2} - {variable1}')
+    ax[2].set_xlabel(f'Longitude [$\circ$]')
+    ax[2].set_ylabel(f'Latitude [$\circ]')
+    
+    plt.tight_layout()
+
+    def update(frame):
+        image1.set_array(ds1_var_vals[frame])
+        ax.set_title(f'"Time step: {frame}')
+
+        #finn en måte å iterere gjennom image 1,2,3! 
+        
     
     
