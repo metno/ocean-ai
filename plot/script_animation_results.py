@@ -37,7 +37,7 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
     latitude = ds["latitude"]
     fig,ax = plt.subplots(figsize = (12,8))
     sc = ax.scatter(longitude.values, latitude.values, c=abs_val.isel(time=start_time).values, cmap = cmocean.cm.speed, **kwargs)
-    cbar = plt.colorbar(sc, ax=ax, orientation = "vertical", label = f'$sqrt{{variable1}²+{variable2}²}$')
+    cbar = plt.colorbar(sc, ax=ax, orientation = "vertical", label = '$sqrt{{variable1}²+{variable2}²}$')
 
 
     def update(frame):
@@ -54,11 +54,11 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
 #results_animation(file_path='/lustre/storeB/project/fou/hi/foccus/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc', variable="v_northward_0", dir=dir_out, frame=16, start_time=0)
 #results_absolute_val_animation(file_path='/lustre/storeB/project/fou/hi/foccus/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc', variable1="v_northward_0", variable2="u_eastward_0", dir = dir_out, frame=16, start_time=0)
 
-#Legg til tingene Ina har kommentert + sjekk vordan oppsettet blir nå, pass på at det blir en felles colorbar for image 1 og image 2 og en egen for diff!!
+#Legg til tingene Ina har kommentert + sjekk hvordan oppsettet blir nå, pass på at det blir en felles colorbar for image 1 og image 2 og en egen for diff!!
 
 def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
     ds1 = xr.open_dataset(file_path_1, engine = "netcdf4")
-    ds2 = xr.open_dataset(file_path_2, engine = "netcdf4")
+    ds2 = xr.open_dataset(file_path_2, engine = "netcdf4").resample(time='3H').mean()
     ds1_var = ds1[f'{variable1}']
     ds2_var = ds2[f'{variable2}'] #using variable 1 and variable 2 ensures flexibility if the datasets variable names differ slightly (ideally not though)
     longitude = ds1["longitude"]
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         start_time = int(sys.argv[7])
 
         kwargs = {}
-        for arg in sys.argv[7:]:
+        for arg in sys.argv[8:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
@@ -172,11 +172,8 @@ if __name__ == "__main__":
         start_time = int(sys.argv[8])
 
         kwargs = {}
-        for arg in sys.argv[7:]:
+        for arg in sys.argv[9:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
         animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time, title1=f'{variable1}', title2=f'{variable2}', **kwargs)
-
-
-#Prøv å kjør i morgen
