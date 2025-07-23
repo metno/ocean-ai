@@ -9,3 +9,4 @@ outputs
 .venv
 *.png
 *.gif
+checkpoint
