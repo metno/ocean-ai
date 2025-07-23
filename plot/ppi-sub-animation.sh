@@ -15,8 +15,8 @@ FILE_IN1=$FOCCUS_DIR/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc 
 FILE_IN2=/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/2024/04/norkyst800-20240402.nc
 DIR_OUT=$FOCCUS_DIR/malene/ocean-ai/plot/figures/
 RUN='Animation_difference'
-VARIABLE1='u_eastward_0'
-VARIABLE2='u_eastward'
+VARIABLE1='zeta'
+VARIABLE2='zeta'
 FRAME=16
 START_TIME=0
 
@@ -26,7 +26,7 @@ FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 FILE_IN=$FOCCUS_DIR/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc #result file
 DIR_OUT=$FOCCUS_DIR/malene/ocean-ai/plot/figures/
 RUN='Animation'
-VARIABLE="salinity_0"
+VARIABLE='salinity_0'
 FRAME=16
 START_TIME=0
 VMIN='vmin=15'
@@ -38,7 +38,7 @@ echo "Starting Python"
 # activate python env
 source $FOCCUS_DIR/.venv/bin/activate
 # run code
-python3 $FOCCUS_DIR/malene/ocean-ai/plot/script_animation_results.py $RUN $FILE_IN $VARIABLE $DIR_OUT $FRAME $START_TIME $VMIN 
+python3 $FOCCUS_DIR/malene/ocean-ai/plot/script_animation_results.py $RUN $FILE_IN1 $FILE_IN2 $VARIABLE1 $VARIABLE2 $DIR_OUT $FRAME $START_TIME 
 
 # Then submit the script to the PPI que:
 # qsub ppi-sub-animation.
