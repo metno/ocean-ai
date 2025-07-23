@@ -24,7 +24,7 @@ FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus/
 FILE_IN=$FOCCUS_DIR/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc #result file
 DIR_OUT=$FOCCUS_DIR/malene/ocean-ai/plot/figures/
 RUN='Animation'
-VARIABLE="zeta"
+VARIABLE="cloud"
 FRAME=16
 START_TIME=0
 
