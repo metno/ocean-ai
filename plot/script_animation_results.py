@@ -58,7 +58,7 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
 
 def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
     ds1 = xr.open_dataset(file_path_1, engine = "netcdf4")
-    ds2 = xr.open_dataset(file_path_2, engine = "netcdf4").resample(time='3H').mean(dim='time')
+    ds2 = xr.open_dataset(file_path_2, engine = "netcdf4")#.resample(time='3H').mean(dim='time')
     ds1_var = ds1[f'{variable1}']
     ds2_var = ds2[f'{variable2}'] #using variable 1 and variable 2 ensures flexibility if the datasets variable names differ slightly (ideally not though)
     longitude = ds1["longitude"]
