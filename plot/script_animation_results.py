@@ -56,11 +56,12 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
 
 #Legg til tingene Ina har kommentert + sjekk hvordan oppsettet blir nå, pass på at det blir en felles colorbar for image 1 og image 2 og en egen for diff!!
 
-def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
+def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
     ds1 = xr.open_dataset(file_path_1, engine = "netcdf4")
-    ds2 = xr.open_dataset(file_path_2, engine = "netcdf4")
+    ds2 = xr.open_mfdataset([file_path_2,file_path_3], engine = "netcdf4").isel(s_rho=-1)
     ds1_var = ds1[f'{variable1}']
-    ds2_var = ds2[f'{variable2}'].resample(time='3H').mean(dim='time') #using variable 1 and variable 2 ensures flexibility if the datasets variable names differ slightly (ideally not though)
+    ds2_va = ds2[f'{variable2}'].resample(time='3H').mean(dim='time')
+    ds2_var = ds2_va.values.flaten()
     longitude = ds1["longitude"]
     latitude = ds1["latitude"]
     fig,ax = plt.subplots(3, figsize = (8,10))
@@ -82,27 +83,37 @@ def animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame
 
     #image1
     ds1_var_vals = ds1_var.isel(time=start_time).values
+    print(f'Image 1 - før')
+    print(f'lon: {longitude.shape}, lat: {latitude.shape}, ds1_var_vals: {ds1_var_vals.shape}')
     image1 = ax[0].scatter(longitude.values, latitude.values, c=ds1_var_vals, cmap = cmap, **kwargs)
     cbar1 = plt.colorbar(image1, ax=ax[0], label = f'{variable1}')
     ax[0].set_title(title1)
     ax[0].set_xlabel(f'Longitude [$\circ$]')
     ax[0].set_ylabel(f'Latitude [$\circ]') 
+    print(f'Image 1 - etter')
 
     #image2
     ds2_var_vals = ds2_var.isel(time=start_time).values
+    ds2_var_vals.flatten()
+    print(f'Image 2 - før - du må kanskje flatten values!!!!!!!')
+    #FEILEN ER HER 
+    print(f'ds_var_vals:{ds2_var_vals.shape}, lon: {longitude.shape}, lat: {latitude.shape}')
     image2 = ax[1].scatter(longitude.values, latitude.values, c=ds2_var_vals, cmap = cmap, **kwargs)
     cbar2 = plt.colorbar(image2, ax=ax[1], label = f'{variable2}')
     ax[1].set_title(title2)
     ax[1].set_xlabel(f'Longitude [$\circ$]')
     ax[1].set_ylabel(f'Latitude [$\circ]')
+    print(f'Image 2 - etter')
 
     #image3
     diff = (ds2_var_vals - ds1_var_vals)
+    print(f'Image 3 - før')
     image3 = ax[2].scatter(longitude.values, latitude.values, c=(diff), cmap = cmap, **kwargs)
     cbar3 = plt.colorbar(image3, ax=ax[2], label = f'{variable2} - {variable1}')
     ax[2].set_title(f'{variable2} - {variable1}')
     ax[2].set_xlabel(f'Longitude [$\circ$]')
     ax[2].set_ylabel(f'Latitude [$\circ]')
+    print(f'Image 3 - etter')
 
     image = [image1,image2, image3]
     ds = [ds1_var_vals, ds2_var_vals,diff]
@@ -165,15 +176,16 @@ if __name__ == "__main__":
             raise ValueError(f'Please provide all necessary arguments: <file_path1>, <file_path2>, <variable1>, <variable2>, <dir>, <frame>, <start_time>, <title1>, <title2>, <kwargs (optional)>')
         file_path_1 = sys.argv[2]
         file_path_2 = sys.argv[3]
-        variable1 = sys.argv[4]
-        variable2 = sys.argv[5]
-        dir = sys.argv[6]
-        frame = int(sys.argv[7])
-        start_time = int(sys.argv[8])
+        file_path_3 = sys.argv[4]
+        variable1 = sys.argv[5]
+        variable2 = sys.argv[6]
+        dir = sys.argv[7]
+        frame = int(sys.argv[8])
+        start_time = int(sys.argv[9])
 
         kwargs = {}
-        for arg in sys.argv[9:]:
+        for arg in sys.argv[10:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
-        animation_compare(file_path_1, file_path_2, variable1, variable2, dir, frame, start_time, title1=f'{variable1}', title2=f'{variable2}', **kwargs)
+        animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1=f'{variable1}', title2=f'{variable2}', **kwargs)
