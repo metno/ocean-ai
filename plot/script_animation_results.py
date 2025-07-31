@@ -58,12 +58,14 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
 
 def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
     ds1 = xr.open_dataset(file_path_1, engine = "netcdf4")
-    ds2 = xr.open_mfdataset([file_path_2,file_path_3], engine = "netcdf4").isel(s_rho=-1)
+    ds2 = xr.open_mfdataset([file_path_2,file_path_3]).isel(s_rho=-1)
     ds1_var = ds1[f'{variable1}']
-    ds2_va = ds2[f'{variable2}'].resample(time='3H').mean(dim='time')
-    ds2_var = ds2_va.values.flaten()
-    longitude = ds1["longitude"]
-    latitude = ds1["latitude"]
+    ds2_var = ds2[f'{variable2}'].resample(time='3H').mean(dim='time')
+    ds2_var = np.array(ds2_var)
+    ds2_var = ds2_var.reshape(ds2_var.shape[-3],-3)
+    ds2_var = np.pad(ds2_var, pad_width= 1000)
+    longitude = ds1["longitude"] 
+    latitude = ds1["latitude"] #vurder å endre disse til ds2.ravel()
     fig,ax = plt.subplots(3, figsize = (8,10))
 
     if variable1 in ["temperature_0","Tair" ] or variable2 in ["temperature_0", "Tair"]:
@@ -89,34 +91,32 @@ def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable
     cbar1 = plt.colorbar(image1, ax=ax[0], label = f'{variable1}')
     ax[0].set_title(title1)
     ax[0].set_xlabel(f'Longitude [$\circ$]')
-    ax[0].set_ylabel(f'Latitude [$\circ]') 
+    ax[0].set_ylabel(f'Latitude [$\circ$]') 
     print(f'Image 1 - etter')
 
     #image2
-    ds2_var_vals = ds2_var.isel(time=start_time).values
-    ds2_var_vals.flatten()
-    print(f'Image 2 - før - du må kanskje flatten values!!!!!!!')
     #FEILEN ER HER 
-    print(f'ds_var_vals:{ds2_var_vals.shape}, lon: {longitude.shape}, lat: {latitude.shape}')
-    image2 = ax[1].scatter(longitude.values, latitude.values, c=ds2_var_vals, cmap = cmap, **kwargs)
+    #print(f'ds_var_vals:{ds2_var.shape}, lon: {longitude.shape}, lat: {latitude.shape}')
+    image2 = ax[1].scatter(longitude.values, latitude.values, c=ds2_var[start_time].flatten(), cmap = cmap, **kwargs)
     cbar2 = plt.colorbar(image2, ax=ax[1], label = f'{variable2}')
     ax[1].set_title(title2)
     ax[1].set_xlabel(f'Longitude [$\circ$]')
-    ax[1].set_ylabel(f'Latitude [$\circ]')
+    ax[1].set_ylabel(f'Latitude [$\circ]$')
     print(f'Image 2 - etter')
 
     #image3
-    diff = (ds2_var_vals - ds1_var_vals)
+    #ds2_var_f = ds2_var.flatten() Might be necessary to flatten values.
+    diff = (ds2_var.flatten() - ds1_var_vals)
     print(f'Image 3 - før')
     image3 = ax[2].scatter(longitude.values, latitude.values, c=(diff), cmap = cmap, **kwargs)
     cbar3 = plt.colorbar(image3, ax=ax[2], label = f'{variable2} - {variable1}')
     ax[2].set_title(f'{variable2} - {variable1}')
     ax[2].set_xlabel(f'Longitude [$\circ$]')
-    ax[2].set_ylabel(f'Latitude [$\circ]')
+    ax[2].set_ylabel(f'Latitude [$\circ$]')
     print(f'Image 3 - etter')
 
     image = [image1,image2, image3]
-    ds = [ds1_var_vals, ds2_var_vals,diff]
+    ds = [ds1_var_vals, ds2_var,diff]
 
     def update(frame):
         for axis, img, ds_data in zip(ax,image,ds):
@@ -129,7 +129,7 @@ def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable
     ani = FuncAnimation(fig,update, frames=range(frame), interval = 400, blit = True)
     ani.save(f'{dir}/diff_animation_results_{variable1}_{variable2}.gif', writer="imagemagick")
     
-
+"""
 #Running the code in PPI: 
 #Finn ut av sys.argv for ulike funksjoner
 
@@ -189,3 +189,4 @@ if __name__ == "__main__":
             kwargs[key] = float(value)
 
         animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1=f'{variable1}', title2=f'{variable2}', **kwargs)
+"""
