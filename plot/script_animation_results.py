@@ -165,7 +165,7 @@ def compare_two(file_path_1, file_path_2, file_path_3, variable1, variable2, dir
     print(f'Image 1 - before')
     print(f'lon: {longitude.shape}, lat: {latitude.shape}, ds1_var_vals: {ds1_var.shape}')
     image1 = ax[0].scatter(longitude.values, latitude.values, c=ds1_var[start_time].values, cmap = cmap, **kwargs)
-    cbar1 = plt.colorbar(image1, ax=ax[0], label = f'{variable1}')
+    cbar1 = plt.colorbar(image1, ax=ax[0], label = f'Result ngpus: {variable1}')
     ax[0].set_title(title1)
     ax[0].set_xlabel(f'Longitude [$\circ$]')
     ax[0].set_ylabel(f'Latitude [$\circ$]') 
@@ -174,7 +174,7 @@ def compare_two(file_path_1, file_path_2, file_path_3, variable1, variable2, dir
     #image2 
     print(f'ds_var_vals:{ds2_var.shape}, lon: {lon.shape}, lat: {lat.shape}')
     image2 = ax[1].scatter(lon, lat, c=ds2_var[start_time], cmap = cmap, **kwargs)
-    cbar2 = plt.colorbar(image2, ax=ax[1], label = f'{variable2}')
+    cbar2 = plt.colorbar(image2, ax=ax[1], label = f'Norkyst 800: {variable2}')
     ax[1].set_title(title2)
     ax[1].set_xlabel(f'Longitude [$\circ$]')
     ax[1].set_ylabel(f'Latitude [$\circ]$')
@@ -187,12 +187,11 @@ def compare_two(file_path_1, file_path_2, file_path_3, variable1, variable2, dir
     def update(frame):
         for axis, img, ds_data in zip(ax,image,ds):
             img.set_array(ds_data[frame])
-            axis.set_title(f'"Time step: {frame *3} hrs')
+            axis.set_title(f'Time step: + {frame *3} hrs from 2024-04-02')
             axis.set_xlabel(f'Longitude [$\circ$]')
             axis.set_ylabel(f'Latitude [$\circ$]')
         return image
     plt.tight_layout()
-    plt.suptitle('Starttime: 2024-04-02')
     ani = FuncAnimation(fig,update, frames=range(frame), interval = 400, blit = True)
     ani.save(f'{dir}/compare_animation_results_{variable1}_{variable2}.gif', writer="imagemagick")
     
@@ -203,7 +202,7 @@ def compare_two(file_path_1, file_path_2, file_path_3, variable1, variable2, dir
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        raise ValueError(f'Please specify the function you wish to run. Select between: "Animation", "Absolutevalue_animation", "Animation_difference')
+        raise ValueError(f'Please specify the function you wish to run. Select between: "Animation", "Absolutevalue_animation", "Animation_difference', 'Compare')
     mode = sys.argv[1]
 
     if mode == "Animation":
@@ -259,8 +258,11 @@ if __name__ == "__main__":
         animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1=f'{variable1}', title2=f'{variable2}', **kwargs)
 
     elif mode == "Compare":
-        if len(sys.argv) < 8:
+        print("running compare module")
+        if len(sys.argv) < 9:
             raise ValueError(f'Please provide all necessary arguments: <file_path1>, <file_path2>, <variable1>, <variable2>, <dir>, <frame>, <start_time>, <title1>, <title2>, <kwargs (optional)>')
+        for i in range (9):
+            print(sys.argv[i])
         file_path_1 = sys.argv[2]
         file_path_2 = sys.argv[3]
         file_path_3 = sys.argv[4]
