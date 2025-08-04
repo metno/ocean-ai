@@ -16,8 +16,8 @@ FILE_IN2=/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth//2024/04/
 FILE_IN3=/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/2024/04/norkyst800-20240403.nc
 DIR_OUT=$FOCCUS_DIR/malene/ocean-ai/plot/figures/
 RUN='Compare'
-VARIABLE1='zeta'
-VARIABLE2='zeta'
+VARIABLE1='u_eastward_0'
+VARIABLE2='u_eastward'
 FRAME=16
 START_TIME=0
 
