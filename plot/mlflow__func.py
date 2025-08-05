@@ -17,7 +17,7 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
     print(filenames)
     filenames = [f for f in filenames if not f.endswith('metric') and not f.endswith('swp')] #manually removing the directory and the swp files from iteration in the following loop
     for indx, filnavn in enumerate(filenames):
-        print(f'{filnavn} med indeks {indx}') #check if the filenames are indexed correctly in the plots and that directories and swp files are removed from the iteration. 
+        print(f'{filnavn}: Index {indx}') #check if the filenames are indexed correctly in the plots and that directories and swp files are removed from the iteration. 
     for i, filename in enumerate(filenames):
         file_path = os.path.join(dir_in, filename)
         
