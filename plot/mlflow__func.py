@@ -82,4 +82,4 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
     plt.show()
 
 #Example run:
-mlflow_plots('/lustre/storeB/project/fou/hi/foccus/experiments/min-max-all-2017-24/mlflow/187656373550779284/90ed5f0579a94e1cacec799fe5fcc6f1/metrics', 1, 'Min-max-all-2017-24')
+#mlflow_plots('/lustre/storeB/project/fou/hi/foccus/experiments/min-max-all-2017-24/mlflow/187656373550779284/90ed5f0579a94e1cacec799fe5fcc6f1/metrics', 1, 'Min-max-all-2017-24')
