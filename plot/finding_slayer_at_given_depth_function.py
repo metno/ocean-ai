@@ -56,10 +56,11 @@ def plot_the_2m_layer(ds_name, title, meter, **kwargs):
     return index, close_to_m_val, ax
 
 
-#example on how to run the code:
-file1 = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240601.nc' #netcdf4 file to use 
-ds = xr.open_dataset(file1).sel(time = '2024-06-01T07:00:00.000000000') #this is the dataset and the ds_name in the function
-add_coordinate(ds_name=ds)
-index, m_value, plot = plot_the_2m_layer(ds_name=ds, title = "Example plot", meter=10)
-#then use index, m_value etc. as you need later in your code.
-#use _, in case you dont need all returned values.
+if __name__ == '__main__':
+    #example on how to run the code:
+    file1 = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240601.nc' #netcdf4 file to use 
+    ds = xr.open_dataset(file1).sel(time = '2024-06-01T07:00:00.000000000') #this is the dataset and the ds_name in the function
+    add_coordinate(ds_name=ds)
+    index, m_value, plot = plot_the_2m_layer(ds_name=ds, title = "Example plot", meter=10)
+    #then use index, m_value etc. as you need later in your code.
+    #use _, in case you dont need all returned values.
