@@ -12,7 +12,9 @@ ZARRFILE=$OUTDIR/norkystv3_hindcast_2012-2024_surface-not-parallell.zarr
 
 conda deactivate
 source $FOCCUS_DIR/python-envs/anemoi-env-7-7-25/bin/activate
-
+#anemoi-datasets init $YAMLFILE $ZARRFILE --overwrite 
+anemoi-datasets load $ZARRFILE --part $SGE_TASK_ID/10 #8784
+#anemoi-datasets finalize $ZARRFILE
 for i in {1..10}
 do
     anemoi-datasets load $ZARRFILE --part $i/10
