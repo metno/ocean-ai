@@ -55,12 +55,43 @@ def plot_the_2m_layer(ds_name, title, meter, **kwargs):
     plt.show()
     return index, close_to_m_val, ax
 
+def get_s_layer(file, depth, time=0, output=None):
+    """
+    Function to find which model s-layer is closest to a given depth in meters.
+
+    Args:
+        file    [str]               :   ROMS model file
+        depth   [int]               :   Depth in meters of interest
+        time    [int, str or list]  :   Time index of dataset, or list of times to slice over. If time='all' will select all times. 
+        output  [str]               :   Name of output file
+
+    Returns:
+        index   [DataArray]   :   A DataArray of indexes corresponding to the s-layer which is closest to the given depth at all grid points.         
+    """
+    ds = xr.open_dataset(file)
+    if time == 'all':
+        pass
+    elif type(time) is int:
+        ds = ds.isel(time=time)
+    elif type(time) is list and len(time) == 2:
+        ds = ds.isel(time=slice(time[0], time[1]))
+
+    add_coordinate(ds)
+    diff = abs(abs(ds['z_rho']-depth)).fillna(0)
+    index = diff.argmin(dim = 's_rho').rename(f'{depth}m-s-layer-index')
+    
+    if output is not None:
+        index.to_netcdf(output)
+
+    return index
+      
 
 if __name__ == '__main__':
     #example on how to run the code:
-    file1 = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240601.nc' #netcdf4 file to use 
-    ds = xr.open_dataset(file1).sel(time = '2024-06-01T07:00:00.000000000') #this is the dataset and the ds_name in the function
-    add_coordinate(ds_name=ds)
-    index, m_value, plot = plot_the_2m_layer(ds_name=ds, title = "Example plot", meter=10)
+    file = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240601.nc' #netcdf4 file to use 
+    #ds = xr.open_dataset(file1).sel(time = '2024-06-01T07:00:00.000000000') #this is the dataset and the ds_name in the function
+    #add_coordinate(ds_name=ds)
+    #index, m_value, plot = plot_the_2m_layer(ds_name=ds, title = "Example plot", meter=10)
+    get_s_layer(file, 2, [0,3])
     #then use index, m_value etc. as you need later in your code.
     #use _, in case you dont need all returned values.
