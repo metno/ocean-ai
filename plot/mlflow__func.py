@@ -35,8 +35,8 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
         else:
             try:
                 ds = pd.read_csv(f'{file_path}', sep='\s+', names=["ID", "Vals", "Step"])
-                print(f'Successfully read in {filename}.')
-                print(f'Start of data: {ds.head()}')
+                #print(f'Successfully read in {filename}.')
+                #print(f'Start of data: {ds.head()}')
 
             except Exception as e:
                 print(f'Could not read in {filename} using Pandas: {e}')
@@ -52,7 +52,6 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
     #Variables     
     vars_file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric')
     vars_dir = os.listdir(vars_file_path)
-    print(vars_dir)
     for j, vars_filename in enumerate(vars_dir):
         dir_vars = os.path.join(f'{vars_file_path}/{vars_filename}/{vars_indx}')
 
@@ -78,8 +77,29 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
     fig2.suptitle(f'{suptitle}', fontweight = 'bold', fontsize = 15)
 
     plt.tight_layout()
-    plt.ion()
+    #plt.ion()
     plt.show()
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(
+        prog='MLflow plots'
+    )
+
+    parser.add_argument(
+        '-p', '--path', type=str, required=True, help='Full path to dir where MLflow logs are stored.'
+    )
+    parser.add_argument(
+        '-vi', '--varsindex', type=int, default=1, help='Not sure, ask Malene.'
+    )
+    parser.add_argument(
+        '-t', '--title', type=str, default='MLflow stats', help='Figure title.' 
+    )
+    args = parser.parse_args()
+
+    mlflow_plots(dir_in=args.path,
+                 vars_indx=args.varsindex,
+                 suptitle=args.title)
 
 #Example run:
 #mlflow_plots('/lustre/storeB/project/fou/hi/foccus/experiments/min-max-all-2017-24/mlflow/187656373550779284/90ed5f0579a94e1cacec799fe5fcc6f1/metrics', 1, 'Min-max-all-2017-24')
