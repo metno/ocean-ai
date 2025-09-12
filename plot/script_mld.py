@@ -1,6 +1,7 @@
 from dens_func import dens
 import matplotlib.pyplot as plt 
 import xarray as xr
+import numpy as np
 
 def transformation(ds_name):
     #Define necessary variables used for the transformation from s_layer to depth
