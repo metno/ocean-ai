@@ -1,6 +1,106 @@
 import pandas as pd
 import os
+from cycler import cycler
 import matplotlib.pyplot as plt
+
+def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=False):
+
+    # Only plotting these metrics. Ignoring X_epoch if plot_epoch = False
+    metrics_list = [
+                    'train_mse_loss_step',
+                    'train_mse_loss_epoch',
+                    'val_mse_loss_step',
+                    'val_mse_loss_epoch',                    
+                    #'val_mse_inside_lam_metric' # this one is not always present??
+                    'lr-AdamW',
+                    'epoch',
+                    #'rollout'
+                    ]
+    # different styles for each dir
+    prop_cycler = cycler(color='bgrcmyk') + cycler(linestyle=['-', '--', ':', '-.', '-', '--', ':'])
+    plt.rc('axes', prop_cycle=prop_cycler)
+    # TODO: this does not work as expected since want to cycle over experiment not each line in the same plot
+
+    #Fig 1
+    if plot_epoch:
+        fig1, ax1 = plt.subplots(3,2, figsize = (15,15))
+    else:
+        fig1, ax1 = plt.subplots(3,1, figsize = (15,15))
+        metrics_list = [m for m in metrics_list if not m.endswith('epoch')]
+        
+    fig1.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
+    ax1 = ax1.ravel()
+    fig1.suptitle(f'{suptitle}', fontweight = 'bold', fontsize =15)
+    
+
+    #Fig 2
+    #fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
+    #fig2.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
+    #ax2 = ax2.ravel()
+    #fig2.suptitle(f'{suptitle}', fontweight = 'bold', fontsize = 15)
+
+    n=0
+    for dir_in, experiment in zip(dir_list, exp_names):
+        print(f'Processing directory: {dir_in} with experiment name: {experiment}')
+        
+        for i, metric in enumerate(metrics_list):
+            file_path = os.path.join(dir_in, metric)
+
+            if os.path.isfile(file_path):
+                try:
+                    ds = pd.read_csv(f'{file_path}', sep='\s+', names=["ID", "Vals", "Step"])
+
+                except Exception as e:
+                    print(f'Could not read in {metric} using Pandas: {e}')
+                    continue
+
+                #if lenth of step is 0, then the metric is not logged properly, skip it
+                if len(ds["Step"]) == 0:
+                    print(f'Skipping {metric} as it has 0 steps logged.')
+                    continue
+
+                #plotting
+                color = 'C' + str(n)  # Use a different color for each experiment
+                #line_style = line_style_cycler.__getitem__ # Cycle through line styles
+                ax1[i].plot(ds["Step"], ds["Vals"],   color=color, label=experiment)
+                #ax1[i].scatter(ds["Step"], ds["Vals"],color=color, marker='x', s=3)      
+
+        """
+        #Variables     
+        vars_file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric')
+        vars_dir = os.listdir(vars_file_path)
+        for j, vars_filename in enumerate(vars_dir):
+            dir_vars = os.path.join(f'{vars_file_path}/{vars_filename}/{vars_indx}')
+
+            #Read in files selected files from filenames using pandas (filename in enumerate)
+            try: 
+                ds_vars = pd.read_csv(f'{dir_vars}', sep='\s+', names=["ID", "Vals", "Step"])
+                print(f'Successfully read in {vars_filename}.')
+                print(f'Start of data: {ds_vars.head()}')
+
+            except Exception as e:
+                print(f'Could not read in {vars_dir} using Pandas: {e}')
+                continue
+
+            #plotting 
+            ax2[j].plot(ds_vars["Step"], ds_vars["Vals"])
+            ax2[j].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')
+            ax2[j].set_title(f'{vars_filename} ', fontweight = 'bold', fontsize = 10)
+            ax2[j].set_xlabel(f'Step')
+            ax2[j].grid(True, alpha = 0.5)
+        """
+        n+=1
+
+    # Add legend only once, on the last iteration
+    for i in range(len(metrics_list)):
+        ax1[i].set_title(f'{metrics_list[i]}', fontweight = 'bold', fontsize=10)  
+        ax1[i].set_xlabel(f'Step')
+        ax1[i].grid(True, alpha = 0.5)   
+        ax1[i].legend() 
+
+    plt.tight_layout()
+    plt.show()
+
 
 def mlflow_plots(dir_in, vars_indx, suptitle):
 
