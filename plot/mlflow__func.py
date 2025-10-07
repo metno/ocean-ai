@@ -11,15 +11,23 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
                     'train_mse_loss_epoch',
                     'val_mse_loss_step',
                     'val_mse_loss_epoch',                    
-                    #'val_mse_inside_lam_metric' # this one is not always present??
                     'lr-AdamW',
                     'epoch',
                     #'rollout'
                     ]
+    # val_mse_inside_lam_metric is plotted separately. Only present if finish an epoch (?)
+    val_metrics_list = [  # add more variables when expand to 3D
+                    'all',
+                    'sfc_salinity', 
+                    'sfc_u_eastward', 
+                    'sfc_v_northward',
+                    'sfc_temperature', 
+                    'sfc_zeta',
+                    ]
+
     # different styles for each dir
-    prop_cycler = cycler(color='bgrcmyk') + cycler(linestyle=['-', '--', ':', '-.', '-', '--', ':'])
-    plt.rc('axes', prop_cycle=prop_cycler)
-    # TODO: this does not work as expected since want to cycle over experiment not each line in the same plot
+    colors     = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    linestyles = ['-', '--', ':', '-.']
 
     #Fig 1
     if plot_epoch:
@@ -30,14 +38,14 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         
     fig1.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
     ax1 = ax1.ravel()
-    fig1.suptitle(f'{suptitle}', fontweight = 'bold', fontsize =15)
+    fig1.suptitle(f'Metrics: {suptitle}', fontweight = 'bold', fontsize =15)
     
 
     #Fig 2
-    #fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
-    #fig2.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
-    #ax2 = ax2.ravel()
-    #fig2.suptitle(f'{suptitle}', fontweight = 'bold', fontsize = 15)
+    fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
+    fig2.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
+    ax2 = ax2.ravel()
+    fig2.suptitle(f'Validation metrics: val_mse_inside_lam_metric', fontweight = 'bold', fontsize = 15)
 
     n=0
     for dir_in, experiment in zip(dir_list, exp_names):
@@ -60,35 +68,34 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
                     continue
 
                 #plotting
-                color = 'C' + str(n)  # Use a different color for each experiment
-                #line_style = line_style_cycler.__getitem__ # Cycle through line styles
-                ax1[i].plot(ds["Step"], ds["Vals"],   color=color, label=experiment)
-                #ax1[i].scatter(ds["Step"], ds["Vals"],color=color, marker='x', s=3)      
+                ax1[i].plot(ds["Step"], ds["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
+                #ax1[i].scatter(ds["Step"], ds["Vals"], marker='x', s=3)      
 
-        """
-        #Variables     
-        vars_file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric')
-        vars_dir = os.listdir(vars_file_path)
-        for j, vars_filename in enumerate(vars_dir):
-            dir_vars = os.path.join(f'{vars_file_path}/{vars_filename}/{vars_indx}')
+        
+        # Validation metrics for variables 
+        if not os.path.isdir(os.path.join(f'{dir_in}/val_mse_inside_lam_metric')):
+            print(f'No val_mse_inside_lam_metric directory in {dir_in}, skipping variable metrics plotting.')
+            n+=1
+            continue
 
-            #Read in files selected files from filenames using pandas (filename in enumerate)
-            try: 
-                ds_vars = pd.read_csv(f'{dir_vars}', sep='\s+', names=["ID", "Vals", "Step"])
-                print(f'Successfully read in {vars_filename}.')
-                print(f'Start of data: {ds_vars.head()}')
+        for i, metric in enumerate(val_metrics_list):
+            file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric', metric)
 
-            except Exception as e:
-                print(f'Could not read in {vars_dir} using Pandas: {e}')
-                continue
+            if os.path.isdir(file_path):
+                try: 
+                    ds_vars = pd.read_csv(f'{file_path}/1', sep='\s+', names=["ID", "Vals", "Step"])
 
-            #plotting 
-            ax2[j].plot(ds_vars["Step"], ds_vars["Vals"])
-            ax2[j].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')
-            ax2[j].set_title(f'{vars_filename} ', fontweight = 'bold', fontsize = 10)
-            ax2[j].set_xlabel(f'Step')
-            ax2[j].grid(True, alpha = 0.5)
-        """
+                except Exception as e:
+                    print(f'Could not read in {file_path}/1 using Pandas: {e}')
+                    continue
+
+                #plotting 
+                ax2[i].plot(ds_vars["Step"], ds_vars["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
+                ax2[i].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')
+                ax2[i].set_title(f'{metric} ', fontweight = 'bold', fontsize = 10)
+                ax2[i].set_xlabel(f'Step')
+                ax2[i].grid(True, alpha = 0.5)
+        
         n+=1
 
     # Add legend only once, on the last iteration
