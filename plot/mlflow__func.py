@@ -1,7 +1,72 @@
 import pandas as pd
 import os
+import glob
 from cycler import cycler
 import matplotlib.pyplot as plt
+
+def parse_mlflow_dirs(infile,exp_base_dir='/lustre/storeB/project/fou/hi/foccus/experiments/'):
+    # Simple way to get all relevant subdirs for mlflow plots
+    # infile should contain lines with: exp_name run_id title
+    # Lines starting with # are ignored
+
+    # TODO: use csv for infile and read with pandas
+    
+    with open(infile, 'r') as f:
+        lines = f.readlines()
+
+    plot_dirs = []; titles = []
+    for line in lines:
+        if not line.startswith('#') and line.split():
+            exp_name = line.strip().split()[0]
+            run_id_in = line.strip().split()[1]
+            title = line.strip().split()[2]
+            run_dir = exp_base_dir + f'{exp_name}/logs/mlflow/*/{run_id_in}/*'
+            # Expand the path to get all subdirs matching the pattern
+            dirs = [d for d in glob.glob(run_dir) if os.path.isdir(d) and 'metrics' in d]
+            # Read run_id from path
+            run_id = [d.split('/')[-2] for d in dirs] 
+            # Expand title list to same length, adding run_id to title if multiple dirs
+            
+            if len(dirs) > 1:
+                sub_title = [title + ' (' + id[:5] + ')' for id in run_id]
+            else:
+                sub_title = [title]
+            titles.extend(sub_title)
+            plot_dirs.extend(dirs)
+            #print(line.strip())
+    return plot_dirs, titles
+
+def mlflow_metadata(dir_in):
+    # Read in metadata file from mlflow dir
+    meta_file = os.path.join(dir_in, 'meta.yaml')
+    run_id = 'unknown'; run_name = 'unknown'
+    try:
+        with open(meta_file, 'r') as f:
+            metadata = f.read()
+            if 'run_id:' in metadata:
+                run_id = metadata.split('run_id:')[1].split('\n')[0].strip()
+            if 'run_name:' in metadata:
+                run_name = metadata.split('run_name:')[1].split('\n')[0].strip()
+            
+            # can also get 'experiment_id:' and 'user_id:'
+    except Exception as e:
+        print(f'Could not read in metadata from {meta_file}: {e}')
+    return run_id, run_name
+
+def read_config_param(dir_in, param_name):
+    # Read in config param from mlflow dir
+    #config_file = os.path.join(dir_in, '/params/'+param_name)
+    config_file = dir_in + '/params/' + param_name
+    param_value = 'unknown'
+    try:
+        with open(config_file, 'r') as f:
+            param_value = f.read().strip()
+    except Exception as e:
+        print(f'Could not read in config param from {config_file}: {e}')
+    return param_value
+
+def diff_configs():
+    pass
 
 def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=False):
 
@@ -40,7 +105,6 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
     ax1 = ax1.ravel()
     fig1.suptitle(f'Metrics: {suptitle}', fontweight = 'bold', fontsize =15)
     
-
     #Fig 2
     fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
     fig2.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
@@ -53,6 +117,7 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         
         for i, metric in enumerate(metrics_list):
             file_path = os.path.join(dir_in, metric)
+            print(metric)
 
             if os.path.isfile(file_path):
                 try:
@@ -69,7 +134,9 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
 
                 #plotting
                 ax1[i].plot(ds["Step"], ds["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
-                #ax1[i].scatter(ds["Step"], ds["Vals"], marker='x', s=3)      
+                #ax1[i].scatter(ds["Step"], ds["Vals"], marker='x', s=3)  
+                if 'loss' in metric:
+                    ax1[i].set_yscale('log')  # log scale for loss    
 
         
         # Validation metrics for variables 
@@ -78,8 +145,8 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
             n+=1
             continue
 
-        for i, metric in enumerate(val_metrics_list):
-            file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric', metric)
+        for j, vmetric in enumerate(val_metrics_list):
+            file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric', vmetric)
 
             if os.path.isdir(file_path):
                 try: 
@@ -90,12 +157,9 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
                     continue
 
                 #plotting 
-                ax2[i].plot(ds_vars["Step"], ds_vars["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
-                ax2[i].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')
-                ax2[i].set_title(f'{metric} ', fontweight = 'bold', fontsize = 10)
-                ax2[i].set_xlabel(f'Step')
-                ax2[i].grid(True, alpha = 0.5)
-        
+                ax2[j].plot(ds_vars["Step"], ds_vars["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
+                ax2[j].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')
+                  
         n+=1
 
     # Add legend only once, on the last iteration
@@ -104,6 +168,13 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         ax1[i].set_xlabel(f'Step')
         ax1[i].grid(True, alpha = 0.5)   
         ax1[i].legend() 
+        ax2[i].set_yscale('log')
+
+    for j in range(len(val_metrics_list)):
+        ax2[j].set_title(f'{val_metrics_list[j]} ', fontweight = 'bold', fontsize = 10)
+        ax2[j].set_xlabel(f'Step')
+        ax2[j].grid(True, alpha = 0.5)
+        ax2[j].legend() 
 
     plt.tight_layout()
     plt.show()
