@@ -68,7 +68,7 @@ def read_config_param(dir_in, param_name):
 def diff_configs():
     pass
 
-def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=False):
+def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=True):
 
     # Only plotting these metrics. Ignoring X_epoch if plot_epoch = False
     metrics_list = [
@@ -101,23 +101,22 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         fig1, ax1 = plt.subplots(3,1, figsize = (15,15))
         metrics_list = [m for m in metrics_list if not m.endswith('epoch')]
         
-    fig1.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
+    fig1.subplots_adjust(wspace=0.12,hspace=0.2,left=0.05,right=0.99,top=0.94,bottom=0.05)
     ax1 = ax1.ravel()
     fig1.suptitle(f'Metrics: {suptitle}', fontweight = 'bold', fontsize =15)
     
     #Fig 2
     fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
-    fig2.subplots_adjust(wspace=0.5, hspace=0.5) # adjust the spacing between subplots: wspace for width and hspace for height
+    fig2.subplots_adjust(wspace=0.12,hspace=0.2,left=0.05,right=0.99,top=0.94,bottom=0.05)
     ax2 = ax2.ravel()
     fig2.suptitle(f'Validation metrics: val_mse_inside_lam_metric', fontweight = 'bold', fontsize = 15)
 
     n=0
     for dir_in, experiment in zip(dir_list, exp_names):
-        print(f'Processing directory: {dir_in} with experiment name: {experiment}')
+        print(f'Processing experiment name: {experiment} in directory: {dir_in}')
         
         for i, metric in enumerate(metrics_list):
             file_path = os.path.join(dir_in, metric)
-            print(metric)
 
             if os.path.isfile(file_path):
                 try:
@@ -134,14 +133,15 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
 
                 #plotting
                 ax1[i].plot(ds["Step"], ds["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
-                #ax1[i].scatter(ds["Step"], ds["Vals"], marker='x', s=3)  
+                if 'epoch' in metric:
+                    ax1[i].scatter(ds["Step"], ds["Vals"], marker='x', s=3, color=colors[n % len(colors)])  
                 if 'loss' in metric:
-                    ax1[i].set_yscale('log')  # log scale for loss    
-
+                    # log scale for loss
+                    ax1[i].set_yscale('log')
         
         # Validation metrics for variables 
         if not os.path.isdir(os.path.join(f'{dir_in}/val_mse_inside_lam_metric')):
-            print(f'No val_mse_inside_lam_metric directory in {dir_in}, skipping variable metrics plotting.')
+            print(f'No val_mse_inside_lam_metric for {experiment} in directory {dir_in}, \n  -->skipping variable metrics plotting.')
             n+=1
             continue
 
@@ -158,11 +158,10 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
 
                 #plotting 
                 ax2[j].plot(ds_vars["Step"], ds_vars["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
-                ax2[j].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')
-                  
+                ax2[j].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')      
         n+=1
 
-    # Add legend only once, on the last iteration
+    # Add legend etc only once, on the last iteration
     for i in range(len(metrics_list)):
         ax1[i].set_title(f'{metrics_list[i]}', fontweight = 'bold', fontsize=10)  
         ax1[i].set_xlabel(f'Step')
@@ -176,7 +175,6 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         ax2[j].grid(True, alpha = 0.5)
         ax2[j].legend() 
 
-    plt.tight_layout()
     plt.show()
 
 
