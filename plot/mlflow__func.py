@@ -84,7 +84,19 @@ def diff_configs():
     # TODO
     pass
 
-def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=True):
+def mlflow_multiple_dirs(dir_list, exp_names, suptitle='',figname=''):
+    """
+    Plot metrics from multiple mlflow dirs in one figure.
+    `dir_list`: list of mlflow dirs to plot, full path to 'metrics' subdir
+    `exp_names`: list of experiment names to use as legend labels
+    `suptitle`: figure title
+    `figname`: if given, save figure as figname_metrics.png and figname_val_metrics.png, 
+    else figure is shown
+    
+    """
+    if len(dir_list) != len(exp_names):
+        print('Error: dir_list and exp_names must have same length!')
+        return
 
     # Only plotting these metrics. Ignoring X_epoch if plot_epoch = False
     metrics_list = [
@@ -111,21 +123,16 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
     linestyles = ['-', '--', ':', '-.']
 
     #Fig 1
-    if plot_epoch:
-        fig1, ax1 = plt.subplots(3,2, figsize = (15,15))
-    else:
-        fig1, ax1 = plt.subplots(3,1, figsize = (15,15))
-        metrics_list = [m for m in metrics_list if not m.endswith('epoch')]
-        
+    fig1, ax1 = plt.subplots(3,2, figsize = (15,15))
     fig1.subplots_adjust(wspace=0.12,hspace=0.2,left=0.05,right=0.99,top=0.94,bottom=0.05)
     ax1 = ax1.ravel()
-    fig1.suptitle(f'Metrics: {suptitle}', fontweight = 'bold', fontsize =15)
+    fig1.suptitle(f'{suptitle}\nMetrics', fontweight = 'bold', fontsize =15)
     
     #Fig 2
     fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
     fig2.subplots_adjust(wspace=0.12,hspace=0.2,left=0.05,right=0.99,top=0.94,bottom=0.05)
     ax2 = ax2.ravel()
-    fig2.suptitle(f'Validation metrics: val_mse_inside_lam_metric', fontweight = 'bold', fontsize = 15)
+    fig2.suptitle(f'{suptitle}\nValidation metrics: val_mse_inside_lam_metric', fontweight = 'bold', fontsize = 15)
 
     n=0
     for dir_in, experiment in zip(dir_list, exp_names):
@@ -191,8 +198,13 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         ax2[j].grid(True, alpha = 0.5)
         ax2[j].legend() 
 
-    plt.show()
-
+    if figname != '':
+        print(f'Saving figures as {figname}_metrics.png and {figname}_val_metrics.png')
+        fig1.savefig(figname + '_metrics.png', dpi=200)
+        fig2.savefig(figname + '_val_metrics.png', dpi=200)
+    else:
+        plt.show()
+    return
 
 def mlflow_plots(dir_in, vars_indx, suptitle):
 
