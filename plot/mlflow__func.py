@@ -4,40 +4,46 @@ import glob
 from cycler import cycler
 import matplotlib.pyplot as plt
 
-def parse_mlflow_dirs(infile,exp_base_dir='/lustre/storeB/project/fou/hi/foccus/experiments/'):
-    # Simple way to get all relevant subdirs for mlflow plots
-    # infile should contain lines with: exp_name run_id title
-    # Lines starting with # are ignored
-
-    # TODO: use csv for infile and read with pandas
+def get_mlflow_dirs(infile,exp_base_dir='/lustre/storeB/project/fou/hi/foccus/experiments/'):
+    """
+    Get all possible mlflow subdirs for a given `exp_name`
+     e.g. the path `/{exp_base_dir}/{exp_name}/logs/mlflow/*/{run_id}/*`
+    where `run_id` don't have to be specified, as there can be multiple runs for a given `exp_name`.
     
-    with open(infile, 'r') as f:
-        lines = f.readlines()
+    `infile`: text file with lines containing: exp_name run_id title
+    `exp_base_dir`: base dir where all experiments are stored, defaul is set to PPI location
+    """
 
-    plot_dirs = []; titles = []
-    for line in lines:
-        if not line.startswith('#') and line.split():
-            exp_name = line.strip().split()[0]
-            run_id_in = line.strip().split()[1]
-            title = line.strip().split()[2]
-            run_dir = exp_base_dir + f'{exp_name}/logs/mlflow/*/{run_id_in}/*'
-            # Expand the path to get all subdirs matching the pattern
-            dirs = [d for d in glob.glob(run_dir) if os.path.isdir(d) and 'metrics' in d]
-            # Read run_id from path
-            run_id = [d.split('/')[-2] for d in dirs] 
-            # Expand title list to same length, adding run_id to title if multiple dirs
-            
-            if len(dirs) > 1:
-                sub_title = [title + ' (' + id[:5] + ')' for id in run_id]
-            else:
-                sub_title = [title]
-            titles.extend(sub_title)
-            plot_dirs.extend(dirs)
-            #print(line.strip())
-    return plot_dirs, titles
+    df = pd.read_csv(infile, comment='#')
 
-def mlflow_metadata(dir_in):
-    # Read in metadata file from mlflow dir
+    mlflow_dirs = []; titles = []
+    for i in df.index:
+        exp_name = df['experiment'][i]
+        run_id_in = df['run_ID'][i] # * is allowed
+        title = df['plot_title'][i]
+        if title == '*' or title == '': title = exp_name
+        if run_id_in == '': run_id_in = '*'
+
+        # Expand the path with glob to get all subdirs matching the pattern
+        run_dir_str = exp_base_dir + f'{exp_name}/logs/mlflow/*/{run_id_in}/*'
+        # only keep dirs that contain 'metrics'
+        exp_dirs = [d for d in glob.glob(run_dir_str) if os.path.isdir(d) and 'metrics' in d]
+        # Read run_id from exp_dirs path
+        run_id = [d.split('/')[-2] for d in exp_dirs] 
+
+        # Expand title list to same length as exp_dirs, adding run_id to title if multiple dirs
+        if len(exp_dirs) > 1:
+            subdir_title = [title + ' (' + id[:5] + ')' for id in run_id]
+        else:
+            subdir_title = [title]
+        titles.extend(subdir_title)
+        mlflow_dirs.extend(exp_dirs)
+
+    print(f"Found {len(mlflow_dirs)} relevant mlflow dirs.\n! Note that some dirs may be empty or incomplete if no metrics were logged.")
+    return mlflow_dirs, titles
+
+def get_mlflow_metadata(dir_in):
+    """Returns `run_id` and `run_name` read from meta.yaml in `dir_in`"""
     meta_file = os.path.join(dir_in, 'meta.yaml')
     run_id = 'unknown'; run_name = 'unknown'
     try:
@@ -47,25 +53,35 @@ def mlflow_metadata(dir_in):
                 run_id = metadata.split('run_id:')[1].split('\n')[0].strip()
             if 'run_name:' in metadata:
                 run_name = metadata.split('run_name:')[1].split('\n')[0].strip()
-            
-            # can also get 'experiment_id:' and 'user_id:'
+            # TODO: also possible to get 'experiment_id:' and 'user_id:'
+
     except Exception as e:
-        print(f'Could not read in metadata from {meta_file}: {e}')
+        print(f'Could not read in metadata: {e}')
     return run_id, run_name
 
-def read_config_param(dir_in, param_name):
-    # Read in config param from mlflow dir
-    #config_file = os.path.join(dir_in, '/params/'+param_name)
+def get_config_param(dir_in, param_name):
+    """
+    Get one config param from the params/ subdir of mlflow. Returns 'unknown' if not found.
+    
+    Try setting `param_name` to (not exhaustive):
+    - `config.training.lr.rate`
+    - `config.training.max_steps`
+    - `config.hardware.files.graph`
+    - `metadata.run_id`
+    """
     config_file = dir_in + '/params/' + param_name
-    param_value = 'unknown'
     try:
         with open(config_file, 'r') as f:
             param_value = f.read().strip()
     except Exception as e:
-        print(f'Could not read in config param from {config_file}: {e}')
+        # if file not found, fail silently and return 'unknown'
+        param_value = 'unknown'
+        #print(f'  Could not read in {param_name}: {e}')
+         
     return param_value
 
 def diff_configs():
+    # TODO
     pass
 
 def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=True):
@@ -141,7 +157,7 @@ def mlflow_multiple_dirs(dir_list, exp_names, vars_indx, suptitle='',plot_epoch=
         
         # Validation metrics for variables 
         if not os.path.isdir(os.path.join(f'{dir_in}/val_mse_inside_lam_metric')):
-            print(f'No val_mse_inside_lam_metric for {experiment} in directory {dir_in}, \n  -->skipping variable metrics plotting.')
+            print(f'  No val_mse_inside_lam_metric for {experiment} in directory {dir_in}, \n  -->skipping variable metrics plotting.')
             n+=1
             continue
 
