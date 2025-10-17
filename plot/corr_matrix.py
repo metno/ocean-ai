@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sea
 import numpy as np
+import sys 
 
 
 #importing the dataset and selecting which variables to run the correlation matrix for the results
@@ -24,7 +25,7 @@ def sel_vars(filepath):
     print(f"All other variables removed. The variables dropped are: {diff}")
     return dataset
 
-def plot_corr(filepath, title):
+def plot_corr(filepath, title, save_path):
     dataset = sel_vars(filepath)
     #convert dataset from xarray to pandas to use built-in function
     dataset_pd = dataset.to_dataframe()
@@ -46,3 +47,14 @@ def plot_corr(filepath, title):
 #Example on how to run the interactive version
 #plot_corr('/lustre/storeB/project/fou/hi/foccus/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc', 'Ngpus_vars_speed')
 #provide wished variables as following: 'var1, var2, var3'
+
+#add sys argv so it can be run from the commando line 
+plot_corr = sys.argv[0]
+filepath = sys.argv[1]
+title_plot = sys.argv[2]
+savefig_path = sys.argv[3]
+
+plot_corr(filepath, title_plot, savefig_path)
+
+#save figs in my folder
+#/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/figures
