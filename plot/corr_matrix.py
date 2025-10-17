@@ -45,3 +45,4 @@ def plot_corr(filepath, title):
 
 #Example on how to run the interactive version
 #plot_corr('/lustre/storeB/project/fou/hi/foccus/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc', 'Ngpus_vars_speed')
+#provide wished variables as following: 'var1, var2, var3'
