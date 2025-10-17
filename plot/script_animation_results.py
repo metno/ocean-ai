@@ -11,7 +11,7 @@ import xarray as xr
 #One has to adapt this code to match it to two-dimensional data or rewrite the script to select based on the datatype. The last mentioned is a possible reason
 #Animation of a single variable
 def results_animation(file_path,variable, dir, frame, start_time, **kwargs):
-    ds = xr.open_dataset(file_path, engine="netcdf4") #add isel when its relevant to select which s-layer you want to look at (per now it is only the surface layer so)
+    ds = xr.open_dataset(file_path, engine="netcdf4") #add isel when its relevant to select which s-layer you want to look at (per now it is only the surface layer)
     ds_var = ds[f'{variable}']
     longitude = ds["longitude"]
     latitude = ds["latitude"]
