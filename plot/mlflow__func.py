@@ -61,7 +61,7 @@ def get_mlflow_metadata(dir_in):
 
 def get_config_param(dir_in, param_name):
     """
-    Get one config param from the params/ subdir of mlflow. Returns 'unknown' if not found.
+    Get one config param from the params/ subdir of mlflow. Returns None if not found.
     
     Try setting `param_name` to (not exhaustive):
     - `config.training.lr.rate`
@@ -74,8 +74,8 @@ def get_config_param(dir_in, param_name):
         with open(config_file, 'r') as f:
             param_value = f.read().strip()
     except Exception as e:
-        # if file not found, fail silently and return 'unknown'
-        param_value = 'unknown'
+        # if file not found, fail silently and return None
+        param_value = None
         #print(f'  Could not read in {param_name}: {e}')
          
     return param_value
