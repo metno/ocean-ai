@@ -10,3 +10,4 @@ outputs
 *.png
 *.gif
 checkpoint
+.vscode

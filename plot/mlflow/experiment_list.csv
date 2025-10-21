@@ -1,0 +1,15 @@
+# List of experiments with assumed base path
+# /lustre/storeB/project/fou/hi/foccus/experiments/
+# or similar.
+# Set run_ID=* to include all runs within an experiment.
+# Set plot_title=* to use experiment name as title. 
+experiment,run_ID,plot_title
+#no-zeta,*,org. no-zeta
+replace-me,*,old-graph-625e-5
+#learning_rate/625e-1,*,625e-1
+#learning_rate/625e-2,*,625e-2
+learning_rate/625e-3,*,625e-3
+learning_rate/625e-4,*,625e-4
+learning_rate/625e-6,*,625e-6
+num_channels/512,*,*
+num_channels/1024,*,*

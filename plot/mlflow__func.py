@@ -1,6 +1,210 @@
 import pandas as pd
 import os
+import glob
+from cycler import cycler
 import matplotlib.pyplot as plt
+
+def get_mlflow_dirs(infile,exp_base_dir='/lustre/storeB/project/fou/hi/foccus/experiments/'):
+    """
+    Get all possible mlflow subdirs for a given `exp_name`
+     e.g. the path `/{exp_base_dir}/{exp_name}/logs/mlflow/*/{run_id}/*`
+    where `run_id` don't have to be specified, as there can be multiple runs for a given `exp_name`.
+    
+    `infile`: text file with lines containing: exp_name run_id title
+    `exp_base_dir`: base dir where all experiments are stored, defaul is set to PPI location
+    """
+
+    df = pd.read_csv(infile, comment='#')
+
+    mlflow_dirs = []; titles = []
+    for i in df.index:
+        exp_name = df['experiment'][i]
+        run_id_in = df['run_ID'][i] # * is allowed
+        title = df['plot_title'][i]
+        if title == '*' or title == '': title = exp_name
+        if run_id_in == '': run_id_in = '*'
+
+        # Expand the path with glob to get all subdirs matching the pattern
+        run_dir_str = exp_base_dir + f'{exp_name}/logs/mlflow/*/{run_id_in}/*'
+        # only keep dirs that contain 'metrics'
+        exp_dirs = [d for d in glob.glob(run_dir_str) if os.path.isdir(d) and 'metrics' in d]
+        # Read run_id from exp_dirs path
+        run_id = [d.split('/')[-2] for d in exp_dirs] 
+
+        # Expand title list to same length as exp_dirs, adding run_id to title if multiple dirs
+        if len(exp_dirs) > 1:
+            subdir_title = [title + ' (' + id[:5] + ')' for id in run_id]
+        else:
+            subdir_title = [title]
+        titles.extend(subdir_title)
+        mlflow_dirs.extend(exp_dirs)
+
+    print(f"Found {len(mlflow_dirs)} relevant mlflow dirs.\n! Note that some dirs may be empty or incomplete if no metrics were logged.")
+    return mlflow_dirs, titles
+
+def get_mlflow_metadata(dir_in):
+    """Returns `run_id` and `run_name` read from meta.yaml in `dir_in`"""
+    meta_file = os.path.join(dir_in, 'meta.yaml')
+    run_id = 'unknown'; run_name = 'unknown'
+    try:
+        with open(meta_file, 'r') as f:
+            metadata = f.read()
+            if 'run_id:' in metadata:
+                run_id = metadata.split('run_id:')[1].split('\n')[0].strip()
+            if 'run_name:' in metadata:
+                run_name = metadata.split('run_name:')[1].split('\n')[0].strip()
+            # TODO: also possible to get 'experiment_id:' and 'user_id:'
+
+    except Exception as e:
+        print(f'Could not read in metadata: {e}')
+    return run_id, run_name
+
+def get_config_param(dir_in, param_name):
+    """
+    Get one config param from the params/ subdir of mlflow. Returns None if not found.
+    
+    Try setting `param_name` to (not exhaustive):
+    - `config.training.lr.rate`
+    - `config.training.max_steps`
+    - `config.hardware.files.graph`
+    - `metadata.run_id`
+    """
+    config_file = dir_in + '/params/' + param_name
+    try:
+        with open(config_file, 'r') as f:
+            param_value = f.read().strip()
+    except Exception as e:
+        # if file not found, fail silently and return None
+        param_value = None
+        #print(f'  Could not read in {param_name}: {e}')
+         
+    return param_value
+
+def diff_configs():
+    # TODO
+    pass
+
+def mlflow_multiple_dirs(dir_list, exp_names, suptitle='',figname=''):
+    """
+    Plot metrics from multiple mlflow dirs in one figure.
+    `dir_list`: list of mlflow dirs to plot, full path to 'metrics' subdir
+    `exp_names`: list of experiment names to use as legend labels
+    `suptitle`: figure title
+    `figname`: if given, save figure as figname_metrics.png and figname_val_metrics.png, 
+    else figure is shown
+    
+    """
+    if len(dir_list) != len(exp_names):
+        print('Error: dir_list and exp_names must have same length!')
+        return
+
+    # Only plotting these metrics. Ignoring X_epoch if plot_epoch = False
+    metrics_list = [
+                    'train_mse_loss_step',
+                    'train_mse_loss_epoch',
+                    'val_mse_loss_step',
+                    'val_mse_loss_epoch',                    
+                    'lr-AdamW',
+                    'epoch',
+                    #'rollout'
+                    ]
+    # val_mse_inside_lam_metric is plotted separately. Only present if finish an epoch (?)
+    val_metrics_list = [  # add more variables when expand to 3D
+                    'all',
+                    'sfc_salinity', 
+                    'sfc_u_eastward', 
+                    'sfc_v_northward',
+                    'sfc_temperature', 
+                    'sfc_zeta',
+                    ]
+
+    # different styles for each dir
+    colors     = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    linestyles = ['-', '--', ':', '-.']
+
+    #Fig 1
+    fig1, ax1 = plt.subplots(3,2, figsize = (15,15))
+    fig1.subplots_adjust(wspace=0.12,hspace=0.2,left=0.05,right=0.99,top=0.94,bottom=0.05)
+    ax1 = ax1.ravel()
+    fig1.suptitle(f'{suptitle}\nMetrics', fontweight = 'bold', fontsize =15)
+    
+    #Fig 2
+    fig2, ax2 = plt.subplots(3,2, figsize = (15,12))
+    fig2.subplots_adjust(wspace=0.12,hspace=0.2,left=0.05,right=0.99,top=0.94,bottom=0.05)
+    ax2 = ax2.ravel()
+    fig2.suptitle(f'{suptitle}\nValidation metrics: val_mse_inside_lam_metric', fontweight = 'bold', fontsize = 15)
+
+    n=0
+    for dir_in, experiment in zip(dir_list, exp_names):
+        print(f'Processing experiment name: {experiment} in directory: {dir_in}')
+        
+        for i, metric in enumerate(metrics_list):
+            file_path = os.path.join(dir_in, metric)
+
+            if os.path.isfile(file_path):
+                try:
+                    ds = pd.read_csv(f'{file_path}', sep='\s+', names=["ID", "Vals", "Step"])
+
+                except Exception as e:
+                    print(f'Could not read in {metric} using Pandas: {e}')
+                    continue
+
+                #if lenth of step is 0, then the metric is not logged properly, skip it
+                if len(ds["Step"]) == 0:
+                    print(f'Skipping {metric} as it has 0 steps logged.')
+                    continue
+
+                #plotting
+                ax1[i].plot(ds["Step"], ds["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
+                if 'epoch' in metric:
+                    ax1[i].scatter(ds["Step"], ds["Vals"], marker='x', s=3, color=colors[n % len(colors)])  
+                if 'loss' in metric:
+                    # log scale for loss
+                    ax1[i].set_yscale('log')
+        
+        # Validation metrics for variables 
+        if not os.path.isdir(os.path.join(f'{dir_in}/val_mse_inside_lam_metric')):
+            print(f'  No val_mse_inside_lam_metric for {experiment} in directory {dir_in}, \n  -->skipping variable metrics plotting.')
+            n+=1
+            continue
+
+        for j, vmetric in enumerate(val_metrics_list):
+            file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric', vmetric)
+
+            if os.path.isdir(file_path):
+                try: 
+                    ds_vars = pd.read_csv(f'{file_path}/1', sep='\s+', names=["ID", "Vals", "Step"])
+
+                except Exception as e:
+                    print(f'Could not read in {file_path}/1 using Pandas: {e}')
+                    continue
+
+                #plotting 
+                ax2[j].plot(ds_vars["Step"], ds_vars["Vals"], label=experiment, color=colors[n % len(colors)], linestyle=linestyles[n % len(linestyles)])
+                ax2[j].scatter(ds_vars["Step"], ds_vars["Vals"], s = 4, color = 'black')      
+        n+=1
+
+    # Add legend etc only once, on the last iteration
+    for i in range(len(metrics_list)):
+        ax1[i].set_title(f'{metrics_list[i]}', fontweight = 'bold', fontsize=10)  
+        ax1[i].set_xlabel(f'Step')
+        ax1[i].grid(True, alpha = 0.5)   
+        ax1[i].legend() 
+        ax2[i].set_yscale('log')
+
+    for j in range(len(val_metrics_list)):
+        ax2[j].set_title(f'{val_metrics_list[j]} ', fontweight = 'bold', fontsize = 10)
+        ax2[j].set_xlabel(f'Step')
+        ax2[j].grid(True, alpha = 0.5)
+        ax2[j].legend() 
+
+    if figname != '':
+        print(f'Saving figures as {figname}_metrics.png and {figname}_val_metrics.png')
+        fig1.savefig(figname + '_metrics.png', dpi=200)
+        fig2.savefig(figname + '_val_metrics.png', dpi=200)
+    else:
+        plt.show()
+    return
 
 def mlflow_plots(dir_in, vars_indx, suptitle):
 
@@ -35,8 +239,8 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
         else:
             try:
                 ds = pd.read_csv(f'{file_path}', sep='\s+', names=["ID", "Vals", "Step"])
-                print(f'Successfully read in {filename}.')
-                print(f'Start of data: {ds.head()}')
+                #print(f'Successfully read in {filename}.')
+                #print(f'Start of data: {ds.head()}')
 
             except Exception as e:
                 print(f'Could not read in {filename} using Pandas: {e}')
@@ -52,7 +256,6 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
     #Variables     
     vars_file_path = os.path.join(f'{dir_in}/val_mse_inside_lam_metric')
     vars_dir = os.listdir(vars_file_path)
-    print(vars_dir)
     for j, vars_filename in enumerate(vars_dir):
         dir_vars = os.path.join(f'{vars_file_path}/{vars_filename}/{vars_indx}')
 
@@ -78,8 +281,29 @@ def mlflow_plots(dir_in, vars_indx, suptitle):
     fig2.suptitle(f'{suptitle}', fontweight = 'bold', fontsize = 15)
 
     plt.tight_layout()
-    plt.ion()
+    #plt.ion()
     plt.show()
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(
+        prog='MLflow plots'
+    )
+
+    parser.add_argument(
+        '-p', '--path', type=str, required=True, help='Full path to dir where MLflow logs are stored.'
+    )
+    parser.add_argument(
+        '-vi', '--varsindex', type=int, default=1, help='Not sure, ask Malene.'
+    )
+    parser.add_argument(
+        '-t', '--title', type=str, default='MLflow stats', help='Figure title.' 
+    )
+    args = parser.parse_args()
+
+    mlflow_plots(dir_in=args.path,
+                 vars_indx=args.varsindex,
+                 suptitle=args.title)
 
 #Example run:
 #mlflow_plots('/lustre/storeB/project/fou/hi/foccus/experiments/min-max-all-2017-24/mlflow/187656373550779284/90ed5f0579a94e1cacec799fe5fcc6f1/metrics', 1, 'Min-max-all-2017-24')
