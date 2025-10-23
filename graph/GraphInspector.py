@@ -64,7 +64,7 @@ class GraphInspector:
     def grid_lons(self):
         grid_lons = (self.graph_data[self.grid_key][self.coords_key][:,1]*180/np.pi).numpy()    
         #Shift these to -180, 180 for consistency when plotting
-        #grid_lons[grid_lons > 180.] = grid_lons[grid_lons > 180.] - 360.
+        #grid_lons[grid_lons > 180.] = grid_lons[grid_lons > 180.] - 360.d
         return grid_lons
     
     @cached_property
@@ -92,7 +92,7 @@ class GraphInspector:
     '''
     @property
     def area_weights(self):
-        return (self.graph_data[self.grid_key][self.coords_key]).numpy()
+        return (self.graph_data[self.grid_key]['area_weight']).numpy()
     
     @property
     def obs_area_weights(self):
@@ -100,7 +100,7 @@ class GraphInspector:
     
     @property
     def mesh_edge_weights(self):
-        return (self.graph_data[self.h2h_key][self.coords_key][:,0]).numpy()
+        return (self.graph_data[self.h2h_key]['edge_length'][:,0]).numpy()
     
     @property
     def encoder_edge_weights(self):
@@ -447,26 +447,32 @@ class GraphInspector:
             fig.savefig(save_path)
         return fig, ax 
             
-    def plot_mesh(self, xlim=(-180, 180), ylim=(-90, 90), save_path=None):
+    def plot_mesh(self, xlim=(-180, 180), ylim=(-90, 90), save_path=None, drop_lengths=None):
         import matplotlib.cm as cm
         import matplotlib.colors as mcolors
         from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+        import matplotlib.pyplot as plt
+    
         
-        mesh_edge_lons = self.edge_list_with_wraparound(self.mesh_edge_list[1])
+        #mesh_edge_lons = self.edge_list_with_wraparound(self.mesh_edge_list[1])
+        mesh_edge_lons = self.mesh_edge_list[1]
         mesh_edge_lats = self.mesh_edge_list[0]
         n_lines = self.graph_data[self.h2h_key]['edge_index'].shape[1]
         edge_weights = self.mesh_edge_weights
 
-        cmap = cm.get_cmap('gist_rainbow', n_lines)
+        cmap = plt.get_cmap('tab10', n_lines)
         norm = mcolors.Normalize(vmin=min(edge_weights), vmax=max(edge_weights))
 
         fig, ax = plt.subplots(figsize=(12,6), subplot_kw=dict(projection=ccrs.PlateCarree()))
         ax.coastlines()
-        ax.scatter(self.mesh_lons, self.mesh_lats, marker='.', s=10, color='gray')
         for i in range(n_lines):
             color = cmap(norm(edge_weights[i]))
-            ax.plot(mesh_edge_lons[3*i:3*i+2], mesh_edge_lats[3*i:3*i+2], lw=edge_weights[i], color=color)
+            #print(np.floor(edge_weights[i]))
+            if drop_lengths is not None and np.floor(edge_weights[i]) in drop_lengths:
+                pass
+            else:
+                ax.plot(mesh_edge_lons[3*i:3*i+2], mesh_edge_lats[3*i:3*i+2], lw=3, color=color)
+        #ax.scatter(self.mesh_lons, self.mesh_lats, s=50, color='gray')
 
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
