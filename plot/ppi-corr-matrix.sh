@@ -4,7 +4,7 @@
 #$ -l h_rss=30G,mem_free=30G,h_data=30G
 #$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
 #$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.err
-#$ -N results_animation
+#$ -N Correlation_matrix
 #$ -m bae
 #$ -M makar5578@met.no
 
@@ -12,6 +12,7 @@
 #Correlation matrix 
 #READYTORUN IN PPI
 
+FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus
 FILEPATH=/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240502.nc
 TITLE_PLOT='Norkyst_2024-05-02'
 SAVEFIG_PATH=/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/figures

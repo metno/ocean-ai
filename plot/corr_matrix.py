@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('save_path', metavar="Path to folder for saving pictures", help='Please enter the full path')
     parser.add_argument('--Norkyst', action='store_true', help='Set Norkyst = True if it is a Norkyst file to select out the surface layer', required=False)
     args = parser.parse_args()
-
+    
     filepath = args.filepath 
     title_plot = args.title
     savefig_path = args.save_path
