@@ -12,18 +12,15 @@ import os
 
 
 def import_ds(filepath, Norkyst = False):
+    print(f'Norkyst is {Norkyst}')
     if Norkyst == False:
-        ds = xr.open_dataset(filepath) #For the resultfiles because they only have one layer 
+        ds = xr.open_dataset(filepath).isel(time = 0) #For the resultfiles because they only have one layer 
+        vars_keep = ['salinity_0', 'temperature_0', 'zeta', 'u_eastward_0', 'v_northward_0']
     else:
         ds = xr.open_dataset(filepath).isel(s_rho = -1)
-    vars = list(ds.data_vars.keys())
-    print(vars)
-    return ds 
-
-def sel_vars(filepath):
-    ds = import_ds(filepath, Norkyst=False)
-    user_input = input('Please provide a list of the variables you want to use seperated with commas:')
-    vars_keep = [var.strip() for var in user_input.split(',')]
+        ds = ds.resample(time = '3H').mean(dim = 'time')
+        ds = ds.isel(time = 0)
+        vars_keep = ['salinity', 'temperature', 'zeta', 'u_eastward', 'v_northward']
     vars = list(ds.data_vars.keys())
     diff = list(filter(lambda i: i not in vars_keep, vars)) 
     dataset = ds.drop_vars(diff)
@@ -45,18 +42,33 @@ def plot_corr(filepath, title, save_path, Norkyst = False):
               If changed to True - the code will only select the surface layer of the Norkyst model.
     """
 
-    dataset = sel_vars(filepath)
+    dataset = import_ds(filepath, Norkyst = Norkyst)
     dataset_pd = dataset.to_dataframe()
     print(dataset_pd.head())
-    corr_matrix = dataset_pd.corr()
-    mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
-    fig, ax = plt.subplots(figsize=(12,10))
-    cmap = sea.cubehelix_palette(230,20, as_cmap = True)
-    sea.heatmap(corr_matrix, mask = mask, cmap = cmap, vmin= -1, vmax = 1, center = 0, square = True, linewidths = 0.5, cbar_kws={'shrink': 0.5}, annot = True)
-    full_save = os.path.join(save_path, f'{title}.png')
-    plt.title(f'{title}')
-    fig.savefig(f'{full_save}')
-    plt.show()
+    if not Norkyst:
+        vars_keep = ['salinity_0', 'temperature_0', 'zeta', 'u_eastward_0', 'v_northward_0']
+        dataset_pd = dataset_pd[vars_keep]
+        corr_matrix = dataset_pd.corr()
+        mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+        fig, ax = plt.subplots(figsize=(12,10))
+        cmap = sea.cubehelix_palette(230,20, as_cmap = True)
+        sea.heatmap(corr_matrix, mask = mask, cmap = cmap, vmin= -1, vmax = 1, center = 0, square = True, linewidths = 0.5, cbar_kws={'shrink': 0.5}, annot = True)
+        full_save = os.path.join(save_path, f'{title}.png')
+        plt.title(f'{title}')
+        fig.savefig(f'{full_save}')
+        plt.show()
+    else:
+        vars_keep = ['salinity', 'temperature', 'zeta', 'u_eastward', 'v_northward']
+        dataset_pd = dataset_pd[vars_keep]
+        corr_matrix = dataset_pd.corr()
+        mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+        fig, ax = plt.subplots(figsize=(12,10))
+        cmap = sea.cubehelix_palette(230,20, as_cmap = True)
+        sea.heatmap(corr_matrix, mask = mask, cmap = cmap, vmin= -1, vmax = 1, center = 0, square = True, linewidths = 0.5, cbar_kws={'shrink': 0.5}, annot = True)
+        full_save = os.path.join(save_path, f'{title}.png')
+        plt.title(f'{title}')
+        fig.savefig(f'{full_save}')
+        plt.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creating correlation plots')
@@ -70,6 +82,7 @@ if __name__ == '__main__':
     title_plot = args.title
     savefig_path = args.save_path
     Norkyst = args.Norkyst
+
 
 #Trial run result files
 """

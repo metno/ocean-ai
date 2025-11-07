@@ -13,9 +13,9 @@
 #READYTORUN IN PPI
 
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus
-FILEPATH=/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240502.nc
-TITLE_PLOT='Norkyst_2024-05-02'
-SAVEFIG_PATH=/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/figures
+FILEPATH=$FOCCUS_DIR/experiments/learning_rate/625e-3/inference/625_2d.nc
+TITLE_PLOT='625e-3_2024_05_02_corr_matrix_6hrs'
+SAVEFIG_PATH=$FOCCUS_DIR/malene/ocean-ai/plot/figures
 #OPTIONAL (include if you are using Norkyst files)
 NORKYST=--Norkyst
 
@@ -25,7 +25,7 @@ echo "Starting Python"
 # activate python env
 source $FOCCUS_DIR/.venv/bin/activate
 # run code
-python3 $FOCCUS_DIR/malene/ocean-ai/plot/corr_matrix.py $RUN $FILEPATH $TITLE_PLOT $SAVEFIG_PATH $NORKYST
+python3 $FOCCUS_DIR/malene/ocean-ai/plot/corr_matrix.py $FILEPATH $TITLE_PLOT $SAVEFIG_PATH
 
 # Then submit the script to the PPI que:
 # qsub ppi-sub-animation.
