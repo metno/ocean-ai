@@ -83,23 +83,4 @@ if __name__ == '__main__':
     savefig_path = args.save_path
     Norkyst = args.Norkyst
 
-
-#Trial run result files
-"""
-filepath = '/lustre/storeB/project/fou/hi/foccus/experiments/learning_rate/625e-3/inference/625_2d.nc'
-title_plot = 'Learning rate: 625e-3 2D'
-savefig_path = '/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/figures'
-"""
-
-#Trial run Norkyst for the same date
-"""
-filepath = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240502.nc'
-title_plot = 'Norkyst Hindcast'
-savefig_path = '/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/figures'
-"""
-
 plot_corr(filepath, title_plot, savefig_path, Norkyst)
-
-#To save figs in Malenes folder
-#/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/figures
-
