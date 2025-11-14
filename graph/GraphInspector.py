@@ -5,6 +5,7 @@ from torch_geometric.data import HeteroData
 from functools import cached_property
 import cartopy.crs as ccrs
 from typing import Optional
+import cartopy
 
 
 class GraphInspector:
@@ -408,7 +409,6 @@ class GraphInspector:
 
     def plot_obs_decoder(self, xlim=(-180, 180), ylim=(-90, 90), save_path=None):
         fig, ax = plt.subplots(figsize=(12,6), subplot_kw=dict(projection=ccrs.PlateCarree()))
-        ax.coastlines()
         ax.plot(self.edge_list_with_wraparound(self.obs_decoder_edge_list[1]), self.obs_decoder_edge_list[0], lw=0.2, label='obs decoder', color='black')
         ax.scatter(self.obs_lons, self.obs_lats, marker='.', s=10, color='blue', label = 'obs grid')
         ax.scatter(self.mesh_lons, self.mesh_lats, marker='.', s=100, color='darkorange', label = 'mesh')
@@ -421,13 +421,15 @@ class GraphInspector:
             fig.savefig(save_path)
         return fig, ax   
     
-    def plot_grid(self, xlim=(-180, 180), ylim=(-90, 90), save_path=None):
-        fig, ax = plt.subplots(figsize=(12,6), subplot_kw=dict(projection=ccrs.PlateCarree()))
+    def plot_grid(self, xlim=(-180, 180), ylim=(-90, 90), save_path=None, projection=ccrs.PlateCarree()):
+        fig, ax = plt.subplots(figsize=(12,6), subplot_kw=dict(projection=projection))
         ax.coastlines()
-        ax.scatter(self.grid_lons, self.grid_lats, marker='.', s=10, color='blue', label='grid')
+        ax.scatter(self.grid_lons, self.grid_lats, marker='.', s=10, color='blue', label='grid', transform=ccrs.PlateCarree())
         ax.gridlines(ls = '--', draw_labels=True, alpha=0.1)
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
+        ax.set_extent([xlim[0], xlim[1], ylim[0], ylim[1]], crs=ccrs.PlateCarree())
+        #ax.set_xlim(xlim)
+        #ax.set_ylim(ylim)
+        #ax.set_extent([-50,50,60,80], crs=projection)
         fig.suptitle('Grid')
         fig.legend()
         if save_path is not None:
