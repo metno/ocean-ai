@@ -6,7 +6,10 @@ import cmocean
 import numpy as np 
 import sys
 import xarray as xr
+import cartopy.crs as ccrs
+import cartopy
 
+"""
 #These scripts are adapted to the nc result files, though file_path2 and 3 in the last function is meant for two dimensional norkyst models.
 #One has to adapt this code to match it to two-dimensional data or rewrite the script to select based on the datatype. The last mentioned is a possible reason
 #Animation of a single variable
@@ -28,10 +31,54 @@ def results_animation(file_path,variable, dir, frame, start_time, **kwargs):
     
     ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
     ani.save(f'{dir}/animation_{variable}.gif', writer="imagemagick")
+"""
+"""
+NEW ONE FOR 2D RESULTS INFERENCE
+"""
+def results_animation(file_path, variable, dir, frame = 16, start = 0, **kwargs):
+    #TODO check that it works for Norkyst also maybe? Though not necessary maybe. 
+    """
+    Description: 
+    Function returning an animation for 2D results for the inference results. 
+    This returns a single animation for a given variable. 
+
+    Arguments:
+    arg[1] : Filepath (str) - Filepath for the dataset you wish to produce animations for.
+    arg[2] : Variable (str) - The variable you wish to plot. 
+    arg[3] : Dir (str) - Filepath for the location to save the animation in. 
+    arg[4] : Start (optional, float) - the start time for the animation. Default is 0. 
+    arg[5] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs). 
+    arg[6] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted. 
+    """
+    ds = xr.open_dataset(file_path, engine="netcdf4") #add .isel(s_rho = -1) when expanding to 3D model
+    ds_var = ds[f'{variable}']
+    print(f'Dataset imported and variable: {variable} is chosen')
+    longitude = ds["X"].values
+    latitude = ds["Y"].values
+    print(f'Shape of variable is: {ds_var.shape}')
+    print(f'shape of longitude is: {longitude.shape}')
+    print(f'shape of latitude is: {latitude.shape}')
+
+    fig,ax = plt.subplots(figsize = (12,8), subplot_kw = {'projection' : ccrs.NorthPolarStereo()})
+    sc = ax.pcolormesh(ds_var[start], cmap = cmocean.cm.speed, transform = ccrs.PlateCarree(), **kwargs)
+    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
+    cbar = fig.colorbar(sc, ax=ax, orientation = "vertical", label = variable, extend = 'both')
+        
+    def update(frame):
+        sc.set_array(ds_var[frame])
+        ax.set_title(f'Time step: {frame *3} hrs')
+        ax.set_xlabel(f'Latitude [$\circ$]')
+        ax.set_ylabel(f'Longitude [$\circ$]')
+        return sc 
+    ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
+    print('Trying to save it')
+    ani.save(f'{dir}/animation_{variable}.gif', writer="imagemagick")
+
+
 
 #Animation of absolute values from a dataset
 def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, start_time, **kwargs):
-    ds = xr.open_dataset(file_path, engine="netcdf4") #add isel when its relevant to select which s-layer you want to look at (per now it is only the surface layer so)
+    ds = xr.open_dataset(file_path, engine="netcdf4") #add isel when its relevant to select which s-layer you want to look at (per now it is only the surface layer)
     ds_var_1 = ds[f'{variable1}']
     ds_var_2 = ds[f'{variable2}']
     abs_val = np.sqrt((ds_var_1 **2) + (ds_var_2**2))
@@ -52,6 +99,7 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
     ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
     ani.save(f'{dir}/animation_abs_val_{variable1}_+_{variable2}.gif', writer="imagemagick")
 
+#TODO
 #Animation compare does currently not work due to the differences between the datsets, giving troubles in plotting
 def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
     ds1 = xr.open_dataset(file_path_1, engine = "netcdf4").isel(time=slice(0,16))
@@ -212,14 +260,14 @@ if __name__ == "__main__":
         variable = sys.argv[3]
         dir = sys.argv[4]
         frame = int(sys.argv[5])
-        start_time = int(sys.argv[6])
+        start = int(sys.argv[6])
 
         kwargs = {}
         for arg in sys.argv[7:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
-        results_animation(file_path, variable, dir, frame, start_time, **kwargs)
+        results_animation(file_path, variable, dir, frame, start, **kwargs)
 
     elif mode == "Absolutevalue_animation":
         if len(sys.argv) < 7:
