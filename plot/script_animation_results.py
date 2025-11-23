@@ -77,16 +77,33 @@ def results_animation(file_path, variable, dir, frame = 16, start = 0, **kwargs)
 
 
 #Animation of absolute values from a dataset
-def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, start_time, **kwargs):
-    ds = xr.open_dataset(file_path, engine="netcdf4") #add isel when its relevant to select which s-layer you want to look at (per now it is only the surface layer)
+#TODO check if works - send into PPI when the previous one is done running
+def absolute_val(file_path, variable1, variable2, dir, frame = 16, start = 0, **kwargs):
+    """
+    Description: 
+    Function returning an animation for 2D results for the inference results. 
+    This returns a single animation for the absolute value of two variables. Ideal in use for ocean currents for example (u_eastward_0 and v_northward_0).
+
+    Arguments: 
+    arg[1] : Filepath (str) - Filepath for the dataset you wish to produce animations for.
+    arg[2] : Variable 1 (str) - Variable 1 to plot
+    arg[3] : Variable 2 (str) - Variable 2 to plot
+    arg[4] : Dir (str) - Filepath for the location to save the figure in
+    arg[5] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs).
+    arg[6] : Start (optional, float) - the start time for the animation. Default is 0.
+    arg[7] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted.
+    """
+    ds = xr.open_dataset(file_path, engine="netcdf4")  #add .isel(s_rho = -1) when expanding to 3D model
     ds_var_1 = ds[f'{variable1}']
     ds_var_2 = ds[f'{variable2}']
+    print(f'The following variables are selected: {variable1} and {variable2}')
     abs_val = np.sqrt((ds_var_1 **2) + (ds_var_2**2))
-    longitude = ds["longitude"]
-    latitude = ds["latitude"]
-    fig,ax = plt.subplots(figsize = (12,8))
-    sc = ax.scatter(longitude.values, latitude.values, c=abs_val.isel(time=start_time).values, cmap = cmocean.cm.speed, **kwargs)
-    cbar = plt.colorbar(sc, ax=ax, orientation = "vertical", label = '$sqrt{{variable1}²+{variable2}²}$')
+    longitude = ds["X"]
+    latitude = ds["Y"]
+    fig,ax = plt.subplots(figsize = (12,8), subplot_kw = {'projection' : ccrs.NorthPolarStereo()})
+    sc = ax.pcolormesh(abs_val[start], cmap = cmocean.cm.speed, transform = ccrs.PlateCarree(), **kwargs)
+    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
+    cbar = fig.colorbar(sc, ax=ax, orientation = "vertical", label = '$\sqrt{{variable1}²+{variable2}²}$', extend = 'both')
 
 
     def update(frame):
@@ -99,7 +116,7 @@ def results_absolute_val_animation(file_path,variable1, variable2, dir, frame, s
     ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
     ani.save(f'{dir}/animation_abs_val_{variable1}_+_{variable2}.gif', writer="imagemagick")
 
-#TODO
+#TODO - fix this whole thing :) 
 #Animation compare does currently not work due to the differences between the datsets, giving troubles in plotting
 def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
     ds1 = xr.open_dataset(file_path_1, engine = "netcdf4").isel(time=slice(0,16))
@@ -255,7 +272,7 @@ if __name__ == "__main__":
 
     if mode == "Animation":
         if len(sys.argv) < 6:
-            raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable>, <dir>, <frame>, <start_time>, <kwargs (optional)>')
+            raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable>, <dir>, <frame (optional)>, <start_time (optional)>, <kwargs (optional)>')
         file_path = sys.argv[2]
         variable = sys.argv[3]
         dir = sys.argv[4]
@@ -284,7 +301,7 @@ if __name__ == "__main__":
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
-        results_absolute_val_animation(file_path, variable1, variable2, dir, frame, start_time, **kwargs)
+        absolute_val(file_path, variable1, variable2, dir, frame, start_time, **kwargs)
 
     elif mode == "Animation_difference":
         if len(sys.argv) < 8:

@@ -11,11 +11,11 @@
 
 #Compare animation - needed arguments
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus
-FILE_IN1=$FOCCUS_DIR/experiments/ngpus-2017-24/inference/lam-48h-step_002016.nc #result file
+FILE_IN1=$FOCCUS_DIR/malene/run-anemoi-ocean/ppi/external_checkpoint_inference/Inference_res/2024-04-02_.ckpt_e010_s020000.nc #result file
 FILE_IN2=/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth//2024/04/norkyst800-20240402.nc
 FILE_IN3=/lustre/storeB/project/fou/hi/roms_hindcast/norkyst_v3/sdepth/2024/04/norkyst800-20240403.nc
-DIR_OUT=$FOCCUS_DIR/malene/ocean-ai/plot/figures/
-RUN='Compare'
+DIR_OUT=$FOCCUS_DIR/malene/ocean-ai/plot/tests_animations
+RUN='Animation'
 VARIABLE1='u_eastward_0'
 VARIABLE2='u_eastward'
 FRAME=16
@@ -25,7 +25,7 @@ echo "Starting Python"
 # activate python env
 source $FOCCUS_DIR/.venv/bin/activate
 # run code
-python3 $FOCCUS_DIR/malene/ocean-ai/plot/script_animation_results.py $RUN $FILE_IN1 $FILE_IN2 $FILE_IN3 $VARIABLE1 $VARIABLE2 $DIR_OUT $FRAME $START_TIME 
+python3 $FOCCUS_DIR/malene/ocean-ai/plot/script_animation_results.py $RUN $FILE_IN1 $VARIABLE1 $DIR_OUT $FRAME $START_TIME 
 
 # Then submit the script to the PPI que:
 # qsub ppi-sub-animation.
