@@ -9,33 +9,12 @@ import xarray as xr
 import cartopy.crs as ccrs
 import cartopy
 
+
 """
-#These scripts are adapted to the nc result files, though file_path2 and 3 in the last function is meant for two dimensional norkyst models.
-#One has to adapt this code to match it to two-dimensional data or rewrite the script to select based on the datatype. The last mentioned is a possible reason
-#Animation of a single variable
-def results_animation(file_path,variable, dir, frame, start_time, **kwargs):
-    ds = xr.open_dataset(file_path, engine="netcdf4") #add isel when its relevant to select which s-layer you want to look at (per now it is only the surface layer)
-    ds_var = ds[f'{variable}']
-    longitude = ds["longitude"]
-    latitude = ds["latitude"]
-    fig,ax = plt.subplots(figsize = (12,8))
-    sc = ax.scatter(longitude.values, latitude.values, c=ds_var.isel(time=start_time).values, cmap = cmocean.cm.speed, **kwargs)
-    cbar = plt.colorbar(sc, ax=ax, orientation = "vertical", label = variable)
-        
-    def update(frame):
-        sc.set_array(ds_var[frame])
-        ax.set_title(f'Time step: {frame *3} hrs')
-        ax.set_xlabel(f'Longitude [$\circ$]')
-        ax.set_ylabel(f'Latitude [$\circ$]')
-        return sc 
-    
-    ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
-    ani.save(f'{dir}/animation_{variable}.gif', writer="imagemagick")
+NEW ONES FOR 2D RESULTS INFERENCE
 """
-"""
-NEW ONE FOR 2D RESULTS INFERENCE
-"""
-def results_animation(file_path, variable, dir, frame = 16, start = 0, **kwargs):
+
+def results_animation(file_path, variable, dir, model_name, frame = 16, start = 0,  **kwargs):
     #TODO check that it works for Norkyst also maybe? Though not necessary maybe. 
     """
     Description: 
@@ -48,37 +27,31 @@ def results_animation(file_path, variable, dir, frame = 16, start = 0, **kwargs)
     arg[3] : Dir (str) - Filepath for the location to save the animation in. 
     arg[4] : Start (optional, float) - the start time for the animation. Default is 0. 
     arg[5] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs). 
+    arg[6] : Model (str) - Model name - included in name save
     arg[6] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted. 
     """
     ds = xr.open_dataset(file_path, engine="netcdf4") #add .isel(s_rho = -1) when expanding to 3D model
     ds_var = ds[f'{variable}']
     print(f'Dataset imported and variable: {variable} is chosen')
-    longitude = ds["X"].values
-    latitude = ds["Y"].values
-    print(f'Shape of variable is: {ds_var.shape}')
-    print(f'shape of longitude is: {longitude.shape}')
-    print(f'shape of latitude is: {latitude.shape}')
-
-    fig,ax = plt.subplots(figsize = (12,8), subplot_kw = {'projection' : ccrs.NorthPolarStereo()})
-    sc = ax.pcolormesh(ds_var[start], cmap = cmocean.cm.speed, transform = ccrs.PlateCarree(), **kwargs)
-    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
+    fig,ax = plt.subplots(figsize = (12,8))
+    sc = ax.pcolormesh(ds_var[start], cmap = cmocean.cm.speed, **kwargs)
     cbar = fig.colorbar(sc, ax=ax, orientation = "vertical", label = variable, extend = 'both')
         
     def update(frame):
         sc.set_array(ds_var[frame])
-        ax.set_title(f'Time step: {frame *3} hrs')
-        ax.set_xlabel(f'Latitude [$\circ$]')
-        ax.set_ylabel(f'Longitude [$\circ$]')
+        ax.set_title(f'Time step: {frame *3} hrs, model = {model_name}')
+        ax.set_xlabel(f'Y')
+        ax.set_ylabel(f'X')
         return sc 
     ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
     print('Trying to save it')
-    ani.save(f'{dir}/animation_{variable}.gif', writer="imagemagick")
+    ani.save(f'{dir}/animation_{variable}_{model_name}.gif', writer="imagemagick")
 
 
 
 #Animation of absolute values from a dataset
 #TODO check if works - send into PPI when the previous one is done running
-def absolute_val(file_path, variable1, variable2, dir, frame = 16, start = 0, **kwargs):
+def absolute_val(file_path, variable1, variable2, dir, model_name, frame = 16, start = 0, **kwargs):
     """
     Description: 
     Function returning an animation for 2D results for the inference results. 
@@ -89,6 +62,7 @@ def absolute_val(file_path, variable1, variable2, dir, frame = 16, start = 0, **
     arg[2] : Variable 1 (str) - Variable 1 to plot
     arg[3] : Variable 2 (str) - Variable 2 to plot
     arg[4] : Dir (str) - Filepath for the location to save the figure in
+    arg[5]
     arg[5] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs).
     arg[6] : Start (optional, float) - the start time for the animation. Default is 0.
     arg[7] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted.
@@ -98,23 +72,20 @@ def absolute_val(file_path, variable1, variable2, dir, frame = 16, start = 0, **
     ds_var_2 = ds[f'{variable2}']
     print(f'The following variables are selected: {variable1} and {variable2}')
     abs_val = np.sqrt((ds_var_1 **2) + (ds_var_2**2))
-    longitude = ds["X"]
-    latitude = ds["Y"]
-    fig,ax = plt.subplots(figsize = (12,8), subplot_kw = {'projection' : ccrs.NorthPolarStereo()})
-    sc = ax.pcolormesh(abs_val[start], cmap = cmocean.cm.speed, transform = ccrs.PlateCarree(), **kwargs)
-    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
-    cbar = fig.colorbar(sc, ax=ax, orientation = "vertical", label = '$\sqrt{{variable1}²+{variable2}²}$', extend = 'both')
+    fig,ax = plt.subplots(figsize = (12,8))
+    sc = ax.pcolormesh(abs_val[start], cmap = cmocean.cm.speed, **kwargs)
+    cbar = fig.colorbar(sc, ax=ax, orientation = "vertical", label = '$\sqrt{U²+V²}$', extend = 'both')
 
 
     def update(frame):
         sc.set_array(abs_val[frame])
-        ax.set_title(f'Time step: {frame*3} hrs')
-        ax.set_xlabel(f'Longitude [$\circ$]')
-        ax.set_ylabel(f'Latitude [$\circ$]')
+        ax.set_title(f'Time step: {frame*3} hrs for model {model_name}')
+        ax.set_xlabel(f'Y')
+        ax.set_ylabel(f'X')
         return sc 
     
     ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
-    ani.save(f'{dir}/animation_abs_val_{variable1}_+_{variable2}.gif', writer="imagemagick")
+    ani.save(f'{dir}/animation_abs_val_{variable1}_+_{variable2}_{model_name}.gif', writer="imagemagick")
 
 #TODO - fix this whole thing :) 
 #Animation compare does currently not work due to the differences between the datsets, giving troubles in plotting
@@ -271,20 +242,21 @@ if __name__ == "__main__":
     mode = sys.argv[1]
 
     if mode == "Animation":
-        if len(sys.argv) < 6:
+        if len(sys.argv) < 7:
             raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable>, <dir>, <frame (optional)>, <start_time (optional)>, <kwargs (optional)>')
         file_path = sys.argv[2]
         variable = sys.argv[3]
         dir = sys.argv[4]
-        frame = int(sys.argv[5])
-        start = int(sys.argv[6])
+        model_name = sys.argv[5]
+        frame = int(sys.argv[6])
+        start = int(sys.argv[7])
 
         kwargs = {}
-        for arg in sys.argv[7:]:
+        for arg in sys.argv[8:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
-        results_animation(file_path, variable, dir, frame, start, **kwargs)
+        results_animation(file_path, variable, dir, model_name, frame, start, **kwargs)
 
     elif mode == "Absolutevalue_animation":
         if len(sys.argv) < 7:
