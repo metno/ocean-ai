@@ -31,8 +31,8 @@ def import_ds(filepath, Norkyst = False):
 def plot_corr(filepath, title, save_path, Norkyst = False):
 
     """
+    Description:
     This function takes in a filepath for .nc files and will make a correlation matrix for selected variables from the datafile. 
-    The variables are selected when you run the code and you return a list of variables like: salinity, temperature etc. 
 
     Args:
     args[1] : Full path to the file you want to use. 
