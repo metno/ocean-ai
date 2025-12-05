@@ -11,11 +11,10 @@ import cartopy
 
 
 """
-NEW ONES FOR 2D RESULTS INFERENCE
+NEW CODE FOR 2D RESULTS
 """
 
 def results_animation(file_path, variable, dir, model_name, frame = 16, start = 0,  **kwargs):
-    #TODO check that it works for Norkyst also maybe? Though not necessary maybe. 
     """
     Description: 
     Function returning an animation for 2D results for the inference results. 
@@ -29,6 +28,9 @@ def results_animation(file_path, variable, dir, model_name, frame = 16, start = 
     arg[5] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs). 
     arg[6] : Model (str) - Model name - included in name save
     arg[6] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted. 
+
+    Returns: 
+    An animation saved in the dir folder.
     """
     ds = xr.open_dataset(file_path, engine="netcdf4") #add .isel(s_rho = -1) when expanding to 3D model
     ds_var = ds[f'{variable}']
@@ -50,7 +52,6 @@ def results_animation(file_path, variable, dir, model_name, frame = 16, start = 
 
 
 #Animation of absolute values from a dataset
-#TODO check if works - send into PPI when the previous one is done running
 def absolute_val(file_path, variable1, variable2, dir, model_name, frame = 16, start = 0, **kwargs):
     """
     Description: 
@@ -62,10 +63,13 @@ def absolute_val(file_path, variable1, variable2, dir, model_name, frame = 16, s
     arg[2] : Variable 1 (str) - Variable 1 to plot
     arg[3] : Variable 2 (str) - Variable 2 to plot
     arg[4] : Dir (str) - Filepath for the location to save the figure in
-    arg[5]
-    arg[5] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs).
-    arg[6] : Start (optional, float) - the start time for the animation. Default is 0.
-    arg[7] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted.
+    arg[5] : Model name (str) - included in save name and title
+    arg[6] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs).
+    arg[7] : Start (optional, float) - the start time for the animation. Default is 0.
+    arg[8] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted.
+
+    Returns: 
+    An animation saved in the dir folder.
     """
     ds = xr.open_dataset(file_path, engine="netcdf4")  #add .isel(s_rho = -1) when expanding to 3D model
     ds_var_1 = ds[f'{variable1}']
@@ -87,25 +91,42 @@ def absolute_val(file_path, variable1, variable2, dir, model_name, frame = 16, s
     ani = FuncAnimation(fig, update, frames=range(frame), interval = 400)
     ani.save(f'{dir}/animation_abs_val_{variable1}_+_{variable2}_{model_name}.gif', writer="imagemagick")
 
-#TODO - fix this whole thing :) 
-#Animation compare does currently not work due to the differences between the datsets, giving troubles in plotting
-def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
-    ds1 = xr.open_dataset(file_path_1, engine = "netcdf4").isel(time=slice(0,16))
-    ds2 = xr.open_mfdataset([file_path_2,file_path_3]).isel(s_rho=-1)
-    ds1_var = ds1[f'{variable1}']
-    ds1_var = np.array(ds1_var)
-    #ds1_var = np.pad(ds1_var, ((0,0), (0,77500)), mode = "edge")
-    ds2_var = ds2[f'{variable2}'].resample(time='3H').mean(dim='time')
-    ds2_var = np.array(ds2_var)
-    ds2_var = ds2_var.reshape(ds2_var.shape[-3],-3)
-    ds1_var = ds1_var.reindex_like(ds2_var, method = 'nearest')
-    longitude = ds1["longitude"] 
-    latitude = ds1["latitude"]
-    lon = ds2["lon"]
-    lat = ds2["lat"]
-    fig,ax = plt.subplots(3, figsize = (8,10))
 
-    if variable1 in ["temperature_0","Tair" ] or variable2 in ["temperature_0", "Tair"]:
+def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, model_name,  title1 = 'Havbris', title2 = 'Norkyst', frame = 16, start_time = 0, **kwargs):
+
+    print(f'Sys argv: {sys.argv}')
+
+    """"
+    Description: 
+    Function returning an animation for 2D results for Havbris, the Norkyst Hindcast and calculates the difference between the models. 
+    This returns a single animation for the absolute value of two variables. Ideal in use for ocean currents for example (u_eastward_0 and v_northward_0).
+
+    Arguments: 
+    arg[1] : Filepath1 (str) - Filepath for the Havbris dataset you wish to produce animations for (48hrs)
+    arg[2] : Filepath2 (str) - Filepath for the Norkyst dataset you wish to produce animations for (24hrs)
+    arg[3] : Filepath3 (str) - Filepath for the Norkyst dataset you wish to produce animations for (24hrs)
+    arg[4] : Variable 1 (str) - Variable 1 to plot (For Havbris, examples: salinity_0 and u_northward_0)
+    arg[5] : Variable 2 (str) - Variable 2 to plot (For Norkyst, examples: salinity and u_northward)
+    arg[6] : Dir (str) - Filepath for the location to save the figure in
+    arg[7] : Model name (str) - included in save name
+    arg[8] : Title1 (str) - Title of the first animation. Default = Havbris. 
+    arg[9] : Title2 (str) - Title of the second animation. Default = Norkyst. 
+    arg[10] : Frame (optional, float) - The number of frames / timesteps. Default is 16 for inference dataset (48hrs).
+    arg[11] : Start (optional, float) - the start time for the animation. Default is 0.
+    arg[12] : **args (optional) - Include arguments such as vmin and vmax etc. if wanted.
+
+    Returns: 
+    An animation saved in the dir folder. 
+    """
+    ds_hbris = xr.open_dataset(file_path_1, engine='netcdf4').isel(time = slice(0,16))
+    ds_nor = xr.open_mfdataset([file_path_2, file_path_3]).isel(s_rho = -1)
+    ds_hbris_var = ds_hbris[f'{variable1}']
+    ds_nor_var = ds_nor[f'{variable2}'].resample(time = '3H').mean(dim = 'time')
+    print(f'The following variables are selected: {variable1} and {variable2}')
+
+    fig,ax = plt.subplots(3, figsize = (8,14))
+
+    if variable1 in ["temperature_0","Tair"] or variable2 in ["temperature_0", "Tair"]:
         cmap = cmocean.cm.thermal
     elif variable1 in ["salinity_0"] or variable2 in ["salinity_0"]:
         cmap = cmocean.cm.haline
@@ -120,130 +141,63 @@ def animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable
     elif variable1 in ["Pair"] or variable2 in ["Pair"]:
         cmap = cmocean.cm.dense
 
-    #image1
-    print(f'Image 1 - before')
-    print(f'lon: {longitude.shape}, lat: {latitude.shape}, ds1_var_vals: {ds1_var.shape}')
-    image1 = ax[0].scatter(lon, lat, c=ds1_var[start_time], cmap = cmap, **kwargs)
+    #Image1 - Havbris
+    image1 = ax[0].pcolormesh(ds_hbris_var[start_time], cmap = cmap, shading = 'nearest', **kwargs)
     cbar1 = plt.colorbar(image1, ax=ax[0], label = f'{variable1}')
     ax[0].set_title(title1)
-    ax[0].set_xlabel(f'Longitude [$\circ$]')
-    ax[0].set_ylabel(f'Latitude [$\circ$]') 
-    print(f'Image 1 - after')
+    ax[0].set_xlabel(f'Y')
+    ax[0].set_ylabel(f'X')
 
-    #image2 
-    print(f'ds_var_vals:{ds2_var.shape}, lon: {lon.shape}, lat: {lat.shape}')
-    image2 = ax[1].scatter(lon, lat, c=ds2_var[start_time], cmap = cmap, **kwargs)
-    cbar2 = plt.colorbar(image2, ax=ax[1], label = f'{variable2}')
+    #Image2 - Norkyst
+    image2 = ax[1].pcolormesh(ds_nor_var[start_time], cmap = cmap,  shading = 'nearest', **kwargs)
+    cbar2 = plt.colorbar(image2, ax=ax[1], label = f'{variable2}') 
     ax[1].set_title(title2)
-    ax[1].set_xlabel(f'Longitude [$\circ$]')
-    ax[1].set_ylabel(f'Latitude [$\circ]$')
-    print(f'Image 2 - after')
+    ax[1].set_xlabel(f'Y')
+    ax[1].set_ylabel(f'X')
 
-    #image3
-    diff = (ds2_var - ds1_var)
-    print(f'Image 3 - before')
-    image3 = ax[2].scatter(lon, lat, c=(diff), cmap = cmap, **kwargs)
+ #Image3 - Diff
+    diff = (ds_nor_var - ds_hbris_var)
+    image3 = ax[2].pcolormesh(diff[start_time], cmap = cmap, shading = 'nearest', **kwargs)
     cbar3 = plt.colorbar(image3, ax=ax[2], label = f'{variable2} - {variable1}')
-    ax[2].set_title(f'{variable2} - {variable1}')
-    ax[2].set_xlabel(f'Longitude [$\circ$]')
-    ax[2].set_ylabel(f'Latitude [$\circ$]')
-    print(f'Image 3 - after')
+    ax[2].set_title(f'Difference')
+    ax[2].set_xlabel(f'Y')
+    ax[2].set_ylabel(f'X')
 
-    image = [image1,image2, image3]
-    ds = [ds1_var, ds2_var,diff]
-
+    image = [image1, image2, image3]
+    ds = [ds_hbris_var, ds_nor_var, diff]
+    
     def update(frame):
-        for axis, img, ds_data in zip(ax,image,ds):
+        updated = []
+        for i, (axis, img, ds_data) in enumerate(zip(ax,image,ds)):
             img.set_array(ds_data[frame])
-            axis.set_title(f'"Time step: {frame *3} hrs')
-            axis.set_xlabel(f'Longitude [$\circ$]')
-            axis.set_ylabel(f'Latitude [$\circ$]')
-        return image
+            if i == 0:
+                axis.set_title(f'{title1} - Time step: {frame *3} hrs')
+            elif i == 1:
+                axis.set_title(f'{title2} - Time step: {frame * 3} hrs')
+            elif i == 2:
+                axis.set_title(f'Difference - Time step: {frame *3} hrs')
+            axis.set_xlabel(f'Y')
+            axis.set_ylabel(f'X')
+            updated.append(img)
+        return updated
+    
     plt.tight_layout()
     ani = FuncAnimation(fig,update, frames=range(frame), interval = 400, blit = True)
-    ani.save(f'{dir}/diff_animation_results_{variable1}_{variable2}.gif', writer="imagemagick")
-    
+    ani.save(f'{dir}/diff_animation_results_{variable1}_{variable2}_{model_name}.gif', writer="imagemagick")
 
-
-#compare two animations of different datasets in same subplot, without the difference:
-#the norkyst dataset should be selected as file_path 2 and 3 because ngpus is of longer timescales.
-def compare_two(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1, title2, **kwargs):
-    ds1 = xr.open_dataset(file_path_1, engine = "netcdf4").isel(time=slice(0,16)) #0,16 time steps to match 48 hrs timestep in Norkyst files when merging two datasets
-    ds2 = xr.open_mfdataset([file_path_2,file_path_3]).isel(s_rho=-1) #import two Norkyst datasets to match the time indx
-    ds1_var = ds1[f'{variable1}']
-    ds2_var = ds2[f'{variable2}'].resample(time='3H').mean(dim='time') #Resampling the Norkyst file to match the resultfiles frequency of three hrs
-    ds2_var = np.array(ds2_var)
-    ds2_var = ds2_var.reshape(ds2_var.shape[-3], -3) #rehaping the Norkyst model to merge X and Y dims
-    longitude = ds1["longitude"] 
-    latitude = ds1["latitude"]
-    lon = ds2["lon"].values
-    lat = ds2["lat"].values
-    fig,ax = plt.subplots(2, figsize = (8,14))
-
-    #If tests - changing the colors of the animation depending on which variable is being plotted. 
-    #Based on the cmocean colorbars for different oceanographic phenomena 
-    if variable1 in ["temperature_0","Tair" ] or variable2 in ["temperature_0", "Tair"]:
-        cmap = cmocean.cm.thermal
-    elif variable1 in ["salinity_0"] or variable2 in ["salinity_0"]:
-        cmap = cmocean.cm.haline
-    elif variable1 in ["u_eastward_0", "v_northward_0", "Uwind","Vwind"] or variable2 in ["u_eastward_0", "v_northward_0", "Uwind", "Vwind"]:
-        cmap = cmocean.cm.speed
-    elif variable1 in ["rain", "cloud", "Qair"] or variable2 in ["rain", "cloud", "Qair"]:
-        cmap = cmocean.cm.rain
-    elif variable1 in ["zeta"] or variable2 in ["zeta"]:
-        cmap = cmocean.cm.balance
-    elif variable1 in ["Insolation"] or variable2 in ["Insolation"]:
-        cmap = cmocean.cm.solar
-    elif variable1 in ["Pair"] or variable2 in ["Pair"]:
-        cmap = cmocean.cm.dense
-
-    #image1
-    print(f'Image 1 - before')
-    print(f'lon: {longitude.shape}, lat: {latitude.shape}, ds1_var_vals: {ds1_var.shape}')
-    image1 = ax[0].scatter(longitude.values, latitude.values, c=ds1_var[start_time].values, cmap = cmap, **kwargs)
-    cbar1 = plt.colorbar(image1, ax=ax[0], label = f'Result ngpus: {variable1}')
-    ax[0].set_title(title1)
-    ax[0].set_xlabel(f'Longitude [$\circ$]')
-    ax[0].set_ylabel(f'Latitude [$\circ$]') 
-    print(f'Image 1 - after')
-    
-    #image2 
-    print(f'ds_var_vals:{ds2_var.shape}, lon: {lon.shape}, lat: {lat.shape}')
-    image2 = ax[1].scatter(lon, lat, c=ds2_var[start_time], cmap = cmap, **kwargs)
-    cbar2 = plt.colorbar(image2, ax=ax[1], label = f'Norkyst 800: {variable2}')
-    ax[1].set_title(title2)
-    ax[1].set_xlabel(f'Longitude [$\circ$]')
-    ax[1].set_ylabel(f'Latitude [$\circ]$')
-    print(f'Image 2 - after')
-
-    image = [image1,image2]
-    ds = [ds1_var, ds2_var]
-
-    #Creating the animations
-    def update(frame):
-        for axis, img, ds_data in zip(ax,image,ds):
-            img.set_array(ds_data[frame])
-            axis.set_title(f'Time step: + {frame *3} hrs from 2024-04-02')
-            axis.set_xlabel(f'Longitude [$\circ$]')
-            axis.set_ylabel(f'Latitude [$\circ$]')
-        return image
-    plt.tight_layout()
-    ani = FuncAnimation(fig,update, frames=range(frame), interval = 400, blit = True)
-    ani.save(f'{dir}/compare_animation_results_{variable1}_{variable2}.gif', writer="imagemagick")
-    
-    
 
 #Running the code in PPI: 
-#Important to mention the mode you want to plot (Animation_difference currently not in use)
+#Important to mention the mode you want to plot!
+#Run script in ppi-sub-animation
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        raise ValueError(f'Please specify the function you wish to run. Select between: "Animation", "Absolutevalue_animation", "Animation_difference', 'Compare')
+        raise ValueError(f'Please specify the function you wish to run. Select between: "Animation", "Absolutevalue_animation", "Animation_difference')
     mode = sys.argv[1]
 
     if mode == "Animation":
         if len(sys.argv) < 7:
-            raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable>, <dir>, <frame (optional)>, <start_time (optional)>, <kwargs (optional)>')
+            raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable>, <dir>, <model_name>, <frame (default = 16)>, <start (default = 0)>, <kwargs (optional)>')
         file_path = sys.argv[2]
         variable = sys.argv[3]
         dir = sys.argv[4]
@@ -259,46 +213,28 @@ if __name__ == "__main__":
         results_animation(file_path, variable, dir, model_name, frame, start, **kwargs)
 
     elif mode == "Absolutevalue_animation":
-        if len(sys.argv) < 7:
-            raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable>, <dir>, <frame>, <start_time>, <kwargs (optional)>')
+        if len(sys.argv) < 8:
+            raise ValueError(f'Please provide all necessary arguments: <file_path>, <variable1>, <variable2>, <dir>, <model_name>, <frame (default = 16)>, <start (default = 0)>, <kwargs (optional)>')
         file_path = sys.argv[2]
         variable1 = sys.argv[3]
         variable2 = sys.argv[4]
         dir = sys.argv[5]
-        frame = int(sys.argv[6])
-        start_time = int(sys.argv[7])
+        model_name = sys.argv[6]
+        frame = int(sys.argv[7])
+        start = int(sys.argv[8])
 
         kwargs = {}
-        for arg in sys.argv[8:]:
+        for arg in sys.argv[9:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
-        absolute_val(file_path, variable1, variable2, dir, frame, start_time, **kwargs)
+        absolute_val(file_path, variable1, variable2, dir, model_name, frame, start, **kwargs)
 
     elif mode == "Animation_difference":
-        if len(sys.argv) < 8:
-            raise ValueError(f'Please provide all necessary arguments: <file_path1>, <file_path2>, <variable1>, <variable2>, <dir>, <frame>, <start_time>, <title1>, <title2>, <kwargs (optional)>')
-        file_path_1 = sys.argv[2]
-        file_path_2 = sys.argv[3]
-        file_path_3 = sys.argv[4]
-        variable1 = sys.argv[5]
-        variable2 = sys.argv[6]
-        dir = sys.argv[7]
-        frame = int(sys.argv[8])
-        start_time = int(sys.argv[9])
-
-        kwargs = {}
-        for arg in sys.argv[10:]:
-            key, value = arg.split('=')
-            kwargs[key] = float(value)
-
-        animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1=f'{variable1}', title2=f'{variable2}', **kwargs)
-
-    elif mode == "Compare":
-        print("running compare module")
-        if len(sys.argv) < 9:
-            raise ValueError(f'Please provide all necessary arguments: <file_path1>, <file_path2>, <variable1>, <variable2>, <dir>, <frame>, <start_time>, <title1>, <title2>, <kwargs (optional)>')
-        for i in range (9):
+        print(f'Running the animation difference')
+        if len(sys.argv) < 12:
+            raise ValueError(f'Please provide all necessary arguments: <file_path1>, <file_path2>, <file_path3> , <variable1>, <variable2>, <dir>, <model_name>, <title1 (default = Havbris)>, <title2 (default = Norkyst)>, <frame>, <start_time>, <kwargs (optional)>')
+        for i in range (12):
             print(sys.argv[i])
         file_path_1 = sys.argv[2]
         file_path_2 = sys.argv[3]
@@ -306,12 +242,16 @@ if __name__ == "__main__":
         variable1 = sys.argv[5]
         variable2 = sys.argv[6]
         dir = sys.argv[7]
-        frame = int(sys.argv[8])
-        start_time = int(sys.argv[9])
+        model_name = sys.argv[8]
+        title1 = sys.argv[9]
+        title2 = sys.argv[10]
+        frame = int(sys.argv[11])
+        start_time = int(sys.argv[12])
 
         kwargs = {}
-        for arg in sys.argv[10:]:
+        for arg in sys.argv[13:]:
             key, value = arg.split('=')
             kwargs[key] = float(value)
 
-        compare_two(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, frame, start_time, title1=f'Ngpus {variable1}', title2=f'Norkyst800 {variable2}', **kwargs)
+        animation_compare(file_path_1, file_path_2, file_path_3, variable1, variable2, dir, model_name, title1, title2, frame, start_time, **kwargs)
+
