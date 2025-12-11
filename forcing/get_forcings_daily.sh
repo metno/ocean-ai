@@ -1,15 +1,15 @@
 #$ -S /bin/bash
 #$ -l h_rt=00:30:00
 #$ -q research-r8.q
-#$ -l h_rss=4G,mem_free=4G,h_data=4G
-#$ -o $JOB_NAME_$JOB_ID.out
-#$ -e $JOB_NAME_$JOB_ID.err
+#$ -l h_rss=8G,mem_free=8G,h_data=8G
+#$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
+#$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.err
 #$ -N forcings-rsync
 
-# This script gets all the atm, clm and bry files (daily) and copies them to the below location
+# This script gets all the atm and bry files (daily) and copies them to the below location
 
 FORCING_DIR=/lustre/storeB/project/metproduction/products/norkyst_v3/
-OUTDIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkyst_v3_forcing/
+OUTDIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_oper/
 
 # Loop over the three domains
 for dir in m00 m70 m71; do
@@ -17,7 +17,6 @@ for dir in m00 m70 m71; do
 done
 # These only exist for m00 domain / gobal
 rsync -auv --progress $FORCING_DIR/m00/*bry* $OUTDIR/bry/ 
-rsync -auv --progress $FORCING_DIR/m00/*clm* $OUTDIR/clm/ 
 
 # Only copy river-file if there are new dates in the file
 chmod 770 /lustre/storeB/project/fou/hi/foccus/get_river_forcings.sh
@@ -33,13 +32,15 @@ source /lustre/storeB/project/fou/hi/foccus/forcing_check_dates.sh $OUTDIR
 echo "See file /lustre/storeB/project/fou/hi/foccus/forcing_warning.out"
 
 #---------------------------------------------------------------------
-# TODO: atm files are not cleaned up yet
-# remove uneccecary data from the forcing files (and save space)
-source /lustre/storeB/project/fou/hi/foccus/forcing_cleanup.sh
+# Remove uneccecary time steps from the atm forcing files (and save space)
+# Keep only 24h
+echp "Cleanup atm forcing files to save space"
+source /modules/rhel8/mamba-mf3/etc/profile.d/conda.sh
+conda activate 2025-01-development
+source /lustre/storeB/project/fou/hi/foccus/forcing_cleanup.py
 
 #---------------------------------------------------------------------
 # email if there are errors in the output file
-# (think it should work to do this inside qsub since the above tasks will have finished by now)
 source /lustre/storeB/project/fou/hi/foccus/cronjob_email_error.sh
 
 #---------------------------------------------------------------------

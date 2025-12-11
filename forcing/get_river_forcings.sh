@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FORCING_DIR=/lustre/storeB/project/metproduction/products/norkyst_v3/
-OUTDIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkyst_v3_forcing/
+OUTDIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_oper/
 
 echo "--- Get new river file? ---"
 # Get file that was most recently copied FOCCUS 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Directory containing the files in subdir atm, bry, clm (e.g. output dir)
+# Directory containing the files in subdir atm, bry (e.g. output dir)
 base_dir="$1"
 
 # Function to increment date to see if they are consecutive 
@@ -8,7 +8,7 @@ increment_date() {
     date -d "$1 + 1 day" +"%Y%m%d"
 }
 
-for dir in atm bry clm atm70 atm71; do
+for dir in atm bry atm70 atm71; do
     base_name="m00"
     if [ "$dir" == "atm70" ]; then
         base_name="m70"
