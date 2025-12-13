@@ -34,10 +34,10 @@ echo "See file /lustre/storeB/project/fou/hi/foccus/forcing_warning.out"
 #---------------------------------------------------------------------
 # Remove uneccecary time steps from the atm forcing files (and save space)
 # Keep only 24h
-echp "Cleanup atm forcing files to save space"
+echo "Cleanup atm forcing files to save space"
 source /modules/rhel8/mamba-mf3/etc/profile.d/conda.sh
 conda activate 2025-01-development
-source /lustre/storeB/project/fou/hi/foccus/forcing_cleanup.py
+python3 /lustre/storeB/project/fou/hi/foccus/forcing_cleanup.py
 
 #---------------------------------------------------------------------
 # email if there are errors in the output file
