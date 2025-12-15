@@ -6,14 +6,26 @@
 #$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.err
 #$ -N forcings-rsync
 
-# This script gets all the atm and bry files (daily) and copies them to the below location
+# This script gets all the atm and bry files (daily) and copies them to the below OUTDIR location
 
 FORCING_DIR=/lustre/storeB/project/metproduction/products/norkyst_v3/
 OUTDIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_oper/
 
 # Loop over the three domains
 for dir in m00 m70 m71; do
-    rsync -auv --progress $FORCING_DIR/$dir/*atm* $OUTDIR/atm/
+    # Loop over all atm files in the directory
+    for file in $FORCING_DIR/$dir/*atm*; do
+        # See if the processed 24h file exists (ending with _24h.nc, created by forcing_cleanup.py)
+        filename=$(basename -- "$file")
+        filename_wo_ext="${filename%.*}"
+        file_24h="${filename_wo_ext}_24h.nc"
+        if [ -f $OUTDIR/atm/$file_24h ]; then
+            # If file_24 exists in OUTDIR/atm, skip
+            echo "$file_24h already exists, skipping"
+        else
+            rsync -auv --progress $file $OUTDIR/atm/
+        fi
+    done
 done
 # These only exist for m00 domain / gobal
 rsync -auv --progress $FORCING_DIR/m00/*bry* $OUTDIR/bry/ 
