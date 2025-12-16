@@ -5,7 +5,7 @@ EMAIL1="ina.k.kullmann@met.no"
 EMAIL2="mateusz.matuszak@met.no"
 
 # Path to the file you want to check
-DIRECTORY="/home/inkul7832/"
+DIRECTORY="/lustre/storeB/project/fou/hi/foccus/outputs/"
 FILE_PATH=$(ls -1t ${DIRECTORY}/forcings-rsync_*.err 2>/dev/null | head -n 1)
 
 today_date=$(date +%Y-%m-%d)

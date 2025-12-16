@@ -1,22 +1,23 @@
-#!/bin/bash
+#$ -S /bin/bash
+#$ -l h_rt=04:00:00
+#$ -q research-r8.q
+#$ -l h_rss=8G,mem_free=8G,h_data=8G
+#$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
+#$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.err
+#$ -N forcings-cleanup
 
-# Use this script to remove uneccecary data from the forcing files (and save space)
-DIR=/lustre/storeB/project/fou/hi/foccus/datasets/norkyst_v3_forcing/clm
+# This is a test script, 
+# the main script is get_forcings_daily.sh where
+# forcing_cleanup.py is called
 
-# Find all files larger than 10GB and loop over them
+# Use this script to remove uneccecary data from the atm forcing files (and save space)
+echo "Cleanup atm forcing files to save space"
+source /modules/rhel8/mamba-mf3/etc/profile.d/conda.sh
+conda activate 2025-01-development
+python3 /lustre/storeB/project/fou/hi/foccus/forcing_cleanup.py
 
-find $DIR -type f -size +10G | while read -r file; do
-    # Check if the file exists and not in $DIR/backup
-    if [ -f "$file" ] && [[ "$file" != *"/backup/"* ]]; then
-        echo "Processing clm-file: $file"
-        # NOTE: the files will be overwritten!
-        ncks -d clim_time,2,2 $file -O -o $file
-        #echo $file
-    fi
-done
 
-# TODO: add similar stuff for atm
-
-# NOTE: do this separate script/terminal
-# Now we may concat the files with a command like this:
+# Now we may concat the files with a command similar to this:
 #ncrcat -O -d time,0,366 $DIR/norkyst_clm_${YEAR}${MONTH}${DAY}T00Zm00.nc $DIR/norkyst_clm_${YEAR}m00.nc
+
+
