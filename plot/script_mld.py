@@ -12,11 +12,11 @@ def transformation(ds_name):
     #Vtransform = ds_name["Vtransform"] Not in this dataset
     s_rho = ds_name["s_rho"] #range 1,40. 40 is surface layer
 
-    #Transformation process
+    #Transformation process #TODO: Change to a interpolation of depth instead
     Z_0_rho = (hc * s_rho + cs_r * H) / (hc + H)
     z_rho = zeta + (zeta + H) * Z_0_rho
 
-    ds_name.coords["z_rho"] = z_rho.transpose() #Corrects the dimensions
+    ds_name.coords["z_rho"] = z_rho.transpose() #Corrects the dimensions  
 
 def MLD(pot_dens, z):
     '''

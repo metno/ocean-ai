@@ -24,6 +24,7 @@ def transformation(ds_name):
     z_rho = zeta + (zeta + H) * Z_0_rho
 
     ds_name.coords["z_rho"] = z_rho.transpose() #Corrects the dimensions
+    return z_rho 
 
 
 def MLD(pot_dens, z):
