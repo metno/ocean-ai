@@ -10,7 +10,8 @@ from dens_func import dens
 import matplotlib.pyplot as plt 
 
 
-def transformation(ds_name):
+def transformation(ds):
+    ds_name = ds 
     #Define necessary variables used for the transformation from s_layer to depth
     hc = ds_name["hc"] #Critical depth for stretching
     cs_r = ds_name["Cs_r"] #stretching curve at rho points
@@ -63,69 +64,164 @@ def MLD(pot_dens, z):
     return print(f"The first depth where the treshold is exceeded is: {z[exceed[0]]}") 
 
 
-def arrays(file_str):
 
-    ds_name = xr.open_dataset(file_str)
-    ds_name = ds_name.resample(time = "D").mean()
+def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
+
+    #create grid sizes
+    eta_size = depth_transf.sizes['Y']
+    xi_size = depth_transf.sizes['X']
+
+    #initialize array
+    out_array = np.full((3, nz, eta_size, xi_size), np.nan) #np.full(shape, fill_val)
     
-    #z_rho using the transformation function
-    transformation(ds_name=ds_name)
-    z_rho = ds_name["z_rho"].transpose("time", "Y", "X")
-    print(z_rho.shape)    
-    #variables 
-    time = ds_name["time"]
-    salt = ds_name["salinity"]
-    temp = ds_name["temperature"]
-    mask = ds_name["sea_mask"]
-    print(salt.shape)
-    print(mask.shape)
+    print(f'The original shape of depth transformed is: {depth_transf.shape}')
+    print(f'The original shape of temp is: {Temp.shape}')
+    print(f'The original shape of salnity is: {Salinity.shape}')
+    
+    #Horizontal slice
+    for i_start in range(0,eta_size, eta_chunck):
+        i_end = min(i_start+eta_chunck, eta_size) #ends at 1148
+
+        depth_slice = depth_transf[:, i_start:i_end, :].values
+        temp_slice = Temp[:, i_start:i_end, :].values
+        salinity_slice = Salinity[:, i_start:i_end, :].values
+
+        print(f'Depth slice {depth_slice.shape}')
+        print(f'Temp slice {temp_slice.shape}')
+        print(f'Salinity slice {salinity_slice.shape}')
+
+        #vectorized interpolation
+
+        for ii in range(depth_slice.shape[1]):  # eta in chunk
+            for jj in range(depth_slice.shape[2]):  # xi
+                dcol = depth_slice[:, ii, jj]
+                tcol = temp_slice[:, ii, jj]
+                scol = salinity_slice[:,ii,jj]
+                
+                mask = np.isfinite(dcol) & np.isfinite(tcol) & np.isfinite(scol)
+                if mask.sum() < 2:
+                    continue
+                
+                d = dcol[mask]
+                t = tcol[mask]
+                s = scol[mask]
+                
+                # Sort and remove duplicates
+                sort_idx = np.argsort(d)
+                d, t, s = d[sort_idx], t[sort_idx], s[sort_idx]
+                keep = np.ones(len(d), bool)
+                for k in range(1, len(d)):
+                    if d[k] == d[k-1]:
+                        keep[k] = False
+                d, t, s = d[keep], t[keep], s[keep]
+
+                
+                # Column-specific new depth
+                new_depth_col = np.linspace(d.min(), d.max(), nz)
+                
+                # Vectorized interpolation
+                out_array[0, :, i_start+ii, jj] = np.interp(new_depth_col, d, t)
+                out_array[1, :, i_start+ii, jj] = np.interp(new_depth_col, d, s)
+                out_array[2, :, i_start+ii, jj] = new_depth_col
+    
+    #debugging
+    print(f'Shape of d is: {d.shape}')
+    print(f'Shape of t is: {t.shape}')
+    print(f'Shape of s is: {s.shape}')
+
+    da = xr.DataArray(out_array,
+                      dims=("var", "new_depth", "eta_rho", "xi_rho"),
+                      coords={"var": ["temperature", "salinity" ,"depth"]})
+    
+    return da
+
+def prepare_dataset(ds):
+
+    #Assumes that the dataset is already preprocessed based on the information you want. 
+    #Eg seasonal averages or yearly means in my case
+    #Perform transformation and add them to the dataset
+    from calc_mld import transformation
+    transformation(ds)
+
+    #select out the new variable
+    z = ds['z_rho']
+
+    #then we interpolate
+    from calc_mld import interpolate_grid
+    #Gather the needed variables
+    temp = ds['temperature']
+    salinity = ds['salinity']
+    #transpose depth to ensure the dimensions match
+    depth_transposed = z.transpose(*temp.dims)
+    da = interpolate_grid(depth_transposed, temp, salinity, nz = 40)
+
+    return da 
 
 
-    #temporary arrays
-    tmpd = np.full((salt.shape[0], z_rho.shape[1], salt.shape[2], salt.shape[3]), np.nan) #potential density, time, s_rho, x and y 
-    tmmld = np.full((salt.shape[0], salt.shape[2], salt.shape[3]), np.nan) #mixed layer - time, x and y 
-    print(tmpd.shape)
-    print(tmmld.shape)
+def prepare_dataset(ds):
 
-    # Looping through grid points
-    for y in range(0, salt.shape[2]):
-        for x in range(0, salt.shape[3]): 
-            if not mask[y, x]:  # skipping land points
-               continue
+    #Assumes that the dataset is already preprocessed based on the information you want, but I will need to add some type of mean I think for memory
+    #Eg seasonal averages or yearly means in my case
+    #Perform transformation and add them to the dataset
+    transformation(ds)
 
-            t = -1
-            # Filtering out local water depth on the zlevs
-            # Where zlevs is shallower than z_r -> true
-            valid_z_mask = z_rho > z_rho[:,y,x].min()
-            tmpnz = z_rho[valid_z_mask]
+    #select out the new variable
+    z = ds['z_rho']
 
-            tmpnS = np.insert(salt[t, :, y, x], 0, salt[t, 0, y, x])
-            tmpnS = np.append(tmpnS, salt[t, -1, y, x])
+    #then we interpolate
+    #Gather the needed variables
+    temp = ds['temperature']
+    salinity = ds['salinity']
+    #transpose depth to ensure the dimensions match
+    depth_transposed = z.transpose(*temp.dims)
+    da = interpolate_grid(depth_transposed, temp, salinity, nz = 40)
 
-            tmpnT = np.insert(temp[t, :, y, x], 0, temp[t, 0, y, x])
-            tmpnT = np.append(tmpnT, temp[t, -1, y, x])
+    return da 
 
-            saltZ = griddata(z_rho[:, y, x], tmpnS, tmpnz)
-            tempZ = griddata(z_rho[:, y, x], tmpnT, tmpnz)
 
-            densZ = dens(saltZ, tempZ, np.zeros_like(tempZ))
+def calculate_store_mld(ds, filename):
+    #DS is the one thats been run through prepare_dataset
+    #select variables
+    temp_interpolated = ds[0].values
+    salinity_interpolated = ds[1].values
+    depth_interpolated = ds[2].values
 
-            dens_profile = np.full(z_rho.shape, np.nan)
-            dens_profile[valid_z_mask] = densZ
+    #Initialize empty arrays
+    tmpd = np.full((temp_interpolated.shape), np.nan)
+    tmmld = np.full((temp_interpolated.shape[1], temp_interpolated.shape[2]), np.nan)
 
-            tmpd[0, :, y, x] = dens_profile
-            tmmld[0, y, x] = MLD(dens_profile, z_rho)
+    for ii in range(temp_interpolated.shape[1]):
+        for jj in range(temp_interpolated.shape[2]):
+            #Collect all vertical depths
+            temp_profile = temp_interpolated[:, ii, jj]
+            salinity_profile = salinity_interpolated[:, ii, jj] 
+
+            #make sure no infinite values are included 
+            mask = np.isfinite(temp_profile) & np.isfinite(salinity_profile) & np.isfinite(depth_interpolated)
+            temp = temp_profile[mask]
+            salinity = salinity_profile[mask]
+            depth = depth_interpolated[mask]
+
+            if len(temp) < 2:
+                continue
+
+            potential_dens = dens(salinity, temp)
+            tmpd[:, ii, jj] = potential_dens
+
+            mixed_layer = MLD(potential_dens, depth)
+            tmmld[ii, jj] = mixed_layer
 
     ds_mld = xr.Dataset(
-        data_vars=dict( 
-        pd = (["time", "z_rho", "Y", "X"], tmpd, {"units":"kg m^{-3}", "Name" : "Potential Density"}),
-        mld = (["time", "Y", "X"], tmmld, {"units":"meter", "Name":"Mixed Layer Depth"})
+        data_vars=dict(
+            pd = (['new_depth', 'Y', 'X'], tmpd, {'Units' : 'kg m^{-3}', 'Name' : 'Potential Density', 'Description' : 'Potential density'}),
+            Mixed_layer = (['X', 'Y'], tmmld, {'Units' : 'm', 'Name' : 'Mixed Layer depth', 'Description' : 'Mixed layer depth calculated from surface density and 0.03 kgm-3 treshold'})
         ),
         coords=dict(
-            time = time,
-            z_rho = ds_name["z_rho"].values,
-            Y = ds_name["Y"].values, 
-            X = ds_name["X"].values)
-            )
+            Depth = ds.coords['new_depth'].values,
+            eta_rho = ds.coords['eta_rho'].values, #X
+            xi_rho = ds.coords['xi_rho'].values,   #Y         
+        )
+    )
 
-    return ds_mld
+    #Convert to netcdf file for easy access to plot and use values
+    ds_mld.to_netcdf(f'potential_dens_mld_{filename}.nc')
