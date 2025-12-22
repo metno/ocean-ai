@@ -137,29 +137,6 @@ def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
 
 def prepare_dataset(ds):
 
-    #Assumes that the dataset is already preprocessed based on the information you want. 
-    #Eg seasonal averages or yearly means in my case
-    #Perform transformation and add them to the dataset
-    from calc_mld import transformation
-    transformation(ds)
-
-    #select out the new variable
-    z = ds['z_rho']
-
-    #then we interpolate
-    from calc_mld import interpolate_grid
-    #Gather the needed variables
-    temp = ds['temperature']
-    salinity = ds['salinity']
-    #transpose depth to ensure the dimensions match
-    depth_transposed = z.transpose(*temp.dims)
-    da = interpolate_grid(depth_transposed, temp, salinity, nz = 40)
-
-    return da 
-
-
-def prepare_dataset(ds):
-
     #Assumes that the dataset is already preprocessed based on the information you want, but I will need to add some type of mean I think for memory
     #Eg seasonal averages or yearly means in my case
     #Perform transformation and add them to the dataset
