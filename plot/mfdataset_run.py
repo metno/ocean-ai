@@ -53,6 +53,11 @@ def monthly_mean(save_path):
     ds_dec = xr.open_mfdataset(dec, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
 
     ds = xr.concat([ds_jan, ds_feb, ds_march, ds_april, ds_may, ds_june, ds_july, ds_aug, ds_sept, ds_oct, ds_nov, ds_dec], dim = 'time').sortby('time')
+    #Because there is an issue with the encoding of the summaries and the keywords, we have to manually remove those 
+    if 'summary_no' in ds.attrs:
+        del ds.attrs['summary_no']
+    if 'keywords' in ds.attrs:
+        del ds.attrs['keywords']
     ds.to_netcdf(save_path)
 
 
