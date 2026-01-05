@@ -157,7 +157,8 @@ def prepare_dataset(ds):
 
 
 def calculate_store_mld(ds, filename):
-    #DS is the one thats been run through prepare_dataset
+    #DS is the one thats been run through prepare_dataset - so we run it first
+    prepare_dataset(ds)
     #select variables
     temp_interpolated = ds[0].values
     salinity_interpolated = ds[1].values
@@ -202,3 +203,18 @@ def calculate_store_mld(ds, filename):
 
     #Convert to netcdf file for easy access to plot and use values
     ds_mld.to_netcdf(f'potential_dens_mld_{filename}.nc')
+
+
+import argparse
+import sys
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Saving the MLD calculations to a new dataset')
+    parser.add_argument('-ds', '--dataset', help = 'Please attach the preprocessed dataset')
+    parser.add_argument('-fn', '--filename', help = 'Please enter a filename for the saved new netcdf containing the mld calculated values.')
+    args = parser.parse_args()
+
+    ds = args.dataset 
+    filename = args.filename
+
+calculate_store_mld(ds, filename)

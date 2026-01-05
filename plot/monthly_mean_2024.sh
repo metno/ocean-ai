@@ -1,5 +1,5 @@
 #$ -S /bin/bash
-#$ -l h_rt=01:00:00
+#$ -l h_rt=03:00:00
 #$ -q research-r8.q
 #$ -l h_rss=30G,mem_free=30G,h_data=30G
 #$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
@@ -19,7 +19,7 @@ echo "Starting Python"
 # activate python env
 source $FOCCUS_DIR/.venv/bin/activate
 # run code
-python3 $FOCCUS_DIR/malene/ocean-ai/plot/mfdataset_run.py $FILE_PATH $SAVE_PATH
+python3 $FOCCUS_DIR/malene/ocean-ai/plot/mfdataset_run.py -sp $SAVE_PATH
 
 # Then submit the script to the PPI que:
 # qsub ppi-sub-animation.
