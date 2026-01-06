@@ -10,62 +10,56 @@ import argparse
 
 #the files are too big, maybe do a month at a time? 
 
-def monthly_mean(save_path):
+def monthly_mean(save_path, month):
     files = glob.glob("/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/*.nc")
     files = sorted(files)
     print(f'Glob identified the following files: {files}')
 
-    jan = []
-    feb = []
-    march = []
-    april = []
-    may = []
-    june = []
-    july = []
-    aug = []
-    sept = []
-    oct = []
-    nov = []
-    dec = []
+    list = month
+    list = []
+    if month == 'January':
+        dates = (0,31)
+    elif month == 'February':
+        dates = (31,60)
+    elif month == 'March':
+        dates = (60,91)
+    elif month == 'April':
+        dates = (91,121)
+    elif month == 'May':
+        dates = (121,152)
+    elif month == 'June':
+        dates = (152,182)
+    elif month == 'July':
+        dates = (182,213)
+    elif month == 'August':
+        dates = (213,244)
+    elif month == 'September':
+        dates = (244,274)
+    elif month == 'October':
+        dates = (274,305)
+    elif month == 'November':
+        dates = (305,335)
+    elif month == 'December':
+        dates = (335,366)
+    else:
+        raise ValueError('Please specify which month to calculate monthly means for, such as January')
 
-    months = (jan, feb, march, april, may, june, july, aug, sept, oct, nov, dec)
-    dates = (0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)
-
-    for i in range(12):
-        if i < 11:
-            months[i].extend(files[dates[i]:dates[i+1]])
-        elif i ==11:
-            months[i].extend(files[dates[i]:])
-        else:
-            continue
-        
-    ds_jan = xr.open_mfdataset(jan, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_feb = xr.open_mfdataset(feb, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_march = xr.open_mfdataset(march, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_april = xr.open_mfdataset(april, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_may = xr.open_mfdataset(may, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_june = xr.open_mfdataset(june, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_july = xr.open_mfdataset(july, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_aug = xr.open_mfdataset(aug, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_sept = xr.open_mfdataset(sept, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_oct = xr.open_mfdataset(oct, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_nov = xr.open_mfdataset(nov, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-    ds_dec = xr.open_mfdataset(dec, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
-
-    ds = xr.concat([ds_jan, ds_feb, ds_march, ds_april, ds_may, ds_june, ds_july, ds_aug, ds_sept, ds_oct, ds_nov, ds_dec], dim = 'time').sortby('time')
+    list.extend(files[dates[0]:dates[1]])
+    ds = xr.open_mfdataset(list, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
     #Because there is an issue with the encoding of the summaries and the keywords, we have to manually remove those 
     if 'summary_no' in ds.attrs:
         del ds.attrs['summary_no']
     if 'keywords' in ds.attrs:
         del ds.attrs['keywords']
-    encode = {'__xarray_data__' : {'zlib' : True, 'complevel' : 5, 'chunks' : 1}}
-    ds.to_netcdf(save_path, encoding=encode)
 
+    ds.to_netcdf(f'{save_path}/{month}.nc')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creating a new netcdf file containing the monthly means of 2024 HINDCAST (Norkyst) with dropped variables that are not used in the calculation of mld')
     parser.add_argument('-sp', '--save_path', help='The path to where the new netcdf file should be saved. Please enter the full path')
+    parser.add_argument('-mn', '--month', help = 'Please enter the month you wish to create the monthly mean for')
     args = parser.parse_args()
     save_path = args.save_path
+    month = args.month
 
-monthly_mean(save_path)
+monthly_mean(save_path, month)

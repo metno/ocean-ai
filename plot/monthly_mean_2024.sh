@@ -8,18 +8,23 @@
 #$ -m bae
 #$ -M makar5578@met.no
 
-
-#Creating a yearly dataset of resampled monthly means with dropped vars to ease memory use
+# activate python env
 FOCCUS_DIR="/lustre/storeB/project/fou/hi/foccus"
-FILE_PATH="/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/*.nc"
-SAVE_PATH="/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/norkyst_monthly_means_2024.nc"
+SAVE_PATH="/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot"
+MONTH="January February March April May June July August September October November December"
+
+#Activate env
+source $FOCCUS_DIR/.venv/bin/activate
+
 
 echo "Starting Python"
+echo "Iterating through months"
 
-# activate python env
-source $FOCCUS_DIR/.venv/bin/activate
-# run code
-python3 $FOCCUS_DIR/malene/ocean-ai/plot/mfdataset_run.py -sp $SAVE_PATH
+for m in ${MONTH}
+do 
+    python3 $FOCCUS_DIR/malene/ocean-ai/plot/mfdataset_run.py -sp $SAVE_PATH -mn $m
+    echo "Creating a dataset for $m was successfull"
+done
 
 # Then submit the script to the PPI que:
 # qsub ppi-sub-animation.
