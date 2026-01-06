@@ -58,7 +58,8 @@ def monthly_mean(save_path):
         del ds.attrs['summary_no']
     if 'keywords' in ds.attrs:
         del ds.attrs['keywords']
-    ds.to_netcdf(save_path)
+    encode = {'__xarray_data__' : {'zlib' : True, 'complevel' : 5, 'chunks' : 1}}
+    ds.to_netcdf(save_path, encoding=encode)
 
 
 if __name__ == '__main__':
