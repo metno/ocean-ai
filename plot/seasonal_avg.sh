@@ -1,7 +1,7 @@
 #$ -S /bin/bash
 #$ -l h_rt=01:00:00
 #$ -q research-r8.q
-#$ -l h_rss=30G,mem_free=30G,h_data=30G
+#$ -l h_rss=50G,mem_free=50G,h_data=50G
 #$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
 #$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.err
 #$ -N seasonal_avg
