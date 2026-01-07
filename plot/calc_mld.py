@@ -204,7 +204,7 @@ def calculate_store_mld(ds, filename):
     #Convert to netcdf file for easy access to plot and use values
     ds_mld.to_netcdf(f'potential_dens_mld_{filename}.nc')
 
-
+"""
 import argparse
 import sys
 
@@ -218,3 +218,4 @@ if __name__ == '__main__':
     filename = args.filename
 
 calculate_store_mld(ds, filename)
+"""
