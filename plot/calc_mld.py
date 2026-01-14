@@ -8,6 +8,7 @@ import sys
 import os
 from dens_func import dens
 import matplotlib.pyplot as plt 
+import time 
 
 
 def transformation(ds):
@@ -115,6 +116,8 @@ def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
                         keep[k] = False
                 d, t, s = d[keep], t[keep], s[keep]
 
+                print(d)
+
                 
                 # Column-specific new depth
                 new_depth_col = np.linspace(d.min(), d.max(), nz)
@@ -156,7 +159,9 @@ def prepare_dataset(ds):
     return da 
 
 
-def calculate_store_mld(ds, filename):
+def calculate_store_mld(dataset, filename):
+    start_time = time.perf_counter()
+    ds = xr.open_dataset(dataset)
     #DS is the one thats been run through prepare_dataset - so we run it first
     prepare_dataset(ds)
     #select variables
@@ -202,9 +207,13 @@ def calculate_store_mld(ds, filename):
     )
 
     #Convert to netcdf file for easy access to plot and use values
-    ds_mld.to_netcdf(f'potential_dens_mld_{filename}.nc')
+    ds_mld.to_netcdf(f'{filename}')
+    end_time = time.perf_counter()
 
-"""
+    tot_time = end_time - start_time
+    print(f'Execution time of calculation mld is: {tot_time:.3f} seconds')
+
+
 import argparse
 import sys
 
@@ -214,8 +223,7 @@ if __name__ == '__main__':
     parser.add_argument('-fn', '--filename', help = 'Please enter a filename for the saved new netcdf containing the mld calculated values.')
     args = parser.parse_args()
 
-    ds = args.dataset 
+    dataset = args.dataset 
     filename = args.filename
 
-calculate_store_mld(ds, filename)
-"""
+calculate_store_mld(dataset, filename)
