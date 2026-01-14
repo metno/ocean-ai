@@ -12,3 +12,4 @@ outputs
 checkpoint
 .vscode
 .Mlflow/
+figures/
