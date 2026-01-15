@@ -107,6 +107,11 @@ def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
                 t = tcol[mask]
                 s = scol[mask]
                 
+                #debugging
+                print(f'Shape of d is: {d.shape}')
+                print(f'Shape of t is: {t.shape}')
+                print(f'Shape of s is: {s.shape}')
+
                 # Sort and remove duplicates
                 sort_idx = np.argsort(d)
                 d, t, s = d[sort_idx], t[sort_idx], s[sort_idx]
@@ -116,8 +121,6 @@ def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
                         keep[k] = False
                 d, t, s = d[keep], t[keep], s[keep]
 
-                print(d)
-
                 
                 # Column-specific new depth
                 new_depth_col = np.linspace(d.min(), d.max(), nz)
@@ -126,11 +129,6 @@ def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
                 out_array[0, :, i_start+ii, jj] = np.interp(new_depth_col, d, t)
                 out_array[1, :, i_start+ii, jj] = np.interp(new_depth_col, d, s)
                 out_array[2, :, i_start+ii, jj] = new_depth_col
-    
-    #debugging
-    print(f'Shape of d is: {d.shape}')
-    print(f'Shape of t is: {t.shape}')
-    print(f'Shape of s is: {s.shape}')
 
     da = xr.DataArray(out_array,
                       dims=("var", "new_depth", "eta_rho", "xi_rho"),
