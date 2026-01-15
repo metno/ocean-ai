@@ -11,5 +11,3 @@ outputs
 *.gif
 checkpoint
 .vscode
-.Mlflow/
-figures/
