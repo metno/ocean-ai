@@ -96,6 +96,7 @@ def interpolate_grid(depth_transf, Temp, Salinity, nz = 40, eta_chunck = 40):
         for ii in range(depth_slice.shape[1]):  # eta in chunk
             for jj in range(depth_slice.shape[2]):  # xi
                 dcol = depth_slice[:, ii, jj]
+                print(f'Dcols shape is: {dcol.shape}')
                 tcol = temp_slice[:, ii, jj]
                 scol = salinity_slice[:,ii,jj]
                 
