@@ -10,7 +10,7 @@
 
 # activate python env
 FOCCUS_DIR="/lustre/storeB/project/fou/hi/foccus"
-SAVE_PATH="/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot"
+SAVE_PATH="/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/yearly_means"
 MONTH="January February March April May June July August September October November December"
 
 #Activate env

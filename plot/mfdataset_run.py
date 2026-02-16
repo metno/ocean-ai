@@ -15,8 +15,7 @@ def monthly_mean(save_path, month):
     files = sorted(files)
     print(f'Glob identified the following files: {files}')
 
-    list = month
-    list = []
+    list_m = []
     if month == 'January':
         dates = (0,31)
     elif month == 'February':
@@ -44,8 +43,8 @@ def monthly_mean(save_path, month):
     else:
         raise ValueError('Please specify which month to calculate monthly means for, such as January')
 
-    list.extend(files[dates[0]:dates[1]])
-    ds = xr.open_mfdataset(list, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
+    list_m.extend(files[dates[0]:dates[1]])
+    ds = xr.open_mfdataset(list_m, engine = 'h5netcdf', chunks={'time' : 1}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
     #Because there is an issue with the encoding of the summaries and the keywords, we have to manually remove those 
     if 'summary_no' in ds.attrs:
         del ds.attrs['summary_no']
