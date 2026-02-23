@@ -3,46 +3,64 @@ import numpy as np
 import glob
 import sys
 import argparse
+import time
 
+fp = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/*.nc'
 
-def seasonal_avg_calc(save_path):
-    year = xr.open_mfdataset('/lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/plot/yearly_means/*.nc')
+def mean_sesavg(save_path):
 
-    #Will try to make seasonal weights based on the xarray - but have to manually do so as the xarray has daily values, I have monthly, so can not use all built in funcs
-    month_lengths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    m = month_lengths
-    DJF = m[-1] + m[0] + m[1]
-    MAM = m[2] + m[3] + m[4]
-    JJA = m[5] + m[6] + m[7]    
-    SON = m[8] + m[9] + m[10]  
+    start_time = time.perf_counter()
 
-    weights = []
-    for i in month_lengths[0:2]:
-        weights.append(i / DJF)
-    for j in month_lengths[2:5]:
-        weights.append(j/MAM)
-    for k in month_lengths[5:8]:
-        weights.append(k/JJA)
-    for v in month_lengths[8:11]:
-        weights.append(v/SON)
-    weights.append(month_lengths[-1] / DJF)
+    files = glob.glob(fp)
+    files = sorted(files)
 
-    #ensure that the weights are correctly calculated, sum should be 1
-    print(weights[0] + weights[1] + weights[-1])
-    print(weights[2] + weights[3] + weights[4])
-    print(weights[5] + weights[6] + weights[7])
-    print(weights[8] + weights[9] + weights[10])
+    def month_mean(nc_files, start_date, end_date, month_name):
+        list_month = []
+        list_month.extend(nc_files[start_date:end_date])
+        print(f'The identified filepaths for {month_name} are: {list_month}')
+        ds = xr.open_mfdataset(list_month, engine = 'h5netcdf', chunks={'time' : 10, 'lon' : 100, 'lat' : 100}).drop_vars(['u_eastward', 'v_northward', 'ubar_eastward', 'vbar_northward', 'Uwind_eastward', 'Vwind_northward']).resample(time = '1M').mean()
+        print(f'The month of {month_name} has the following files: {list_month}')
+        return ds
 
-    Weights = xr.DataArray(
-    weights,
-    dims = ['time'],
-    coords = {'time' : year.time})
+    ds_jan = month_mean(files, 0, 31, 'January')
+    ds_feb = month_mean(files, 31, 60, 'February')
+    ds_march = month_mean(files, 60, 91, 'March')
+    ds_april = month_mean(files, 91, 121, 'April')
+    ds_may = month_mean(files, 121, 152, 'May')
+    ds_june = month_mean(files, 152, 182, 'June')
+    ds_july = month_mean(files, 182, 213, 'July')
+    ds_aug = month_mean(files, 213, 244, 'August')
+    ds_sept = month_mean(files, 244, 274, 'September')
+    ds_oct = month_mean(files, 274, 305, 'October')
+    ds_nov = month_mean(files, 305, 335, 'November')
+    ds_dec = month_mean(files, 335, 366, 'December')
 
-    ds = (year * Weights).groupby('time.season').sum(dim='time')
+    ds = xr.concat([ds_jan, ds_feb, ds_march, ds_april, ds_may, ds_june, ds_july, ds_aug, ds_sept, ds_oct, ds_nov, ds_dec], dim = 'time')
+    print('Concat of the monthly mean was successfull')
+    print(ds.head) 
+    
+    if 'summary_no' in ds.attrs:
+        del ds.attrs['summary_no']
+    if 'keywords' in ds.attrs:
+        del ds.attrs['keywords']
 
-    ds.to_netcdf(save_path)
+    print('Made it to the calculations of the seasonal averages')
+    #This code is from the xarray tutorial: https://docs.xarray.dev/en/latest/examples/monthly-means.html
+    month_length = ds.time.dt.days_in_month
+    weights = (month_length.groupby("time.season") / month_length.groupby("time.season").sum())
+    # Test that the sum of the weights for each season is 1.0
+    np.testing.assert_allclose(weights.groupby("time.season").sum().values, np.ones(4))
+    # Calculate the weighted average
+    ds_weighted = (ds * weights).groupby("time.season").sum(dim="time")
 
+    print('Made it to creating a netcdf file of the results')
+    ds_weighted.to_netcdf(f'{save_path}', engine = 'netcdf4')
+    print(f'The datasets of the seasonal averages have been transformed into netdf files')
 
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    statement_time = f'End of function. Elapsed time is: {elapsed_time}'
+    return statement_time
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Calculation of seasonal averages of Norkyst dataset with monthly means')
@@ -50,4 +68,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     save_path = args.save_path
 
-seasonal_avg_calc(save_path)
+mean_sesavg(save_path)
