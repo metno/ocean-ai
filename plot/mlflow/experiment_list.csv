@@ -5,11 +5,24 @@
 # Set plot_title=* to use experiment name as title. 
 experiment,run_ID,plot_title
 #no-zeta,*,org. no-zeta
-replace-me,*,old-graph-625e-5
+#replace-me,*,old-graph-625e-5
 #learning_rate/625e-1,*,625e-1
 #learning_rate/625e-2,*,625e-2
-learning_rate/625e-3,*,625e-3
-learning_rate/625e-4,*,625e-4
-learning_rate/625e-6,*,625e-6
-num_channels/512,*,*
-num_channels/1024,*,*
+#learning_rate/625e-3,*,625e-3
+#learning_rate/625e-4,*,625e-4
+#learning_rate/625e-6,*,625e-6
+#num_channels/512,*,*
+#num_channels/1024,*,*
+#channel/512,*,*
+#channel/768,*,*
+#zeta-forcing-3h,*,*
+#zeta-forcing-6h-lr625e-2,*,*
+#learning-rate/lr6-25e-03,*,
+#channels_v2/256,*,*
+channels_v2/512,*,*
+#channels_v2/768,*,*
+#channels_v2/1024,*,*
+learning-rate-v2/lr6-25e-05,*,*
+learning-rate-v2/lr3-5e-04,*,*
+learning-rate-v2/lr3-5e-03,*,*
+learning-rate-v2/lr2e-03,*,*

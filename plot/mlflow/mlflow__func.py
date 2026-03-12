@@ -173,10 +173,10 @@ def mlflow_multiple_dirs(dir_list, exp_names, suptitle='',figname=''):
 
             if os.path.isdir(file_path):
                 try: 
-                    ds_vars = pd.read_csv(f'{file_path}/1', sep='\s+', names=["ID", "Vals", "Step"])
+                    ds_vars = pd.read_csv(f'{file_path}/1_scale_0', sep='\s+', names=["ID", "Vals", "Step"])
 
                 except Exception as e:
-                    print(f'Could not read in {file_path}/1 using Pandas: {e}')
+                    print(f'Could not read in {file_path}/1_scale_0 using Pandas: {e}')
                     continue
 
                 #plotting 
