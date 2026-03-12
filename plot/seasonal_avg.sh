@@ -1,7 +1,7 @@
 #$ -S /bin/bash
 #$ -l h_rt=02:00:00
 #$ -q research-r8.q
-#$ -l h_rss=90G,mem_free=90G,h_data=90G
+#$ -l h_rss=60G,mem_free=60G,h_data=60G
 #$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
 #$ -e /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.err
 #$ -N seasonal_avg
@@ -10,7 +10,7 @@
 
 # activate python env
 FOCCUS_DIR="/lustre/storeB/project/fou/hi/foccus"
-SAVE_PATH=$FOCCUS_DIR/malene/ocean-ai/plot/yearly_means/seasonal_avg.nc
+SAVE_PATH=$FOCCUS_DIR/malene/ocean-ai/plot/yearly_means
 
 #Activate env
 source $FOCCUS_DIR/.venv/bin/activate
