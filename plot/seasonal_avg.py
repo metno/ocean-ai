@@ -37,7 +37,6 @@ def mean_sesavg(save_path):
 
     ds = xr.concat([ds_jan, ds_feb, ds_march, ds_april, ds_may, ds_june, ds_july, ds_aug, ds_sept, ds_oct, ds_nov, ds_dec], dim = 'time')
     print('Concat of the monthly mean was successfull')
-    print(ds.head) 
     
     if 'summary_no' in ds.attrs:
         del ds.attrs['summary_no']
