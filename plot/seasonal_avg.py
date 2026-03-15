@@ -55,7 +55,7 @@ def mean_sesavg(save_path):
     print('Made it to creating a netcdf file of the results')
     for season in ds_weighted.season.values:
         ds_season = ds_weighted.sel(season = season)
-        ds_season.to_netcdf(f'{save_path}/{season}.nc', engine = 'netcdf4')
+        ds_season.load().to_netcdf(f'{save_path}/{season}.nc', engine = 'netcdf4')
     #ds_weighted.to_netcdf(f'{save_path}', engine = 'netcdf4')
     #Takes too much mem to transfer to netcdf so Ill try converting to zarr files 
     print(f'The datasets of the seasonal averages have been transformed into netdf files')
