@@ -1,5 +1,5 @@
 #$ -S /bin/bash
-#$ -l h_rt=02:00:00
+#$ -l h_rt=05:00:00
 #$ -q research-r8.q
 #$ -l h_rss=60G,mem_free=60G,h_data=60G
 #$ -o /lustre/storeB/project/fou/hi/foccus/outputs/$JOB_NAME_$JOB_ID.out
