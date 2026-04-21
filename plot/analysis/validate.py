@@ -28,7 +28,7 @@ def power_spectra(ds, vars = ['temperature_0', 'salinity_0', 'u_eastward_0', 'v_
     for i, var in enumerate(vars):
         print(var)
         #for t in range(len(ds_s.time)):
-        for t in range(9):
+        for t in range(len(ds_s.time)):
             tmp = ds_s[var].isel(time=t)
             fourier_image = fftpack.dct(fftpack.dct(np.array(tmp), axis=0, type=2, norm='ortho'), axis=1, type=2, norm='ortho')
             fourier_amplitudes = np.abs(fourier_image)**2
@@ -88,7 +88,10 @@ def plot_spectra(ds):
         for j in range(len(ds.time)):
             ax[i].loglog(P[:-1, i, j], K[:-1, i, j], label=f't={j}', alpha=0.8)
             ax[i].set_title(vars[i])
-            ax[i].legend(loc='lower right')
+            ax[i].legend(loc='lower left')
+            ax[i].set_ylabel('P(k)', fontsize=14)
+            ax[i].set_xlabel(r'$\lambda$ [km]', fontsize=14)
+            ax[i].invert_xaxis()
     plt.savefig('figures/spectra.png')
 
 
