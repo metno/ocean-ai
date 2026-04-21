@@ -6,10 +6,6 @@ import scipy.stats as stats
 from scipy import fftpack
 import matplotlib.colors as colors
 
-#files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
-
-#ds = xr.open_mfdataset(files)
-
 def _weights(alpha_k, alpha_kp1, alpha_mn):
     """ From Ricard et al. (2013)"""
     
@@ -79,7 +75,7 @@ def power_spectra(ds, vars = ['temperature_0', 'salinity_0', 'u_eastward_0', 'v_
 
     return P, K
 
-def plot_spectra(ds):
+def plot_spectra(ds, output='figures/spectra.png'):
     vars = ['temperature_0', 'salinity_0', 'u_eastward_0', 'v_northward_0']
     P, K = power_spectra(ds, vars)
 
@@ -92,9 +88,10 @@ def plot_spectra(ds):
             ax[i].set_ylabel('P(k)', fontsize=14)
             ax[i].set_xlabel(r'$\lambda$ [km]', fontsize=14)
             ax[i].invert_xaxis()
-    plt.savefig('figures/spectra.png')
+    plt.savefig(output)
 
 
 if __name__ == '__main__':
-    ds = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/2024-05-01_24h_18d28_e011_s050000.nc')
-    plot_spectra(ds)
+    files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
+    ds = xr.open_mfdataset(files)
+    plot_spectra(ds, 'figures/month_spectra.png')
