@@ -7,8 +7,8 @@ Author: Mateusz Matuszak
 import xarray as xr
 import numpy as np
 
-class open_dataset:
-    def __init__(self, file, time=None, depth=None, region=None):
+class open_dataset(xr.DataArray):
+    def __init__(self, file, time=None, depth=None, region=None, *args, **kwargs):
         '''
         A class for opening a dataset.
         Example usage:
@@ -23,6 +23,7 @@ class open_dataset:
             depth   [see below]     :   Depth index
             region  [str]           :   Cutout for predefined region from dict. Available: [lofoten, sulafjorden, oslofjorden]
         '''
+        super().__init__(*args, **kwargs)
         if '*' in file:
             self.ds = xr.open_mfdataset(file)
         else:

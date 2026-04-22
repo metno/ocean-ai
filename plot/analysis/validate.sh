@@ -10,4 +10,4 @@
 
 conda activate myenv
 
-python validate.py
+python plot_validate.py
