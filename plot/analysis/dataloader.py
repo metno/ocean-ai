@@ -77,11 +77,11 @@ class open_dataset(xr.DataArray):
         '''
         Selects a specified region in the dataset
         '''
-        self.dataset = self.dataset.where(
-            (self.dataset[self.ll] >= self.grid[0]) &
-            (self.dataset[self.ll] <= self.grid[1]) &
-            (self.dataset[self.lg] >= self.grid[2]) &
-            (self.dataset[self.lg] <= self.grid[3]),
+        self.ds = self.ds.where(
+            (self.ds[self.ll] >= self.grid[0]) &
+            (self.ds[self.ll] <= self.grid[1]) &
+            (self.ds[self.lg] >= self.grid[2]) &
+            (self.ds[self.lg] <= self.grid[3]),
             drop=True 
         ) 
 
@@ -99,7 +99,7 @@ class open_dataset(xr.DataArray):
         if type(self.var) is str:
             self.var = [self.var]
         self.var.extend([self.lg, self.ll])
-        self.dataset = self.dataset[self.var]
+        self.ds = self.ds[self.var]
     
     @property
     def _select_time(self):
@@ -118,10 +118,10 @@ class open_dataset(xr.DataArray):
                     raise TypeError(f'All elements in the time list must be str, int or datetime.datetime, got {type(time)}')
         
         if type(self.time) is int or type(self.time) is list and type(self.time[0]) is int:
-            self.dataset = self.dataset.isel(time=self.time)
+            self.ds = self.ds.isel(time=self.time)
         
         elif type(self.time) is str or type(self.time) is datetime.datetime or type(self.time) is list and type(self.time[0]) is str or type(self.time) is list and type(self.time[0]) is datetime.datetime:
-            self.dataset = self.dataset.sel(time=self.time)
+            self.ds = self.ds.sel(time=self.time)
     
     @property
     def _select_depth(self):
@@ -136,10 +136,10 @@ class open_dataset(xr.DataArray):
                 if type(depth) is not int:
                     raise TypeError(f'All elements in the depth list must be str or int, got {type(depth)}')
         
-        if 'depth' in self.dataset.variables:
-            self.dataset = self.dataset.isel(depth=self.depth)
-        elif 's_rho' in self.dataset.variables:
-            self.dataset = self.dataset.isel(s_rho=self.depth)
+        if 's_rho' in self.ds.variables:
+            self.ds = self.ds.isel(s_rho=self.depth)
+        elif 'depth' in self.ds.variables:
+            self.ds = self.ds.isel(depth=self.depth)
 
     def __str__(self):
         return str(self.ds)

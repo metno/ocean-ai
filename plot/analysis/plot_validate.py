@@ -46,4 +46,7 @@ def plot_temporal_mean(ds, output='figures/mean.png'):
 if __name__ == '__main__':
     files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
     ds = open_dataset(files).ds
-    plot_temporal_mean(ds)
+    #plot_temporal_mean(ds)
+    files = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*'
+    ds = open_dataset(files, depth=-1).ds
+    plot_temporal_mean(ds, output='figures/mean_nk800.png')
