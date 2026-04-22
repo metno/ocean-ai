@@ -60,6 +60,7 @@ class open_dataset(Methods):
         
         If not all of [lat_min, lat_max, lon_min, lon_max] are defined, will select min/max values for undefined arguments based on min/max values in dataset. 
         '''
+        
         self.dataset = xr.open_dataset(file)
         self.var = var
         self.time = time
