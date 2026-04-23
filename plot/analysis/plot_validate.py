@@ -23,7 +23,6 @@ def plot_spectra(ds, output='figures/spectra.png'):
 
 def plot_temporal_mean(ds, output='figures/mean.png'):
     ds = v.temporal_mean(ds)
-    vars = ['temperature', 'salinity', 'u_eastward', 'v_northward']
 
     fig, ax = plt.subplots(3, figsize=(10,20))
 
@@ -42,11 +41,22 @@ def plot_temporal_mean(ds, output='figures/mean.png'):
         cbar.ax.set_title(cb_title[i], fontsize=12)
     
     plt.savefig(output)
+
+def quiver_plot(ds, output='figures/quiver.png'):
+    import cartopy
+    import cartopy.crs as ccrs
+    fix, ax = plt.subplots(figsize=(10,10), dpi=200, subplot_kw={'projection': ccrs.PlateCarree()})
+    s=10
+    ax.quiver(ds.lon[::s, ::s], ds.lat[::s, ::s], ds.u_eastward[::s, ::s], ds.v_northward[::s, ::s], transform=ccrs.PlateCarree())
+    ax.add_feature(cartopy.feature.LAND, edgecolor='black', zorder=1)
+    plt.savefig(output)
     
 if __name__ == '__main__':
     files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
-    ds = open_dataset(files).ds
+    ds = open_dataset(files, region='lofoten', mean_axis='time').ds
+    #plot_spectra(ds)
     #plot_temporal_mean(ds)
-    files = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*'
-    ds = open_dataset(files, depth=-1).ds
-    plot_temporal_mean(ds, output='figures/mean_nk800.png')
+    quiver_plot(ds)    
+    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*'
+    #ds = open_dataset(files, depth=-1).ds
+    #plot_temporal_mean(ds, output='figures/mean_nk800.png')
