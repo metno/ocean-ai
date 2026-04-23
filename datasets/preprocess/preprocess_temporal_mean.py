@@ -11,6 +11,9 @@ def temporal_mean(files, output, depth=None):
             ds = ds.isel(s_rho=depth)
         elif 'depth' in ds.variables:
             ds = ds.isel(depth=depth)
+    
+        if 's_w' in ds.variables:
+            ds = ds.isel(s_w=depth)
 
     ds_m = ds.mean('time')
     ds_m.to_netcdf(output)
