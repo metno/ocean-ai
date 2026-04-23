@@ -6,9 +6,11 @@ Author: Mateusz Matuszak
 '''
 import xarray as xr
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
 class open_dataset(xr.DataArray):
-    def __init__(self, file, time=None, depth=None, region=None, *args, **kwargs):
+    def __init__(self, file, time=None, depth=None, region=None, mean_axis=None, *args, **kwargs):
         '''
         A class for opening a dataset.
         Example usage:
@@ -42,6 +44,9 @@ class open_dataset(xr.DataArray):
             'v_northward_0': 'v_northward',
         }
 
+        self.ll = 'lat'
+        self.lg = 'lon'
+
         for var in self.ds.variables:
             if var in naming_conventions.keys():
                 self.ds = self.ds.rename({f'{var}': f'{naming_conventions[var]}'})
@@ -52,9 +57,15 @@ class open_dataset(xr.DataArray):
         if self.depth is not None:
             self._select_depth
         
+        if mean_axis is not None:
+            self.ds = self._mean(mean_axis)
+        
         if self.region is not None:
             self._select_predefined_region
-    
+            self.ds.load()
+            if not all(_ == None for _ in self.grid):
+                self._cutout_region
+
     @property
     def _select_predefined_region(self):
         '''
@@ -140,6 +151,9 @@ class open_dataset(xr.DataArray):
             self.ds = self.ds.isel(s_rho=self.depth)
         elif 'depth' in self.ds.variables:
             self.ds = self.ds.isel(depth=self.depth)
+    
+    def _mean(self, axis):
+        return self.ds.mean(dim=axis).compute()
 
     def __str__(self):
         return str(self.ds)
