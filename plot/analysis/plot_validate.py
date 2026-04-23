@@ -47,7 +47,8 @@ def quiver_plot(ds, output='figures/quiver.png'):
     import cartopy.crs as ccrs
     fix, ax = plt.subplots(figsize=(10,10), dpi=200, subplot_kw={'projection': ccrs.PlateCarree()})
     s=10
-    ax.quiver(ds.lon[::s, ::s], ds.lat[::s, ::s], ds.u_eastward[::s, ::s], ds.v_northward[::s, ::s], transform=ccrs.PlateCarree())
+    q = ax.quiver(ds.lon[::s, ::s], ds.lat[::s, ::s], ds.u_eastward[::s, ::s], ds.v_northward[::s, ::s], transform=ccrs.PlateCarree())
+    ax.quiverkey(q, X=0.3, Y=1.05, U=0.5, label='Quiver key, length = 0.5', labelpos='E')
     ax.add_feature(cartopy.feature.LAND, edgecolor='black', zorder=1)
     plt.savefig(output)
     
