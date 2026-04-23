@@ -5,6 +5,7 @@ import xarray as xr
 import cmocean
 import sys
 from dataloader import open_dataset
+import numpy as np
 
 def plot_spectra(ds, output='figures/spectra.png'):
     vars = ['temperature', 'salinity', 'u_eastward', 'v_northward']
@@ -51,13 +52,31 @@ def quiver_plot(ds, output='figures/quiver.png'):
     ax.quiverkey(q, X=0.3, Y=1.05, U=0.5, label='Quiver key, length = 0.5', labelpos='E')
     ax.add_feature(cartopy.feature.LAND, edgecolor='black', zorder=1)
     plt.savefig(output)
+
+def stream_plot(ds, output='figures/stream.png'):
+    # Doesn't work
+    import cartopy
+    import cartopy.crs as ccrs
+    fix, ax = plt.subplots(figsize=(10,10), dpi=200, subplot_kw={'projection': ccrs.PlateCarree()})
+    s=10
+    U = np.array(ds.u_eastward)
+    V = np.array(ds.v_northward)
+    U = np.ma.masked_invalid(U)
+    V = np.ma.masked_invalid(V)
+    lon = np.array(ds.lon)
+    lat = np.array(ds.lat)
+    lon = np.ma.masked_invalid(lon)
+    lat = np.ma.masked_invalid(lat)
+    ax.streamplot(lon, lat, U, V, transform=ccrs.PlateCarree())
+    ax.add_feature(cartopy.feature.LAND, edgecolor='black', zorder=1)
+    plt.savefig(output)
     
 if __name__ == '__main__':
     files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
     ds = open_dataset(files, region='lofoten', mean_axis='time').ds
     #plot_spectra(ds)
     #plot_temporal_mean(ds)
-    quiver_plot(ds)    
+    stream_plot(ds)    
     #files = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*'
     #ds = open_dataset(files, depth=-1).ds
     #plot_temporal_mean(ds, output='figures/mean_nk800.png')
