@@ -51,6 +51,11 @@ class open_dataset(xr.DataArray):
             if var in naming_conventions.keys():
                 self.ds = self.ds.rename({f'{var}': f'{naming_conventions[var]}'})
         
+        dims = list(self.ds.dims)
+        if 'X' in dims and 'Y' in dims:
+            if dims.index('X') < dims.index('Y'):
+                self.ds = self.ds.rename({'Y': 'X', 'X': 'Y'})
+        
         if self.time is not None:
             self._select_time
         
@@ -160,7 +165,7 @@ class open_dataset(xr.DataArray):
 
 if __name__ == '__main__':
     ds = open_dataset('/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/2024-05-27_24h_18d28_e011_s050000.nc')
-    print(ds)
-    print('****************\n')
+    #print(ds)
+    #print('****************\n')
     ds = open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20231221.nc')
-    print(ds)
+    #print(ds)
