@@ -22,16 +22,15 @@ def plot_spectra(ds, output='figures/spectra.png'):
             ax[i].invert_xaxis()
     plt.savefig(output)
 
-def plot_temporal_mean(ds, output='figures/mean.png'):
-    ds = v.temporal_mean(ds)
+def plot_fields(ds, output='figures/mean.png'):
 
     fig, ax = plt.subplots(3, figsize=(10,20))
-
-    c1 = ax[0].pcolormesh(ds.Y, ds.X, ds.temperature, cmap=cmocean.cm.thermal)
-    c2 = ax[1].pcolormesh(ds.Y, ds.X, ds.salinity, cmap=cmocean.cm.haline)
+ 
+    c1 = ax[0].pcolormesh(ds.X, ds.Y, ds.temperature, cmap=cmocean.cm.thermal)
+    c2 = ax[1].pcolormesh(ds.X, ds.Y, ds.salinity, cmap=cmocean.cm.haline )
 
     vel = v.absolute_vel(ds)
-    c3 = ax[2].pcolormesh(ds.Y, ds.X, vel, cmap=cmocean.cm.speed)
+    c3 = ax[2].pcolormesh(ds.X, ds.Y, vel, cmap=cmocean.cm.speed)
 
     c=[c1,c2,c3]
     cb_title=[r'Temp [C$\circ$]', 'Salt', r'Vel [ms$^{-1}$]']
@@ -43,7 +42,12 @@ def plot_temporal_mean(ds, output='figures/mean.png'):
     
     plt.savefig(output)
 
-def quiver_plot(ds, output='figures/quiver.png'):
+def plot_difference(ds1, ds2, output='figures/diff.png'):
+    fig, ax = plt.subplots(3, figsize=(10,20))
+    
+
+
+def plot_quiver(ds, output='figures/quiver.png'):
     import cartopy
     import cartopy.crs as ccrs
     fix, ax = plt.subplots(figsize=(10,10), dpi=200, subplot_kw={'projection': ccrs.PlateCarree()})
@@ -72,11 +76,21 @@ def stream_plot(ds, output='figures/stream.png'):
     plt.savefig(output)
     
 if __name__ == '__main__':
+    files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
+    ds = open_dataset(files).ds
+    plot_fields(ds, output='figures/mean_nk800.png')
+
+    ds = open_dataset(files, region='lofoten').ds
+    plot_fields(ds, output='figures/mean_nk800_lofoten.png')
+    plot_quiver(ds, output='figures/quiver_nk800_logoten.png')
+    
     files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
-    ds = open_dataset(files, region='lofoten', mean_axis='time').ds
-    #plot_spectra(ds)
-    #plot_temporal_mean(ds)
-    stream_plot(ds)    
-    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*'
-    #ds = open_dataset(files, depth=-1).ds
-    #plot_temporal_mean(ds, output='figures/mean_nk800.png')
+    ds = open_dataset(files, mean_axis='time').ds
+    plot_fields(ds, output='figures/havbris.png')
+
+    ds = open_dataset(files, mean_axis='time', region='lofoten').ds
+    plot_fields(ds, output='figures/mean_havbris_lofoten.png')
+    plot_quiver(ds, output='figures/quiver_havbris_logoten.png')
+
+
+
