@@ -44,7 +44,23 @@ def plot_fields(ds, output='figures/mean.png'):
 
 def plot_difference(ds1, ds2, output='figures/diff.png'):
     fig, ax = plt.subplots(3, figsize=(10,20))
+
+    c1 = ax[0].pcolormesh(ds1.X, ds1.Y, ds1.temperature-ds2.temperature, cmap='seismic', vmin=-1, vmax=1)
+    c2 = ax[1].pcolormesh(ds1.X, ds1.Y, ds1.salinity-ds2.salinity, cmap='seismic', vmin=-3, vmax=3)
+
+    vel1 = v.absolute_vel(ds1)
+    vel2 = v.absolute_vel(ds2)
+    c3 = ax[2].pcolormesh(ds1.X, ds1.Y, vel1-vel2, cmap='seismic', vmin=-0.1, vmax=0.1)
+
+    c=[c1,c2,c3]
+    cb_title=[r'Temp [C$\circ$]', 'Salt', r'Vel [ms$^{-1}$]']
+    for i in range(3):
+        cax = fig.add_axes([ax[i].get_position().x1+0.01, ax[i].get_position().y0, 0.030, ax[i].get_position().height])
+        cbar = fig.colorbar(c[i], ax=ax[i], cax=cax)
+        cbar.ax.tick_params(labelsize=12)
+        cbar.ax.set_title(cb_title[i], fontsize=12)
     
+    plt.savefig(output)
 
 
 def plot_quiver(ds, output='figures/quiver.png'):
@@ -76,21 +92,26 @@ def stream_plot(ds, output='figures/stream.png'):
     plt.savefig(output)
     
 if __name__ == '__main__':
+    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
+    #ds = open_dataset(files).ds
+    #plot_fields(ds, output='figures/mean_nk800.png')
+#
+    #ds = open_dataset(files, region='lofoten').ds
+    #plot_fields(ds, output='figures/mean_nk800_lofoten.png')
+    #plot_quiver(ds, output='figures/quiver_nk800_logoten.png')
+    #
+    #files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
+    #ds = open_dataset(files, mean_axis='time').ds
+    #plot_fields(ds, output='figures/havbris.png')
+#
+    #ds = open_dataset(files, mean_axis='time', region='lofoten').ds
+    #plot_fields(ds, output='figures/mean_havbris_lofoten.png')
+    #plot_quiver(ds, output='figures/quiver_havbris_logoten.png')
     files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
-    ds = open_dataset(files).ds
-    plot_fields(ds, output='figures/mean_nk800.png')
-
-    ds = open_dataset(files, region='lofoten').ds
-    plot_fields(ds, output='figures/mean_nk800_lofoten.png')
-    plot_quiver(ds, output='figures/quiver_nk800_logoten.png')
-    
+    ds1 = open_dataset(files).ds
     files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
-    ds = open_dataset(files, mean_axis='time').ds
-    plot_fields(ds, output='figures/havbris.png')
-
-    ds = open_dataset(files, mean_axis='time', region='lofoten').ds
-    plot_fields(ds, output='figures/mean_havbris_lofoten.png')
-    plot_quiver(ds, output='figures/quiver_havbris_logoten.png')
+    ds2 = open_dataset(files, mean_axis='time').ds
+    plot_difference(ds1, ds2)
 
 
 
