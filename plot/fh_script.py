@@ -126,9 +126,9 @@ def fh_inference(area, title, step = 5, min_l = -0.5e-5, max_l = 1.44e-5, compar
         min_l = min_l
         max_l = max_l
         custom = np.linspace(min_l, max_l, 20)
-        im = ax.contour(area.longitude.values, area.latitude.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
-        im_fill = ax.contourf(area.longitude.values, area.latitude.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-        ax.quiver(area.longitude.values[::step, ::step], area.latitude.values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
+        im = ax.contour(area.longitude.values[0,:,:], area.latitude[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
+        im_fill = ax.contourf(area.longitude[0,:,:].values, area.latitude[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
+        ax.quiver(area.longitude[0,:,:].values[::step, ::step], area.latitude[0,:,:].values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
         cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
         cbar = fig.colorbar(im_fill, ax=ax, cax = cax, extend = 'both')
         cbar.ax.set_title(r'$\frac{f}{h}$')
