@@ -14,7 +14,7 @@ def _weights(alpha_k, alpha_kp1, alpha_mn):
 
     return a, b
 
-def power_spectra(ds, vars = ['temperature_0', 'salinity_0', 'u_eastward_0', 'v_northward_0']):
+def power_spectra(ds, vars = ['temperature', 'salinity', 'u_eastward', 'v_northward']):
     # it's a little slow, there are too many loops!
     ds_s = ds.isel(X=slice(700,1100), Y=slice(1000,1400))
     P = np.zeros([400, len(vars), len(ds_s.time)])
@@ -75,23 +75,13 @@ def power_spectra(ds, vars = ['temperature_0', 'salinity_0', 'u_eastward_0', 'v_
 
     return P, K
 
-def plot_spectra(ds, output='figures/spectra.png'):
-    vars = ['temperature_0', 'salinity_0', 'u_eastward_0', 'v_northward_0']
-    P, K = power_spectra(ds, vars)
+def temporal_mean(ds):
+    #This function feels a little redundant
+    return ds.mean('time').compute()
 
-    fig, ax = plt.subplots(1,4, figsize=(20,7))
-    for i in range(4):
-        for j in range(len(ds.time)):
-            ax[i].loglog(P[:-1, i, j], K[:-1, i, j], label=f't={j}', alpha=0.8)
-            ax[i].set_title(vars[i])
-            ax[i].legend(loc='lower left')
-            ax[i].set_ylabel('P(k)', fontsize=14)
-            ax[i].set_xlabel(r'$\lambda$ [km]', fontsize=14)
-            ax[i].invert_xaxis()
-    plt.savefig(output)
+def absolute_vel(ds):
+    return np.sqrt(ds.u_eastward**2 + ds.v_northward**2)
 
 
 if __name__ == '__main__':
-    files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
-    ds = xr.open_mfdataset(files)
-    plot_spectra(ds, 'figures/month_spectra.png')
+    pass
