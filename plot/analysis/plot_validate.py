@@ -107,11 +107,19 @@ if __name__ == '__main__':
     #ds = open_dataset(files, mean_axis='time', region='lofoten').ds
     #plot_fields(ds, output='figures/mean_havbris_lofoten.png')
     #plot_quiver(ds, output='figures/quiver_havbris_logoten.png')
+    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
+    #ds1 = open_dataset(files).ds
+    #files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
+    #ds2 = open_dataset(files, mean_axis='time').ds
+    #plot_difference(ds1, ds2)
+    
+
+    files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/2024-05-01_744h_18d28_e011_s050000.nc'
+    ds = open_dataset(files, mean_axis='time').ds
+    plot_fields(ds, output='figures/mean_havbris_cont.png')
     files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
     ds1 = open_dataset(files).ds
-    files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
-    ds2 = open_dataset(files, mean_axis='time').ds
-    plot_difference(ds1, ds2)
+    plot_difference(ds1, ds, output='figures/diff_cont.png')
 
 
 
