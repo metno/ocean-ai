@@ -8,7 +8,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
 #Norkyst
-def mean_norkyst(ds, avg_time):
+def mean_norkyst(ds):
     """
     Description:
     The function calculates the mean velocity for U and V ocean currents for a given period of time.  
@@ -21,8 +21,8 @@ def mean_norkyst(ds, avg_time):
     The mean velocity for U and V. 
     """
 
-    mean_u_vel = ds['u_eastward'].resample(time = f'{avg_time}').mean(dim = 'time')
-    mean_v_vel = ds['v_northward'].resample(time = f'{avg_time}').mean(dim = 'time')
+    mean_u_vel = ds['u_eastward'].resample(time = 'D').mean(dim = 'time')
+    mean_v_vel = ds['v_northward'].resample(time = 'D').mean(dim = 'time')
     return mean_u_vel, mean_v_vel
 
 #Inference results
@@ -38,15 +38,15 @@ def mean_inference(ds):
     Outputs:
     The mean velocity for U and V. 
     """
-    mean_u_vel = ds['u_eastward_0'].resample(time = 'D').mean(dim = 'time')
-    mean_v_vel = ds['v_northward_0'].resample(time = 'D').mean(dim = 'time')
+    mean_u_vel = ds['u_eastward'].resample(time = 'D').mean(dim = 'time')
+    mean_v_vel = ds['v_northward'].resample(time = 'D').mean(dim = 'time')
     return mean_u_vel, mean_v_vel
 
 
 #Calculate f/h contours
 
 #Norkyst
-def fh_norkyst(ds):
+def fh_norkyst_value(ds):
     """
     Description:
     The function calculates the f/h values. This function is meant for Norkyst, because it lacks f as a variable in the dataset and has to be calculated manually.
@@ -126,9 +126,9 @@ def fh_inference(area, title, step = 5, min_l = -0.5e-5, max_l = 1.44e-5, compar
         min_l = min_l
         max_l = max_l
         custom = np.linspace(min_l, max_l, 20)
-        im = ax.contour(area.longitude.values[0,:,:], area.latitude[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
-        im_fill = ax.contourf(area.longitude[0,:,:].values, area.latitude[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-        ax.quiver(area.longitude[0,:,:].values[::step, ::step], area.latitude[0,:,:].values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
+        im = ax.contour(area.lon.values[0,:,:], area.lat[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
+        im_fill = ax.contourf(area.lon[0,:,:].values, area.lat[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
+        ax.quiver(area.lon[0,:,:].values[::step, ::step], area.lat[0,:,:].values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
         cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
         cbar = fig.colorbar(im_fill, ax=ax, cax = cax, extend = 'both')
         cbar.ax.set_title(r'$\frac{f}{h}$')
@@ -141,7 +141,7 @@ def fh_inference(area, title, step = 5, min_l = -0.5e-5, max_l = 1.44e-5, compar
     else: 
         #calculate means
         u_vel, v_vel = mean_inference(area)
-        u_vel_nor, v_vel_nor = mean_norkyst(compare_norkyst_area)
+        #u_vel_nor, v_vel_nor = mean_norkyst(compare_norkyst_area)
         #calculate f/h contours
         fh = fh_values_inference(area)
         fh_nor = fh_norkyst(compare_norkyst_area)
@@ -154,9 +154,9 @@ def fh_inference(area, title, step = 5, min_l = -0.5e-5, max_l = 1.44e-5, compar
         custom = np.linspace(min_l, max_l, 20)
 
         #Inference
-        im1 = ax[0].contour(area.longitude.values, area.latitude.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
-        im_fill1 = ax[0].contourf(area.longitude.values, area.latitude.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-        ax[0].quiver(area.longitude.values[::step, ::step], area.latitude.values[::step, ::step], u_vel[1,:,:].values[::step, ::step], v_vel[1,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
+        im1 = ax[0].contour(area.lon.values, area.lat.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
+        im_fill1 = ax[0].contourf(area.lon.values, area.lat.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
+        ax[0].quiver(area.lon.values[::step, ::step], area.lat.values[::step, ::step], u_vel[1,:,:].values[::step, ::step], v_vel[1,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
         cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
         cbar1 = fig.colorbar(im_fill1, ax=ax[0], cax = cax, extend = 'both')
         cbar1.ax[0].set_title(r'$\frac{f}{h}$')
