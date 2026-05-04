@@ -6,41 +6,11 @@ Author: Mateusz Matuszak
 '''
 import xarray as xr
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
-class Methods:
-    @property
-    def Transform1DArr(self):
-        '''
-        Returns an array of 1D variables of lon, lat and vars
-        Can probably be done better. 
-        '''
-        vars = [self.lg, self.ll] + [var for var in self.dataset.variables if var not in self.dataset._coord_names]
-
-        new_arr = np.zeros([len(vars), len(np.array(self.dataset[self.lg].values.flatten()))])
-
-
-        for i in range(len(vars)):
-            new_arr[i] = np.array(self.dataset[vars[i]].values.flatten())
-
-        return new_arr
-
-    def MaskNans(self):
-        """
-        #TODO implement this
-            temp = np.array(truth.temperature.values).flatten()
-        temp_0 = np.array(inf.temperature_0)
-        mask = np.where(~np.isnan(inf.temperature_0))
-
-        mask2 = np.where(~np.isnan(temp))
-        temp = temp[mask2]
-        temp_0 = temp_0[mask]
-        lon = np.array(inf.longitude)[mask]
-        lat = np.array(inf.latitude)[mask]
-        tlon = np.array(truth.lon).flatten()[mask2]
-        tlat = np.array(truth.lat).flatten()[mask2]"""
-
-class open_dataset(Methods):
-    def __init__(self, file, var=None, time=None, depth=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, region=None):
+class open_dataset(xr.DataArray):
+    def __init__(self, file, time=None, depth=None, region=None, mean_axis=None, *args, **kwargs):
         '''
         A class for opening a dataset.
         Example usage:
@@ -50,57 +20,56 @@ class open_dataset(Methods):
             Cutout a region using one of the predefined regions or custom values
         
         Args:
-            file    [str]           :   Filename
-            var     [str or list]   :   A string or list of strings containing variable names to be extracted
-            lat_min [int]           :   Minimum latitude for cutout
-            lat_max [int]           :   Maximum latitude for cutout
-            lon_min [int]           :   Minimum longitude for cutout
-            lon_max [int]           :   Maximum longitude for cutout
+            file    [str]           :   Filename or path
+            time    [See below]     :   Times
+            depth   [see below]     :   Depth index
             region  [str]           :   Cutout for predefined region from dict. Available: [lofoten, sulafjorden, oslofjorden]
-        
-        If not all of [lat_min, lat_max, lon_min, lon_max] are defined, will select min/max values for undefined arguments based on min/max values in dataset. 
         '''
-        self.dataset = xr.open_dataset(file)
-        self.var = var
-        self.time = time
-        self.grid = np.array([lat_min, lat_max, lon_min, lon_max])
-        self.region = region
-        self.depth = depth
+        super().__init__(*args, **kwargs)
+        if '*' in file:
+            self.ds = xr.open_mfdataset(file)
+        else:
+            self.ds = xr.open_dataset(file)
 
-        if 'latitude' in self.dataset.variables:
-            self.ll = 'latitude'
-        elif 'lat' in self.dataset.variables:
-            self.ll = 'lat'
+        self.depth=depth
+        self.region=region
+        self.time=time
+
+        naming_conventions={
+            'longitude': 'lon',
+            'latitude': 'lat',
+            'salinity_0': 'salinity',
+            'temperature_0': 'temperature',
+            'u_eastward_0': 'u_eastward',
+            'v_northward_0': 'v_northward',
+        }
+
+        self.ll = 'lat'
+        self.lg = 'lon'
+
+        for var in self.ds.variables:
+            if var in naming_conventions.keys():
+                self.ds = self.ds.rename({f'{var}': f'{naming_conventions[var]}'})
         
-        if 'longitude' in self.dataset.variables:
-            self.lg = 'longitude'
-        elif 'lon' in self.dataset.variables:
-            self.lg = 'lon'
-        
-        full_grid = np.array([np.min(self.dataset[self.ll]), np.max(self.dataset[self.ll]), np.min(self.dataset[self.lg]), np.max(self.dataset[self.lg])])
-        
-        if self.var is not None:
-            self._select_variable
+        dims = list(self.ds.dims)
+        if 'X' in dims and 'Y' in dims:
+            if dims.index('X') < dims.index('Y'):
+                self.ds = self.ds.rename({'Y': 'X', 'X': 'Y'})
         
         if self.time is not None:
             self._select_time
         
         if self.depth is not None:
             self._select_depth
-
-        self.dataset.load()
+        
+        if mean_axis is not None:
+            self.ds = self._mean(mean_axis)
+        
         if self.region is not None:
             self._select_predefined_region
-        elif self.region is None and not all(_ == None for _ in self.grid):
-            if None in self.grid:
-                locs = np.where(self.grid == None)
-                for loc in locs[0]:
-                    self.grid[loc] = float(full_grid[loc])
-
-        if not all(_ == None for _ in self.grid) and not (self.grid == full_grid).all():
-            self._cutout_region
-        
-        open_dataset = self.dataset
+            self.ds.load()
+            if not all(_ == None for _ in self.grid):
+                self._cutout_region
 
     @property
     def _select_predefined_region(self):
@@ -124,11 +93,11 @@ class open_dataset(Methods):
         '''
         Selects a specified region in the dataset
         '''
-        self.dataset = self.dataset.where(
-            (self.dataset[self.ll] >= self.grid[0]) &
-            (self.dataset[self.ll] <= self.grid[1]) &
-            (self.dataset[self.lg] >= self.grid[2]) &
-            (self.dataset[self.lg] <= self.grid[3]),
+        self.ds = self.ds.where(
+            (self.ds[self.ll] >= self.grid[0]) &
+            (self.ds[self.ll] <= self.grid[1]) &
+            (self.ds[self.lg] >= self.grid[2]) &
+            (self.ds[self.lg] <= self.grid[3]),
             drop=True 
         ) 
 
@@ -146,7 +115,7 @@ class open_dataset(Methods):
         if type(self.var) is str:
             self.var = [self.var]
         self.var.extend([self.lg, self.ll])
-        self.dataset = self.dataset[self.var]
+        self.ds = self.ds[self.var]
     
     @property
     def _select_time(self):
@@ -165,10 +134,10 @@ class open_dataset(Methods):
                     raise TypeError(f'All elements in the time list must be str, int or datetime.datetime, got {type(time)}')
         
         if type(self.time) is int or type(self.time) is list and type(self.time[0]) is int:
-            self.dataset = self.dataset.isel(time=self.time)
+            self.ds = self.ds.isel(time=self.time)
         
         elif type(self.time) is str or type(self.time) is datetime.datetime or type(self.time) is list and type(self.time[0]) is str or type(self.time) is list and type(self.time[0]) is datetime.datetime:
-            self.dataset = self.dataset.sel(time=self.time)
+            self.ds = self.ds.sel(time=self.time)
     
     @property
     def _select_depth(self):
@@ -183,10 +152,20 @@ class open_dataset(Methods):
                 if type(depth) is not int:
                     raise TypeError(f'All elements in the depth list must be str or int, got {type(depth)}')
         
-        if 'depth' in self.dataset.variables:
-            self.dataset = self.dataset.isel(depth=self.depth)
-        elif 's_rho' in self.dataset.variables:
-            self.dataset = self.dataset.isel(s_rho=self.depth)
+        if 's_rho' in self.ds.variables:
+            self.ds = self.ds.isel(s_rho=self.depth)
+        elif 'depth' in self.ds.variables:
+            self.ds = self.ds.isel(depth=self.depth)
+    
+    def _mean(self, axis):
+        return self.ds.mean(dim=axis).compute()
 
     def __str__(self):
-        return str(self.dataset)
+        return str(self.ds)
+
+if __name__ == '__main__':
+    ds = open_dataset('/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/2024-05-27_24h_18d28_e011_s050000.nc')
+    #print(ds)
+    #print('****************\n')
+    ds = open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20231221.nc')
+    #print(ds)
