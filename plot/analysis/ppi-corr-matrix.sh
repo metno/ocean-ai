@@ -13,11 +13,11 @@
 #READYTORUN IN PPI
 
 FOCCUS_DIR=/lustre/storeB/project/fou/hi/foccus
-FILEPATH=$FOCCUS_DIR/experiments/learning_rate/625e-3/inference/625_2d.nc
-TITLE_PLOT='625e-3_2024_05_02_corr_matrix_6hrs'
-SAVEFIG_PATH=$FOCCUS_DIR/malene/ocean-ai/plot/figures
+FILEPATH=$FOCCUS_DIR/malene/run-anemoi-ocean/ppi/external_checkpoint_inference/Inference_res/lr_v2/lr3-5e-04-st200-se42/2024-03-30_24h_18d28_e011_s049990.nc
+TITLE_PLOT='24hr_lead_time_30th_of_March_using_rollout_Inf'
+SAVEFIG_PATH=$FOCCUS_DIR/malene/ocean-ai/plot/figures/corr_matrices/rollout
 #OPTIONAL (include if you are using Norkyst files)
-NORKYST=--Norkyst
+#NORKYST=--Norkyst
 
 
 
@@ -25,7 +25,7 @@ echo "Starting Python"
 # activate python env
 source $FOCCUS_DIR/.venv/bin/activate
 # run code
-python3 $FOCCUS_DIR/malene/ocean-ai/plot/corr_matrix.py $FILEPATH $TITLE_PLOT $SAVEFIG_PATH
+python3 $FOCCUS_DIR/malene/ocean-ai/plot/analysis/Correlation_matrix_script.py $FILEPATH $TITLE_PLOT $SAVEFIG_PATH
 
 # Then submit the script to the PPI que:
 # qsub ppi-sub-animation.

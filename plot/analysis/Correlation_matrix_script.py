@@ -20,7 +20,7 @@ def import_ds(filepath, Norkyst = False):
         ds = xr.open_dataset(filepath).isel(s_rho = -1)
         ds = ds.resample(time = '3H').mean(dim = 'time')
         ds = ds.isel(time = 0)
-        vars_keep = ['salinity', 'temperature', 'zeta', 'u_eastward', 'v_northward']
+        vars_keep = ['salinity', 'temperature', 'u_eastward', 'v_northward']
     vars = list(ds.data_vars.keys())
     diff = list(filter(lambda i: i not in vars_keep, vars)) 
     dataset = ds.drop_vars(diff)
@@ -46,7 +46,7 @@ def plot_corr(filepath, title, save_path, Norkyst = False):
     dataset_pd = dataset.to_dataframe()
     print(dataset_pd.head())
     if not Norkyst:
-        vars_keep = ['salinity_0', 'temperature_0', 'zeta', 'u_eastward_0', 'v_northward_0']
+        vars_keep = ['salinity_0', 'temperature_0', 'u_eastward_0', 'v_northward_0']
         dataset_pd = dataset_pd[vars_keep]
         corr_matrix = dataset_pd.corr()
         mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
@@ -58,7 +58,7 @@ def plot_corr(filepath, title, save_path, Norkyst = False):
         fig.savefig(f'{full_save}')
         plt.show()
     else:
-        vars_keep = ['salinity', 'temperature', 'zeta', 'u_eastward', 'v_northward']
+        vars_keep = ['salinity', 'temperature', 'u_eastward', 'v_northward']
         dataset_pd = dataset_pd[vars_keep]
         corr_matrix = dataset_pd.corr()
         mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
