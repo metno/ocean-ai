@@ -11,7 +11,7 @@ OUTDIR=$FOCCUS_DIR/datasets/
 ZARRFILE=$OUTDIR/ <--- PUT IN .ZARR FILE --->
 
 conda deactivate
-source $FOCCUS_DIR/python-envs/anemoi-env-7-7-25/bin/activate
+source $FOCCUS_DIR/python-envs/anemoi-env-30-4-26/bin/activate
 
 # No more parallell, because there are some buggs where it doesn't finish. 
 # This is more consistent. 
