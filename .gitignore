@@ -11,3 +11,4 @@ outputs
 *.gif
 checkpoint
 .vscode
+plot/analysis/validation_results

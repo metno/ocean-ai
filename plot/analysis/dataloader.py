@@ -53,7 +53,15 @@ class open_dataset(xr.DataArray):
         
         dims = list(self.ds.dims)
         if 'X' in dims and 'Y' in dims:
-            if dims.index('X') < dims.index('Y'):
+            #print(f"dims.index('X') = {dims.index('X')}")
+            #print(f"dims.index('Y') = {dims.index('Y')}")
+            # Access the values of 'X' and 'Y' coordinates
+            x_len = len(self.ds['X'].values)
+            y_len = len(self.ds['Y'].values)
+            #print(f"X values: {x_len}")
+            #print(f"Y values: {y_len}")
+            #if dims.index('X') < dims.index('Y'): NOTE: X is always 0 and Y is 1, but still the Havbris is flipped
+            if x_len < y_len: # NOTE: Changed to checking the values instead!
                 self.ds = self.ds.rename({'Y': 'X', 'X': 'Y'})
         
         if self.time is not None:

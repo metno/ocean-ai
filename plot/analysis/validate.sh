@@ -10,4 +10,6 @@
 
 conda activate myenv
 
-python plot_validate.py
+inf_file_dist = '/lustre/storeB/project/fou/hi/foccus/ingvild/test_infrence/results/2024-04-02_72h_18d28_e011_s049990.nc'
+
+python plot_validate.py "$inf_file_dist"
