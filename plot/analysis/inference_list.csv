@@ -1,0 +1,10 @@
+# List of paths to inference files that we want to analyse/validate
+# The output result is created under this folder /validation_results/
+# The truth is always Norkyst3 from path: '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/{year}/norkyst800-{year}{month:02d}{day:02d}.nc'
+# Set plot_title=* to use file-name as title. 
+# Set variables=*  to use standard variables ['salinity', 'temperature', 'u_westward', 'v_northward']
+# NB! Variables need to be the same for all inference file, either you choose all, or the same for all files!
+# NB! The inference date and lead-time is expected to be the same in all inference files!!
+inference_file,variables,plot_title
+'/lustre/storeB/project/fou/hi/foccus/ingvild/test_infrence/results/2024-04-02_48h_18d28_e011_s050000.nc',*,*
+'/lustre/storeB/project/fou/hi/foccus/ingvild/test_infrence/results/2024-04-02_48h_18d28_e002_s013968.nc',*,*
