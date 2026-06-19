@@ -322,6 +322,7 @@ def get_variables_ds_matching_time(ds_havbris: xr.Dataset,
                                   inf_time: np.ndarray,
                                   variables: list = ["salinity", "temperature", "u_eastward", "v_northward"],
                                   s_rho_n3: int = 0,
+                                  depth = None,
                                   debug: bool = False) -> Tuple[xr.Dataset, xr.Dataset]:
     """
     Extracts and aligns multiple variables from Havbris and Norkyst datasets based on the inferred time steps.
@@ -347,18 +348,35 @@ def get_variables_ds_matching_time(ds_havbris: xr.Dataset,
     # Iterate over all variables to process them
     for variable in variables:
         # Check if the variable exists in the Havbris dataset
-        if variable not in ds_havbris.variables:
-            raise ValueError(f"Variable '{variable}' not found in the Havbris dataset.")
+        if variable not in ds_havbris.variables: # Add to look for _0 in variable name TODO
+            variable_havbris = variable + "_0"
+            if variable_havbris in ds_havbris.variables:                    
+                variable_h = variable_havbris
+                print(f'looking for var={variable_h} instead!')
+            else:
+                variable_havbris = variable + "_1"
+                if variable_havbris in ds_havbris.variables:                    
+                    variable_h = variable_havbris
+                    print(f'looking for var={variable_h} instead!')
+                else:
+                    variable_havbris = variable + "_2"
+                    if variable_havbris in ds_havbris.variables:                    
+                        variable_h = variable_havbris
+                        print(f'looking for var={variable_h} instead!')
+                    else:
+                        raise ValueError(f"Variable '{variable}' not found in the Havbris dataset.")
+        else:
+            variable_h = variable
 
         # Extract the variable and coordinates from Havbris
-        havbris_variable = ds_havbris[variable]
+        havbris_variable = ds_havbris[variable_h]
         havbris_lat = ds_havbris['lat']
         havbris_lon = ds_havbris['lon']
 
         # Add the variable to the Havbris dictionary
         havbris_data[variable] = havbris_variable
         if debug:
-            print(f"Extracted variable '{variable}' from Havbris dataset.")
+            print(f"Extracted variable '{variable_h}' from Havbris dataset.")
 
         # Initialize a list to store the selected variables from Norkyst datasets
         norkyst3_var_list = []
@@ -376,8 +394,13 @@ def get_variables_ds_matching_time(ds_havbris: xr.Dataset,
 
             # Extract the variable for the matching time indices and along the specified `s_rho` layer
             for idx in matching_indices:
-                selected_var = df[variable].isel(time=idx, s_rho=s_rho_n3)
-                norkyst3_var_list.append(selected_var)
+                if depth is None:
+                    selected_var = df[variable].isel(time=idx, s_rho=s_rho_n3)
+                    norkyst3_var_list.append(selected_var)
+                else:
+                    print("depth is given, using depth instead of s_rho!")
+                    selected_var = df[variable].isel(time=idx, depth=depth)
+                    norkyst3_var_list.append(selected_var)
 
         # Check if we have any data to concatenate
         if not norkyst3_var_list:
@@ -434,9 +457,27 @@ def get_variables_ds_matching_time_havbris(ds_havbris: xr.Dataset,
     for variable in variables:
         # Check if the variable exists in the Havbris dataset
         if variable not in ds_havbris.variables:
-            raise ValueError(f"Variable '{variable}' not found in the Havbris dataset.")
+            variable_havbris = variable + "_0"
+            if variable_havbris in ds_havbris.variables:                    
+                variable_h = variable_havbris
+                print(f'looking for var={variable_h} instead!')
+            else:
+                variable_havbris = variable + "_1"
+                if variable_havbris in ds_havbris.variables:                    
+                    variable_h = variable_havbris
+                    print(f'looking for var={variable_h} instead!')
+                else:
+                    variable_havbris = variable + "_2"
+                    if variable_havbris in ds_havbris.variables:                    
+                        variable_h = variable_havbris
+                        print(f'looking for var={variable_h} instead!')
+                    else:
+                        raise ValueError(f"Variable '{variable}' not found in the Havbris dataset.")
+        else:
+            variable_h = variable
+
         # Extract the variable and coordinates from Havbris
-        havbris_variable = ds_havbris[variable]
+        havbris_variable = ds_havbris[variable_h]
         havbris_lat = ds_havbris['lat']
         havbris_lon = ds_havbris['lon']
         # Add the variable to the Havbris dictionary
@@ -459,6 +500,7 @@ def open_dataset_inf(path_to_inf,
                      truth_file_name_template = "{year}/norkyst800-{year}{month:02d}{day:02d}.nc",
                      variables=["salinity", "temperature", "u_eastward", "v_northward"],
                      s_rho = -1,
+                     depth = None, 
                      crop_border = True,
                      debug=False):
     # 1) Get the inference file
@@ -476,6 +518,7 @@ def open_dataset_inf(path_to_inf,
                                                        inf_time=inf_time,
                                                        variables=variables,
                                                        s_rho_n3=s_rho,
+                                                       depth=depth,
                                                        debug=debug)
     # 4) Crop away the border if True
     if crop_border is True:
