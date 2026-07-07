@@ -151,6 +151,9 @@ def initial_theta(SA, entropy_target):
     conv = T0 * (np.exp(c) - 1.0)
     return conv 
 
+#############################################################################
+
+
 def theta_from_entropy(SA, entropy_target, tolerance = 1e-14, max_iters = 100):
     Theta = initial_theta(SA, entropy_target)
     for i in range(max_iters):
@@ -162,8 +165,10 @@ def theta_from_entropy(SA, entropy_target, tolerance = 1e-14, max_iters = 100):
             break 
     return Theta 
 
+#############################################################################
 
-def potential_enthalpy(Theta):
+
+def potential_enthalpy(theta):
     """
     Definition:
     Calculating the potential enthalpy which is necessary to calculate the conservative temperature. 
@@ -176,22 +181,195 @@ def potential_enthalpy(Theta):
     The potential enthalpy
     """
 
-    h0 = C_p * Theta 
+    h0 = C_p * theta 
     return h0 
 
+#############################################################################
 
+
+def conservative_T(h0):
+    """
+    Definition:
+    Calculating the conservative temperature from the potential entalpy
+
+    Arguments: 
+    arg[1] : h0 (float) - the potential entalphy calculated in the function above  
+    """
+
+    Theta = h0 / C_p
+    return Theta
+
+#############################################################################
+
+
+def CT(SA, entropy_tar):
+    """
+    Runs all functions at the same time 
+    """
+    theta = theta_from_entropy(SA, entropy_tar)
+    h0 = potential_enthalpy(theta)
+    Theta = conservative_T(h0)
+    print(f'theta = {theta}, h0 = {h0}, Theta = {Theta}' )
+    return Theta
+
+#############################################################################
+
+
+def coeff_75term_polynomial(SA, entropy_tar, P=None):
+
+    """
+    Definition: 
+    Implementing the 75-term expression for specific volume of seawater - with the use of Conservative Temperature Theta. 
+    The specific volume is expressed as an efficient polymomial in the TEOS10 manual for thermodynamic equations -
+    Thus we are adapting the same procedure and defining the coefficients as a Python dictionary.
+
+    The expression is defined by Roquet et al. (2015) and described in Appendix K of the TEOS10 manual: 
+    
+    ##Roquet, F., G. Madec, T. J. McDougall and P. M. Barker, 2015: Accurate polynomial
+    expressions for the density and specific volume of seawater using the TEOS-10 standard.
+    Ocean Modelling, 90, 29-43, http://dx.doi.org/10.1016/j.ocemod.2015.04.002 ##
+
+    Returns:
+    The specific volume 
+    """
+
+    coeff_75term = {
+        (0,0,0) : 1.0769995862e-3,
+        (1,0,0) : -3.1038981976e-4, 
+        (2,0,0) : 6.6928067038e-4,
+        (3,0,0) : -8.5047933937e-4,
+        (4,0,0) : 5.8086069943e-4,
+        (5,0,0) : -2.1092370507e-4,
+        (6,0,0) : 3.1932457305e-5,
+
+
+        (0,1,0) : -1.5649734675e-5,
+        (1,1,0) : 3.5009599764e-5,
+        (2,1,0) : -4.3592678561e-5,
+        (3,1,0) : 3.4532461828e-5,
+        (4,1,0) : -1.1959409788e-5,
+        (5,1,0) : 1.3864594581e-6,
+
+        (0,2,0) : 2.7762106484e-5,
+        (1,2,0) : -3.7435842344e-5,
+        (2,2,0) : 3.5907822760e-5,
+        (3,2,0) : -1.8698584187e-5,
+        (4,2,0) : 3.8595339244e-6,
+
+        (0,3,0) : -1.6521159259e-5,
+        (1,3,0) : 2.4141479483e-5,
+        (2,3,0) : -1.4353633048e-5,
+        (3,3,0) : 2.2863324556e-6,
+
+        (0,4,0) : 6.9111322702e-6,
+        (1,4,0) : -8.7595873154e-6,
+        (2,4,0) : 4.3703680598e-6,
         
+        (0,5,0) : -8.0539615540e-7,
+        (1,5,0) : -3.3052758900e-7, 
+        (0,6,0) : 2.0543094268e-7,
+
+        (0,0,1) : -6.0799143809e-5,
+        (1,0,1) : 2.4262468747e-5,
+        (2,0,1) : -3.4792460974e-5,
+        (3,0,1) : 3.7470777305e-5,
+        (4,0,1) : -1.7322218612e-5,
+        (5,0,1) : 3.0927427253e-6,
+
+        (0,1,1) : 1.8505765429e-5,
+        (1,1,1) : -9.5677088156e-6,
+        (2,1,1) : 1.1100834765e-5,
+        (3,1,1) : -9.8447117844e-6,
+        (4,1,1) : 2.5909225260e-6,
+        
+        (0,2,1) : -1.1716606853e-5,
+        (1,2,1) : -2.3678308361e-7,
+        (2,2,1) : 2.9283346295e-6,
+        (3,2,1) : -4.8826139200e-7,
+
+        (0,3,1) : 7.9279656173e-6,
+        (1,3,1) : -3.4558773655e-6, 
+        (2,3,1) : 3.1655306078e-7,
+
+        (0,4,1) : -3.4102187482e-6,
+        (1,4,1) : 1.2956717783e-6,
+        (0,5,1) : 5.0736766814e-7,
+
+        (0,0,2) : 9.9856169219e-6,
+        (1,0,2) : -5.8484432984e-7, 
+        (2,0,2) : -4.8122251597e-6,
+        (3,0,2) : 4.9263106998e-6, 
+        (4,0,2) : -1.7811974727e-6, 
+        
+        (0,1,2) : -1.1736386731e-6, 
+        (1,1,2) : -5.5699154557e-6, 
+        (2,1,2) : 5.4620748834e-6,
+        (3,1,2) : -1.3544185627e-6, 
+
+        (0,2,2) : 2.1305028740e-6,
+        (1,2,2) : 3.9137387080e-7,
+        (2,2,2) : -6.5731104067e-7,
+
+        (0,3,2) : -4.6132540037e-7,
+        (1,3,2) : 7.7618888092e-9,
+
+        (0,4,2) : -6.3352916514e-8,
+
+        (0,0,3) : -1.1309361437e-6,
+        (1,0,3) : 3.6310188515e-7,
+        (2,0,3) : 1.6746303780e-8,
+        (0,1,3) : -3.6527006553e-7,
+        (1,1,3) : -2.7295696237e-7,
+        (0,2,3) : 2.8695905159e-7,
+        (0,0,4) : 1.0531153080e-7,
+        (1,0,4) : -1.1147125423e-7,
+        (0,1,4) : 3.1454099902e-7,
+        (0,0,5) : -1.2647261286e-8,
+        (0,0,6) : 1.9613503930e-9,}
+    
+    v_u = 1 #m³ kg⁻1
+    S_au = (SSO / 35)
+    sfac = 1 / 40 * S_au
+    s = np.sqrt(sfac * (SA + 24))
+    #s = np.sqrt(SA + 24 / S_au)
+
+    Theta = CT(SA, entropy_tar)
+    print(Theta) 
+    tau = Theta / Theta0
+    print(f's = {s}, tau = {tau}')
+    v_hat = 0
+    for (i,j,k), coeff in coeff_75term.items():
+        if P is not None: 
+            raise ValueError(f'The function is not adapted for varying pressure yet. Please ensure sea surface input where the pressure is equal to zero and given as None')
+        else: 
+            z = 0 
+            v_hat += coeff * (s ** i) * (tau **j) * (z**k) 
+    v_hat *=  v_u 
+    return v_hat 
+
+#############################################################################
 
 
+def density_field(SA, entropy_tar):
+    """
+    Definition:
+    Calculating the density field based on the conservative temperature and specific volume
+
+    Arguments: 
+    arg [1] : SA (float) 
+    arg [2] : entropy target (float)
+    """
+
+    v_hat = coeff_75term_polynomial(SA, entropy_tar) 
+    #inverse of v_hat is the density 
+    sigma_0 = 1 / v_hat 
+    sigma_0_anomaly = sigma_0 - 1000 #kg m⁻3
+    return sigma_0, sigma_0_anomaly
 
 
+#############################################################################
 
-
- 
-
-
-
-
-
-
-
+#to create a entropy target - we run: 
+"""
+e_target, _ = entropy(SA, Theta)
+"""
