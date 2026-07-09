@@ -161,7 +161,7 @@ def theta_from_entropy(SA, entropy_target, tolerance = 1e-14, max_iters = 100):
         f = ent - entropy_target
         step = f / ent_d  
         Theta -= step 
-        if abs(step) < tolerance:
+        if np.all(abs(step) < tolerance):
             break 
     return Theta 
 
