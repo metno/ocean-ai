@@ -152,7 +152,7 @@ def initial_theta(SA, entropy_target):
     return conv 
 
 #############################################################################
-
+#THE NEWTON RAPHSON ITERATIVE PROCESS#
 
 def theta_from_entropy(SA, entropy_target, tolerance = 1e-14, max_iters = 100):
     Theta = initial_theta(SA, entropy_target)
@@ -204,7 +204,7 @@ def conservative_T(h0):
 
 def CT(SA, entropy_tar):
     """
-    Runs all functions at the same time 
+    Runs all above functions at the same time 
     """
     theta = theta_from_entropy(SA, entropy_tar)
     h0 = potential_enthalpy(theta)
