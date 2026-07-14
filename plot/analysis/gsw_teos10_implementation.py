@@ -175,7 +175,7 @@ def potential_enthalpy(theta):
     The equation for this process is found in the TEOS10 manual. 
 
     Arguments: 
-    arg[1] : Theta (float) - 
+    arg[1] : Theta (float)
 
     Output: 
     The potential enthalpy
@@ -194,6 +194,9 @@ def conservative_T(h0):
 
     Arguments: 
     arg[1] : h0 (float) - the potential entalphy calculated in the function above  
+
+    Output: 
+    Return the Conservative temperature Theta
     """
 
     Theta = h0 / C_p
@@ -209,7 +212,7 @@ def CT(SA, entropy_tar):
     theta = theta_from_entropy(SA, entropy_tar)
     h0 = potential_enthalpy(theta)
     Theta = conservative_T(h0)
-    print(f'theta = {theta}, h0 = {h0}, Theta = {Theta}' )
+    #print(f'theta = {theta}, h0 = {h0}, Theta = {Theta}' )
     return Theta
 
 #############################################################################
@@ -331,12 +334,11 @@ def coeff_75term_polynomial(SA, entropy_tar, P=None):
     S_au = (SSO / 35)
     sfac = 1 / 40 * S_au
     s = np.sqrt(sfac * (SA + 24))
-    #s = np.sqrt(SA + 24 / S_au)
 
     Theta = CT(SA, entropy_tar)
-    print(Theta) 
+    #print(Theta) 
     tau = Theta / Theta0
-    print(f's = {s}, tau = {tau}')
+    #print(f's = {s}, tau = {tau}')
     v_hat = 0
     for (i,j,k), coeff in coeff_75term.items():
         if P is not None: 
@@ -372,4 +374,9 @@ def density_field(SA, entropy_tar):
 #to create a entropy target - we run: 
 """
 e_target, _ = entropy(SA, Theta)
+"""
+
+#Then to calculate the density field we run: 
+"""
+density_field(SA = salinity, entropy_tar = eta_target)
 """
