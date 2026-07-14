@@ -12,3 +12,4 @@ outputs
 checkpoint
 .vscode
 plot/analysis/validation_results
+preprocess/outputs
