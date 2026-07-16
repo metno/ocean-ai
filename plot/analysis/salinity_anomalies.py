@@ -40,7 +40,7 @@ def climatology_calculation():
     Calculating the climatology of salinity
     """
 
-    filepath_avg = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages*'
+    filepath_avg = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/daily_avg/*.nc'
     ds_year = xr.open_mfdataset(filepath_avg, chunks = {'time' : 12})
 
     month_lenghts = ds_year.time.dt.days_in_month
