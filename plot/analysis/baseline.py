@@ -20,12 +20,14 @@ symlink_path = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv
 def calculate_anomalies(monthly_files, m_indx, output):
     ds_calc = xr.open_mfdataset(monthly_files).isel(s_rho = -1, s_w = -1)
     print(f'Successfully opened the monthly sets')
+    ds_salinity = ds_calc[['salinity']]
+    print(f'Succesfully made a new dataset consisting of only salinity as a variable for simplified calculations')
     monthly_baseline = ds_monthly.sel(month = m_indx).salinity.values
-    anomalies = ds_calc.salinity.values - monthly_baseline
+    anomalies = ds_salinity.salinity.values - monthly_baseline
     print(f'Successfully calculated the anomalies')
-    ds_calc['salinity_anomalies'] = (('time', 'Y', 'X'), anomalies)
+    ds_salinity['salinity_anomalies'] = (('time', 'Y', 'X'), anomalies)
     print(f'Successfully appended the anomalies to the existing dataset')
-    ds_calc.to_netcdf(output)     
+    ds_salinity.to_netcdf(output)     
     print(f'finished')
 
 output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/january.nc'
