@@ -12,26 +12,26 @@ ds = xr.open_mfdataset(ds_all_years, engine='netcdf4')
 ds = ds.sortby('time')
 monthly_mean = ds.resample(time = 'M').mean('time')
 ds_monthly = ds.groupby('time.month').mean('time')
+print(f'successfully created the baseline month')
 
 #symlink info 
 symlink_path = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/' 
 
 def calculate_anomalies(monthly_files, m_indx, output):
-    ds = xr.open_mfdataset(monthly_files)
+    ds_calc = xr.open_mfdataset(monthly_files).isel(s_rho = -1, s_w = -1)
+    print(f'Successfully opened the monthly sets')
     monthly_baseline = ds_monthly.sel(month = m_indx).salinity.values
-    anomalies = ds.salinity.values - monthly_baseline
-    anomalies.to_netcdf(output)  
+    anomalies = ds_calc.salinity.values - monthly_baseline
+    print(f'Successfully calculated the anomalies')
+    ds_calc['salinity_anomalies'] = (('time', 'Y', 'X'), anomalies)
+    print(f'Successfully appended the anomalies to the existing dataset')
+    ds_calc.to_netcdf(output)     
+    print(f'finished')
 
-output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies'
-m_indx = [1,2,3,4,5,6,7,8,9,10,11,12]
-names = ['jan', 'feb','march','april','may','june','july','aug','sept','oct','nov','dec']
+output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/january.nc'
+ds_with_anomalies = calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-202401*',
+                        m_indx=1,
+                        output=output)
 
-for i,n in zip(m_indx,names):
-    if len(str(i)) == 2:
-        calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-2024{i}*',
-                            m_indx=m_indx,
-                            output=f'{output}/{n}.nc') 
-    elif len(str(i)) == 1:
-        calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-20240{i}*',
-                                    m_indx=m_indx,
-                                    output=f'{output}/{n}.nc') 
+
+
