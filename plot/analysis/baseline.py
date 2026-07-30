@@ -30,9 +30,9 @@ def calculate_anomalies(monthly_files, m_indx, output):
     ds_salinity.to_netcdf(output)     
     print(f'finished')
 
-output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/january.nc'
-ds_with_anomalies = calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-202401*',
-                        m_indx=1,
+output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/february.nc'
+ds_with_anomalies = calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-202402*',
+                        m_indx=2,
                         output=output)
 
 
