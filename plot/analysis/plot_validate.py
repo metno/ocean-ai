@@ -9,6 +9,7 @@ import numpy as np
 from read_inf_list import get_inference_file_info
 from dataloader_inf import open_dataset_inf, open_datasets_inf
 from validation_statistics import create_stat_csv_plot_multiple_inf
+from create_stats import correlation_matrix, rmse, histograms
 from distribution_comparison import create_distribution_plots
 
 def plot_spectra(ds, output='figures/spectra.png'):
@@ -110,6 +111,22 @@ def create_validation_stats_from_infile():
 def create_distribution_gifs(inference_path):
     havbris, norkyst3 = open_dataset_inf(inference_path,crop_border=True)
     create_distribution_plots(norkyst3, havbris)
+
+def create_histogram_rmse_corrmatrix():
+    infile = 'inference_list.csv'
+    inference_files_paths, plot_titles, inference_run_id, inferece_epoch, plot_dict = get_inference_file_info(infile)
+    _, havbris_combined = open_datasets_inf(inference_files_paths,
+                    truth_norkyst3_path = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/',
+                    truth_file_name_template = "{year}/norkyst800-{year}{month:02d}{day:02d}.nc",
+                    variables=plot_dict['variables'],
+                    s_rho = -1,
+                    crop_border = True,
+                    debug=False)
+
+    histograms(havbris_combined)
+    correlation_matrix(havbris_combined)
+    rmse(havbris_combined)
+
 
 if __name__ == '__main__':
     #files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
