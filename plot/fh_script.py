@@ -7,6 +7,8 @@ import cmocean
 import cartopy.crs as ccrs 
 import cartopy.feature as cfeature
 
+########################### Calculating the mean velocities from Norkyst or Havbris ################################
+
 #Norkyst
 def mean_norkyst(ds):
     """
@@ -32,7 +34,7 @@ def mean_inference(ds):
     The function calculates the mean velocity for U and V ocean currents for a given period of time.  
 
     Inputs:
-    arg[1] : ds - The dataset you wish to calculate the mean for. This one works for the Inference results (Havbris). 
+    arg[1] : ds - The dataset you wish to calculate the mean for. This one works for the Inference results as long as opened with the dataloader package from Mateusz (or else variable names do not match)
     arg[2] : avg_time - The period you wish to calculate average for. Please enter a value such as 'D' for one day, '2D' for two days, '1W' for one week etc. 
 
     Outputs:
@@ -43,8 +45,7 @@ def mean_inference(ds):
     return mean_u_vel, mean_v_vel
 
 
-#Calculate f/h contours
-
+#Calculate f/h contours########################### Calculating the f/h contours from Norkyst or Havbris ################################
 #Norkyst
 def fh_norkyst_value(ds):
     """
@@ -84,15 +85,28 @@ def fh_values_inference(ds):
     return f_h 
 
 
-#Plotting
+########################### Plotting functions for Norkyst or Havbris ################################
 
-#Norkyst
-def fh_norkyst(area, fh, u_vel, v_vel, title, step = 5, min_l = -0.5e-5, max_l = 1.44e-5):
+def fh_norkyst(area, title, save_path, step = 5, min_l = -0.5e-5, max_l = 1.44e-5):
+
+    """
+    Definition:
+    A function for plotting the f/h contours for the Norkyst files. 
+
+    Arguments:
+    arg[1] - Area (dataset) - named area because the chosen area to plot must be cut out before passing the dataset. 
+    arg[2] - title (str) - title of the Figure
+    arg[3] - Save_path (str) - path to save the Figure. Please enter full path.
+
+    Returns:
+    A plot saved as a png Figure.
+    """
 
     #calculate means
     u_vel, v_vel = mean_norkyst(area)
+    print(f'shape of uvel: {u_vel.shape}, shape of vvel: {v_vel.shape}')
     #calculate f/h contours
-    fh = fh_norkyst(area)
+    fh = fh_norkyst_value(area)
 
     fig, ax = plt.subplots(figsize = (10,12), subplot_kw={'projection' : ccrs.NorthPolarStereo()})
     step = step
@@ -101,7 +115,7 @@ def fh_norkyst(area, fh, u_vel, v_vel, title, step = 5, min_l = -0.5e-5, max_l =
     custom = np.linspace(min_l, max_l, 20)
     im = ax.contour(area.lon.values, area.lat.values, fh[:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
     im_fill = ax.contourf(area.lon.values, area.lat.values, fh[:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-    ax.quiver(area.lon.values[::step, ::step], area.lat.values[::step, ::step], u_vel[0,-1,:,:].values[::step, ::step], v_vel[0,-1,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 30)
+    ax.quiver(area.lon.values[::step, ::step], area.lat.values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 30)
     cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
     cbar = fig.colorbar(im_fill, ax=ax, cax = cax, extend = 'both')
     cbar.ax.set_title(r'$\frac{f}{h}$')
@@ -110,73 +124,43 @@ def fh_norkyst(area, fh, u_vel, v_vel, title, step = 5, min_l = -0.5e-5, max_l =
     gl.ylabels_right = False 
     ax.set_title(f'{title}')
     ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
+    fig.savefig(save_path)
 
-#Inference results
-def fh_inference(area, title, step = 5, min_l = -0.5e-5, max_l = 1.44e-5, compare_norkyst_area = None, title2 = None):
+def fh_inference(area, title, save_path, step = 5, min_l = -0.5e-5, max_l = 1.44e-5):
 
-    if compare_norkyst_area is None:
-        #calculate means
-        u_vel, v_vel = mean_inference(area)
-        print(f'Shape U: {u_vel.shape}. Shape V ; {v_vel.shape}.')
-        #calculate f/h contours
-        fh = fh_values_inference(area)
-        #plot
-        fig, ax = plt.subplots(figsize = (10,12), subplot_kw={'projection' : ccrs.NorthPolarStereo()})
-        step = step
-        min_l = min_l
-        max_l = max_l
-        custom = np.linspace(min_l, max_l, 20)
-        im = ax.contour(area.lon.values[0,:,:], area.lat[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
-        im_fill = ax.contourf(area.lon[0,:,:].values, area.lat[0,:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-        ax.quiver(area.lon[0,:,:].values[::step, ::step], area.lat[0,:,:].values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
-        cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
-        cbar = fig.colorbar(im_fill, ax=ax, cax = cax, extend = 'both')
-        cbar.ax.set_title(r'$\frac{f}{h}$')
-        gl = ax.gridlines(crs = ccrs.PlateCarree(), draw_labels = True, linewidth = 1, color = 'black', alpha = 0.1, linestyle = '--')
-        gl.xlabels_top = False 
-        gl.ylabels_right = False 
-        ax.set_title(f'{title}')
-        ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
-        plt.show()
-    else: 
-        #calculate means
-        u_vel, v_vel = mean_inference(area)
-        #u_vel_nor, v_vel_nor = mean_norkyst(compare_norkyst_area)
-        #calculate f/h contours
-        fh = fh_values_inference(area)
-        fh_nor = fh_norkyst(compare_norkyst_area)
+    """
+    Definition:
+    A function for plotting the f/h contours for the Havbris files. 
 
-        #plot
-        fig, ax = plt.subplots(1,2, figsize = (10,12), subplot_kw={'projection' : ccrs.NorthPolarStereo()})
-        step = step
-        min_l = min_l
-        max_l = max_l
-        custom = np.linspace(min_l, max_l, 20)
+    Arguments:
+    arg[1] - Area (dataset) - named area because the chosen area to plot must be cut out before passing the dataset. 
+    arg[2] - title (str) - title of the Figure
+    arg[3] - Save_path (str) - path to save the Figure. Please enter full path.
 
-        #Inference
-        im1 = ax[0].contour(area.lon.values, area.lat.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
-        im_fill1 = ax[0].contourf(area.lon.values, area.lat.values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-        ax[0].quiver(area.lon.values[::step, ::step], area.lat.values[::step, ::step], u_vel[1,:,:].values[::step, ::step], v_vel[1,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
-        cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
-        cbar1 = fig.colorbar(im_fill1, ax=ax[0], cax = cax, extend = 'both')
-        cbar1.ax[0].set_title(r'$\frac{f}{h}$')
-        gl1 = ax[0].gridlines(crs = ccrs.PlateCarree(), draw_labels = True, linewidth = 1, color = 'black', alpha = 0.1, linestyle = '--')
-        gl1.xlabels_top = False 
-        gl1.ylabels_right = False 
-        ax[0].set_title(f'Inference {title}')
-        ax[0].add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
+    Returns:
+    A plot saved as a png Figure.
+    """
 
-        #Norkyst
-        im2 = ax[1].contour(area.lon.values, area.lat.values, fh_nor[:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
-        im_fill2 = ax[1].contourf(area.lon.values, area.lat.values, fh_nor[:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
-        ax[1].quiver(area.lon.values[::step, ::step], area.lat.values[::step, ::step], u_vel_nor[0,-1,:,:].values[::step, ::step], v_vel_nor[0,-1,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 30)
-        cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
-        cbar2 = fig.colorbar(im_fill2, ax=ax[1], cax = cax, extend = 'both')
-        cbar2.ax[1].set_title(r'$\frac{f}{h}$')
-        gl2 = ax[1].gridlines(crs = ccrs.PlateCarree(), draw_labels = True, linewidth = 1, color = 'black', alpha = 0.1, linestyle = '--')
-        gl2.xlabels_top = False 
-        gl2.ylabels_right = False 
-        ax[1].set_title(f'{title2}')
-        ax[1].add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
-
-        plt.show()
+    #calculate means
+    u_vel, v_vel = mean_inference(area)
+    print(f'Shape U: {u_vel.shape}. Shape V ; {v_vel.shape}.')
+    #calculate f/h contours
+    fh = fh_values_inference(area)
+    #plot
+    fig, ax = plt.subplots(figsize = (10,12), subplot_kw={'projection' : ccrs.NorthPolarStereo()})
+    step = step
+    min_l = min_l
+    max_l = max_l
+    custom = np.linspace(min_l, max_l, 20)
+    im = ax.contour(area.lon.values[:,:], area.lat[:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 2, color = 'black')
+    im_fill = ax.contourf(area.lon[:,:].values, area.lat[:,:].values, fh[0,:,:], levels = custom, transform = ccrs.PlateCarree(), zorder = 1, cmap = cmocean.cm.topo)
+    ax.quiver(area.lon[:,:].values[::step, ::step], area.lat[:,:].values[::step, ::step], u_vel[0,:,:].values[::step, ::step], v_vel[0,:,:].values[::step, ::step], transform = ccrs.PlateCarree(), color = 'black', alpha = 0.6, scale = 20)
+    cax = fig.add_axes([ax.get_position().x1+0.025, ax.get_position().y0, 0.025, ax.get_position().height])
+    cbar = fig.colorbar(im_fill, ax=ax, cax = cax, extend = 'both')
+    cbar.ax.set_title(r'$\frac{f}{h}$')
+    gl = ax.gridlines(crs = ccrs.PlateCarree(), draw_labels = True, linewidth = 1, color = 'black', alpha = 0.1, linestyle = '--')
+    gl.xlabels_top = False 
+    gl.ylabels_right = False 
+    ax.set_title(f'{title}')
+    ax.add_feature(cartopy.feature.LAND, zorder = 1, edgecolor = 'black')
+    fig.savefig(save_path)
