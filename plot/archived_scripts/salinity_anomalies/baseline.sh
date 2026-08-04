@@ -1,5 +1,5 @@
 #$ -S /bin/bash
-#$ -l h_rt=08:30:00
+#$ -l h_rt=12:30:00
 #$ -q bigmem-r8.q
 #$ -l h_rss=80G,mem_free=80,h_data=80G
 #$ -o /lustre/storeB/project/fou/hi/foccus/malene/ocean-ai/datasets/preprocess/outputs/

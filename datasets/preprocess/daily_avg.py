@@ -2,7 +2,7 @@ import xarray as xr
 
 def temporal_mean_daily(files, output, depth=None):
     '''
-        Very simple function to produce mean files to use for the salinity anomalies. 
+        Very simple function to produce mean files to use for the salinity anomalies - daily averages. 
     '''    
         
     ds = xr.open_mfdataset(files)

@@ -2,7 +2,11 @@
 import numpy as np 
 import xarray as xr
 
-#import glob and select symlink for 2024
+"""
+Function for calculating anomalies from the Norkyst daily avg. datasets based on a monthly climatology over the past 12 years (2012-2024). 
+This function is for salinity and may be adapted at a later time to include other variables. If so, just adapt the variable you wish to extract. 
+"""
+
 import glob
 filepath_daily_avg = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/daily_avg'
 ds_all_years = glob.glob(f'{filepath_daily_avg}/*/*.nc')
@@ -30,9 +34,9 @@ def calculate_anomalies(monthly_files, m_indx, output):
     ds_salinity.to_netcdf(output)     
     print(f'finished')
 
-output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/february.nc'
-ds_with_anomalies = calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-202402*',
-                        m_indx=2,
+output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/november.nc'
+ds_with_anomalies = calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-202411*',
+                        m_indx=11,
                         output=output)
 
 
