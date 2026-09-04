@@ -12,3 +12,5 @@ outputs
 checkpoint
 .vscode
 plot/analysis/validation_results
+plot/analysis/validation_results_old
+datasets/yaml_files/downscaling-v2
