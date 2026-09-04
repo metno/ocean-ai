@@ -423,7 +423,7 @@ def plot_statistics_combined(df, variable, save_path=None, save_name=None):
         # Show the plot if no save_path is provided
         plt.show()
 
-def plot_statistics_combined_multiple_inf(df, variable, save_path=None):
+def plot_statistics_combined_multiple_inf(df, variable, plot_dict, plot_titles, save_path=None):
     """
     Creates a single 2x3 subplot figure and optionally saves it to a file:
     - First row: Mean, Median, and Standard Deviation for NK (green) and HB (one line per `inf_file`).
@@ -449,55 +449,55 @@ def plot_statistics_combined_multiple_inf(df, variable, save_path=None):
     nk_data = df[df["inf_file"] == first_inf_file]  # Use data from the first `inf_file` for NK metrics
     # Create a 2x3 subplot layout
     fig, axes = plt.subplots(2, 3, figsize=(18, 12), sharex=True, facecolor="white")
-    fig.suptitle(f"Statistics for {variable}", fontsize=20)
+    fig.suptitle(f"Statistics for {variable}, inference date:{plot_dict['inf_date']} [{plot_dict['inf_length']}]", fontsize=20)
     ### First Row (Mean, Median, StdDev) ###
     # Mean
-    axes[0, 0].plot(nk_data["Date"], nk_data["Mean_NK"], color="green", label="Norkyst-3")
-    for inf_file in inf_files:
+    axes[0, 0].plot(nk_data["Date"], nk_data["Mean_NK"], color="black", linewidth=1.5, label="Norkyst-3")
+    for inf_file, i in zip(inf_files, range(len(inf_files))):
         subset = df[df["inf_file"] == inf_file]
-        axes[0, 0].plot(subset["Date"], subset["Mean_HB"], label=f"Havbris ({inf_file})", color=color_map[inf_file])
+        axes[0, 0].plot(subset["Date"], subset["Mean_HB"], label=f"Havbris {plot_titles[i]}", color=color_map[inf_file])
     axes[0, 0].set_title("Mean")
     axes[0, 0].set_ylabel(variable)
     axes[0, 0].legend()
     axes[0, 0].grid(True)
     # Median
-    axes[0, 1].plot(nk_data["Date"], nk_data["Median_NK"], color="green", label="Norkyst-3")
-    for inf_file in inf_files:
+    axes[0, 1].plot(nk_data["Date"], nk_data["Median_NK"], color="black", linewidth=1.5, label="Norkyst-3")
+    for inf_file, i in zip(inf_files, range(len(inf_files))):
         subset = df[df["inf_file"] == inf_file]
-        axes[0, 1].plot(subset["Date"], subset["Median_HB"], label=f"Havbris ({inf_file})", color=color_map[inf_file])
+        axes[0, 1].plot(subset["Date"], subset["Median_HB"], label=f"Havbris {plot_titles[i]}", color=color_map[inf_file])
     axes[0, 1].set_title("Median")
     axes[0, 1].legend()
     axes[0, 1].grid(True)
     # Standard Deviation
-    axes[0, 2].plot(nk_data["Date"], nk_data["StdDev_NK"], color="green", label="Norkyst-3")
-    for inf_file in inf_files:
+    axes[0, 2].plot(nk_data["Date"], nk_data["StdDev_NK"], color="black", linewidth=1.5, label="Norkyst-3")
+    for inf_file, i in zip(inf_files, range(len(inf_files))):
         subset = df[df["inf_file"] == inf_file]
-        axes[0, 2].plot(subset["Date"], subset["StdDev_HB"], label=f"Havbris ({inf_file})", color=color_map[inf_file])
+        axes[0, 2].plot(subset["Date"], subset["StdDev_HB"], label=f"Havbris {plot_titles[i]}", color=color_map[inf_file])
     axes[0, 2].set_title("Standard Deviation")
     axes[0, 2].legend()
     axes[0, 2].grid(True)
     ### Second Row (MAE & RMSE, NMB, Correlation) ###
     # MAE and RMSE
-    for inf_file in inf_files:
+    for inf_file, i in zip(inf_files, range(len(inf_files))):
         subset = df[df["inf_file"] == inf_file]
-        axes[1, 0].plot(subset["Date"], subset["MAE"], label=f"MAE ({inf_file})", linestyle="--", color=color_map[inf_file])
-        axes[1, 0].plot(subset["Date"], subset["RMSE"], label=f"RMSE ({inf_file})", linestyle="-", color=color_map[inf_file])
+        axes[1, 0].plot(subset["Date"], subset["MAE"], label=f"MAE {plot_titles[i]}", linestyle="--", color=color_map[inf_file])
+        axes[1, 0].plot(subset["Date"], subset["RMSE"], label=f"RMSE {plot_titles[i]}", linestyle="-", color=color_map[inf_file])
     axes[1, 0].set_title("MAE and RMSE")
     axes[1, 0].set_ylabel("Error Metrics")
     axes[1, 0].legend()
     axes[1, 0].grid(True)
     # NMB
-    for inf_file in inf_files:
+    for inf_file, i in zip(inf_files, range(len(inf_files))):
         subset = df[df["inf_file"] == inf_file]
-        axes[1, 1].plot(subset["Date"], subset["NMB"], label=f"NMB ({inf_file})", color=color_map[inf_file])
+        axes[1, 1].plot(subset["Date"], subset["NMB"], label=f"NMB {plot_titles[i]}", color=color_map[inf_file])
     axes[1, 1].set_title("Normalized Mean Bias")
     axes[1, 1].set_ylabel("NMB")
     axes[1, 1].legend()
     axes[1, 1].grid(True)
     # Correlation
-    for inf_file in inf_files:
+    for inf_file, i in zip(inf_files, range(len(inf_files))):
         subset = df[df["inf_file"] == inf_file]
-        axes[1, 2].plot(subset["Date"], subset["Correlation"], label=f"Correlation ({inf_file})", color=color_map[inf_file])
+        axes[1, 2].plot(subset["Date"], subset["Correlation"], label=f"Correlation {plot_titles[i]}", color=color_map[inf_file])
     axes[1, 2].set_title("Correlation")
     axes[1, 2].set_ylabel("Correlation")
     axes[1, 2].legend()
@@ -539,7 +539,8 @@ def create_stat_csv_plot(norkyst3, havbris):
                                      save_path='/lustre/storeB/project/fou/hi/foccus/ingvild/ocean-ai/plot/notebooks/csv_output/',
                                      save_name=f'stat_{variable}')
         
-def create_stat_csv_plot_multiple_inf(norkyst3, havbris, variables):
+def create_stat_csv_plot_multiple_inf(norkyst3, havbris, plot_dict, plot_titles):
+    variables = plot_dict['variables']
     # Get the current working directory
     current_directory = os.getcwd()
     # Combine the current directory and the folder name
@@ -550,4 +551,4 @@ def create_stat_csv_plot_multiple_inf(norkyst3, havbris, variables):
     create_directory(full_path2)
     for variable in variables:
         df = csv_stat_file_per_variable_combined(norkyst3, havbris, variable, full_path1)
-        plot_statistics_combined_multiple_inf(df, variable, full_path2)
+        plot_statistics_combined_multiple_inf(df, variable, plot_dict, plot_titles, full_path2)

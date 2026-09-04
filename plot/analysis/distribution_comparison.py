@@ -68,7 +68,7 @@ def make_dist_plot_log(timestep,norkyst3,havbris):
     plt.tight_layout(rect=[0, 0, 1, 0.98])  # Leave space for the main title
     plt.show()
 
-def plot_dist_animate(norkyst3, havbris, save_name, save_path):
+def plot_dist_animate(norkyst3, havbris, variables, save_name, save_path):
     # Define the update function for the animation
     def update(timestep):
         # Clear the axes for the new frame
@@ -80,18 +80,16 @@ def plot_dist_animate(norkyst3, havbris, save_name, save_path):
         title_date = date_str[0:16]
         # Set the main title for the figure
         fig.suptitle(f'Distribution of Variables at Timestep={timestep} on {title_date}', fontsize=22)
-        # Plot Temperature
-        plot_distribution(axes[0, 0], norkyst3.temperature.isel(time=timestep), havbris.temperature.isel(time=timestep), 
-                        'Temperature', log=False, xlim=(-4,10), ylim=(0,155000))
-        # Plot Salinity
-        plot_distribution(axes[0, 1], norkyst3.salinity.isel(time=timestep), havbris.salinity.isel(time=timestep), 
-                        'Salinity', log=False, xlim=(-2,50), ylim=(0,1.3e6))
-        # Plot U Eastward
-        plot_distribution(axes[1, 0], norkyst3.u_eastward.isel(time=timestep), havbris.u_eastward.isel(time=timestep), 
-                        'U Eastward', log=False, xlim=(-3,3), ylim=(0,1.85e6))
-        # Plot V Northward
-        plot_distribution(axes[1, 1], norkyst3.v_northward.isel(time=timestep), havbris.v_northward.isel(time=timestep), 
-                        'V Northward', log=False, xlim=(-3,3), ylim=(0,1.85e6))
+        axes_list = (axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1])
+        for variable, ax in zip(variables, axes_list):
+            if variable == 'temperature':
+                plot_distribution(ax, norkyst3.temperature.isel(time=timestep), havbris.temperature.isel(time=timestep), 'Temperature', log=False, xlim=(-4,10), ylim=(0,155000))
+            elif variable == 'salinity':
+                plot_distribution(ax, norkyst3.salinity.isel(time=timestep), havbris.salinity.isel(time=timestep), 'Salinity', log=False, xlim=(-2,50), ylim=(0,1.3e6))
+            elif variable == 'u_eastward':
+                plot_distribution(ax, norkyst3.u_eastward.isel(time=timestep), havbris.u_eastward.isel(time=timestep), 'U Eastward', log=False, xlim=(-3,3), ylim=(0,1.85e6))
+            elif variable == 'v_northward':
+                plot_distribution(ax, norkyst3.v_northward.isel(time=timestep), havbris.v_northward.isel(time=timestep), 'V Northward', log=False, xlim=(-3,3), ylim=(0,1.85e6))
         # Adjust the layout
         plt.tight_layout(rect=[0, 0, 1, 0.98])
     # Initialize the figure and axes
@@ -107,7 +105,7 @@ def plot_dist_animate(norkyst3, havbris, save_name, save_path):
     print(f"GIF created and saved: {save_path}{save_name}.gif")
     plt.close(fig)
 
-def plot_dist_log_animate(norkyst3, havbris, save_name, save_path):
+def plot_dist_log_animate(norkyst3, havbris, variables, save_name, save_path):
     # Define the update function for the animation
     def update(timestep):
         # Clear the axes for the new frame
@@ -119,18 +117,16 @@ def plot_dist_log_animate(norkyst3, havbris, save_name, save_path):
         title_date = date_str[0:16]
         # Set the main title for the figure
         fig.suptitle(f'Distribution of Variables at Timestep={timestep} on {title_date}', fontsize=22)
-        # Plot Temperature
-        plot_distribution(axes[0, 0], norkyst3.temperature.isel(time=timestep), havbris.temperature.isel(time=timestep), 
-                        'Temperature', log=True, xlim=(-4,10), ylim=(0,155000))
-        # Plot Salinity
-        plot_distribution(axes[0, 1], norkyst3.salinity.isel(time=timestep), havbris.salinity.isel(time=timestep), 
-                        'Salinity', log=True, xlim=(-2,50), ylim=(0,1.3e6))
-        # Plot U Eastward
-        plot_distribution(axes[1, 0], norkyst3.u_eastward.isel(time=timestep), havbris.u_eastward.isel(time=timestep), 
-                        'U Eastward', log=True, xlim=(-3,3), ylim=(0,1.85e6))
-        # Plot V Northward
-        plot_distribution(axes[1, 1], norkyst3.v_northward.isel(time=timestep), havbris.v_northward.isel(time=timestep), 
-                        'V Northward', log=True, xlim=(-3,3), ylim=(0,1.85e6))
+        axes_list = (axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1])
+        for variable, ax in zip(variables, axes_list):
+               if variable == 'temperature':
+                   plot_distribution(ax, norkyst3.temperature.isel(time=timestep), havbris.temperature.isel(time=timestep), 'Temperature', log=True, xlim=(-4,10), ylim=(0,155000))
+               elif variable == 'salinity':
+                   plot_distribution(ax, norkyst3.salinity.isel(time=timestep), havbris.salinity.isel(time=timestep), 'Salinity', log=True, xlim=(-2,50), ylim=(0,1.3e6))
+               elif variable == 'u_eastward':
+                   plot_distribution(ax, norkyst3.u_eastward.isel(time=timestep), havbris.u_eastward.isel(time=timestep), 'U Eastward', log=True, xlim=(-3,3), ylim=(0,1.85e6))
+               elif variable == 'v_northward':
+                   plot_distribution(ax, norkyst3.v_northward.isel(time=timestep), havbris.v_northward.isel(time=timestep), 'V Northward', log=True, xlim=(-3,3), ylim=(0,1.85e6))     
         # Adjust the layout
         plt.tight_layout(rect=[0, 0, 1, 0.98])
     # Initialize the figure and axes
@@ -158,16 +154,16 @@ def create_directory(path: str):
             # Handle the case where the directory already exists
             print(f"Directory '{path}' already exists. Skipping creation.")
 
-def create_distribution_plots(norkyst3, havbris):
+def create_distribution_plots(norkyst3, havbris, variables):
     # Get the current working directory
     current_directory = os.getcwd()
     # Combine the current directory and the folder name
     full_path = os.path.join(current_directory, "validation_results/dist_gif")
     # Call the function to create the folder
     create_directory(full_path)
-    plot_dist_animate(norkyst3, havbris, 
+    plot_dist_animate(norkyst3, havbris, variables,
                     save_name='distribution', 
                     save_path=f'{full_path}/')
-    plot_dist_log_animate(norkyst3, havbris, 
+    plot_dist_log_animate(norkyst3, havbris, variables,
                         save_name='distribution_log', 
                         save_path=f'{full_path}/')
