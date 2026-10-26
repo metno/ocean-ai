@@ -1,0 +1,125 @@
+[2026-08-21T19:20:51Z] USER: which mode are we in
+[2026-08-21T19:20:51Z] ASSISTANT: I'm powered by Claude Sonnet 5 (model ID: claude-sonnet-5), running here as GitHub Copilot CLI.
+
+[2026-08-21T19:21:12Z] USER: in planning mode?
+[2026-08-21T19:21:12Z] ASSISTANT: No — we're in normal execution mode, not planning mode. Planning mode is entered via /plan, which creates an implementation plan before coding. I'm currently just responding directly to your questions.
+
+[2026-08-21T19:26:44Z] USER: I want you to help me set up a good workflow for using copilot as a researcher. I only want to discuss how I should work when working with github repositories. Lets discuss before you implement anything. I can either work locally on my laptop, cloning code there, or I work on a HPC cluster using a ssh connection. I want to figure out what sort of files a git repo should have to best instruct the agent and how to make default instructions to fill inn for new tasks
+[2026-08-21T19:26:44Z] ASSISTANT: (asked clarifying questions via ask_user)
+  Q1: What kind of research work do you mainly do? -> A: Machine learning / model training
+  Q2: How do you split work between laptop and HPC? -> A: Mostly the same repos on both, switching as convenient
+  Q3: Are the repos mostly personal/solo or shared/team repos? -> A: Shared/team repos where instructions need to work for others too
+  Q4: Does HPC workflow involve SLURM batch jobs or interactive work? -> A: Yes, SLURM (or similar scheduler) job submission
+  Q5: What did you have in mind for "default instructions for new tasks"? -> A: Not sure — recommend the best approach
+
+[2026-08-21T19:26:44Z] ASSISTANT: Presented recommended workflow structure:
+  1. Two-tier instructions:
+     - Repo-level, committed: AGENTS.md at root (mirrored/symlinked as .github/copilot-instructions.md for cloud agent).
+       Contents: project layout, env setup (conda/venv/module loads), how to run training/eval/tests,
+       config system (Hydra/argparse+yaml), data locations & rules (never commit data/checkpoints),
+       experiment tracking (wandb/mlflow), PR/commit conventions, explicit "Environment: laptop vs HPC" section
+       (laptop = local env + small runs; HPC = sbatch slurm/*.sh, module loads, scratch vs home storage rules).
+     - Personal global: ~/.copilot/copilot-instructions.md, maintained separately on laptop AND HPC
+       (recommend a personal dotfiles repo cloned/symlinked on both machines) — individual style prefs:
+       branch naming, verbosity, when to ask before long/expensive runs, SLURM job defaults.
+  2. Path-scoped instructions via .github/instructions/*.instructions.md for special dirs like slurm/**
+     or configs/** (e.g. always request --gres=gpu:1, never commit generated .out logs).
+  3. New-task defaults: templates/experiment-task.md to paste into /plan for each new experiment
+     (hypothesis, data/config used, expected compute/runtime, resources needed, success metric).
+  4. Safety/reproducibility rules in AGENTS.md: no hardcoded usernames/absolute paths, config-driven runs
+     only, .gitignore for weights/data/logs, no secrets (wandb API keys etc) committed.
+  Asked user: does this match, and do they already use a config system like Hydra or an experiment tracker?
+
+[2026-08-21T19:33:17Z] USER: dump our conversation into a .log file and keep adding to this file while we chat
+[2026-08-21T19:33:17Z] ASSISTANT: Created /home/inkul7832/Desktop/Git/copilot-conversation.log with conversation so far;
+  will append each new exchange going forward. Asked: config system (Hydra?) / experiment tracker (wandb/mlflow?)
+  and typical repo layout (src/, configs/, slurm/, etc.)?
+
+[2026-08-21T19:35:22Z] USER: I think Hydra is used, but not sure, lets not focus on that. For experiments we use mlflow, but we are not sofisticated users yet
+[2026-08-21T19:35:22Z] ASSISTANT: Noted - keep config/tracker mention lightweight (factual, not prescriptive).
+  Asked: how are Python envs managed on laptop vs HPC?
+  ANSWER: venv/pip (requirements.txt), same approach on both machines.
+[2026-08-21T19:XX:XXZ] ASSISTANT: Summarized finalized plan (repo-level AGENTS.md + .github/copilot-instructions.md mirror,
+  optional .github/instructions/slurm.instructions.md, templates/experiment-task.md; personal ~/.copilot/copilot-instructions.md
+  synced via dotfiles repo). Asked user: ready to implement, and in which repo?
+  ANSWER: ~/Desktop/Git/ocean-ai
+
+[ASSISTANT] Inspected ~/Desktop/Git/ocean-ai: NOT a git repo yet (no .git). Already has a large, detailed AGENTS.md
+  (mostly TODO placeholders for project description/env name/packages), .gitignore, ppi_train.sh/ppi_infer.sh
+  (Grid Engine SGE job scripts using anemoi-training + Hydra config-dir/config-name, path
+  /lustre/storeB/project/fou/hi/foccus, python-envs/new-anemoi-env), monitor_interactive.sh. No .github/ dir,
+  no requirements.txt/environment.yml found.
+  DISCREPANCIES found vs our discussion: (1) existing AGENTS.md prescribes mamba/conda + environment.yml, but user
+  said venv/pip is used; (2) job scripts use Grid Engine (SGE, "#$ -N" style), not SLURM as assumed earlier.
+  Flagged both to user for clarification before making any edits.
+  Q: is mamba/conda correct or is venv/pip correct for this repo?
+  A: File was inherited from another user/project, not fully updated - treat AGENTS.md as "good suggestions"
+     template; some specifics (env manager, paths) may not be accurate/relevant and should be corrected.
+  Q: is scheduler really SGE or SLURM?
+  A: They've used many different HPCs with different schedulers historically - can mention SGE too, but not
+     important to get exactly right; keep it flexible/generic rather than prescriptive on one scheduler.
+
+[LOG FILE MOVED from /home/inkul7832/Desktop/Git/copilot-conversation.log to
+ /home/inkul7832/Desktop/Git/ocean-ai/copilot-conversation.log at user's request - will keep appending here.]
+
+[ASSISTANT] Asked user: git init needed for ocean-ai (no .git dir)?
+  A: Not relevant right now, focus only on the instruction files.
+[ASSISTANT] Asked: fill in TODOs vs append-only vs full rewrite of AGENTS.md?
+  A: Do a full rewrite/cleanup of the whole file.
+[ASSISTANT] Explored repo structure: datasets/ (zarr creation, seamask, nan-finding, PPI SGE sub-scripts),
+  forcing/ (river/ocean forcing scripts, cronjobs), graph/ (GraphInspector notebooks for anemoi graphs),
+  plot/ (yearly stats, mlflow dir, analysis/, notebooks, archived_scripts), legacy/ (old datasets + readme).
+  Root has ppi_train.sh / ppi_infer.sh (SGE) and monitor_interactive.sh.
+  Asked user for 1-2 sentence project description.
+  A: "ocean-ai repo is a machine learning project based on anemoi using norkyst data. It both creates datasets
+     and graphs for the GNN, and analyses the output/results of trainings. So unfortunately the directory is a
+     bit messy and does many different, but related tasks. The actual machine learning setup is elsewhere, in
+     the anemoi-core dir/repo."
+[ASSISTANT] Asked: should AGENTS.md reference anemoi-core relationship?
+  A: Yes, explain the relationship, but do not add anything inside anemoi-core itself (no dev planned there).
+[ASSISTANT] Inspected remaining facts: ppi_infer.sh (SGE, same pattern as ppi_train.sh, anemoi-inference);
+  monitor_interactive.sh actually uses SLURM (squeue/srun/module load, LUMI cluster) - confirms MULTIPLE
+  HPC clusters/schedulers genuinely in use (SGE at met.no PPI cluster + SLURM at LUMI), not just historical.
+  datasets/README.md, forcing/README.md, legacy/legacy_readme.md reviewed for existing docs (kept, not duplicated).
+  forcing/get_forcings_daily.sh runs as a cron job from a manually-deployed copy on Lustre storage (not from
+  git checkout directly) - important quirk documented in new AGENTS.md.
+  anemoi-core found at ~/Desktop/Git/anemoi-core (sibling repo, separate from ocean-ai).
+[ASSISTANT] Wrote full rewrite of AGENTS.md (~212 lines) at ocean-ai/AGENTS.md, replacing the inherited
+  19KB mamba/conda-based template. Key changes from original:
+  - Filled in real project description (anemoi/GNN ocean forecasting, NorKyst data, FOCCUS/met.no) +
+    explicit anemoi-core relationship section (external dependency, out of scope, no edits there)
+  - Replaced mamba/conda env section with venv/pip (requirements.txt), noting some existing job scripts
+    still activate a named legacy env (new-anemoi-env) - check scripts before assuming a fresh venv needed
+  - Added "multiple HPC clusters" section explicitly documenting both SGE (met.no PPI, ppi_train.sh/
+    ppi_infer.sh) and SLURM (LUMI, monitor_interactive.sh) - instructs agent to check existing scripts
+    for real scheduler syntax rather than assuming one scheduler
+  - Added Data & storage section: Lustre storeB paths, gitignore data-file policy, the forcing cron-job
+    manual-deploy quirk, no hardcoded usernames/paths
+  - Added Config & experiment tracking section: Hydra (external, consumed not defined here), mlflow
+    (basic/informal usage - don't over-engineer)
+  - Kept and lightly trimmed: code practices, code architecture/conventions, docs-to-maintain list
+    (added copilot-conversation.log as a new doc type, distinct from curated DISCUSSIONS_LOG.md), misc
+    safety rules, pre-response checklist, "rules of good AI development" (condensed to bullet form)
+  - Removed generic/task-templated placeholders (e.g. "00_PLACEHOLDER_FOR_TASK.py" TODO framing) in favor
+    of describing the actual heterogeneous multi-purpose structure of this repo
+[USER] is the file making sure that if a copilot session is killed its easy to resume with an ok context?
+[ASSISTANT] Assessed: session-startup + doc-reading gives good static context, but nothing tracked
+  in-flight state (no record of currently-running HPC jobs, no "next step" marker). Proposed a two-part
+  resumability design and discussed before implementing:
+  Q: same-machine or separate clones for laptop vs HPC?
+  A: Separate git clones, synced via GitHub push/pull (not a shared filesystem/mount).
+  Q: proceed with (1) scheduler-check on session startup (squeue/qstat) + (2) committed, overwritten
+     STATUS.md for cross-machine handoff?
+  A: Yes, implement both.
+[ASSISTANT] Implemented in ocean-ai/AGENTS.md:
+  - Session startup checklist: added "read STATUS.md first" step (priority 2) and a new step to check
+    the local scheduler (squeue --me / qstat -u $USER) for jobs left running by a prior interrupted
+    session, before assuming a clean slate.
+  - New "Resuming work: STATUS.md" section: STATUS.md is overwritten (not appended, unlike
+    DISCUSSIONS_LOG.md), holds current task / next step / any running HPC jobs (cluster, job ID, log
+    path, purpose); update it whenever a turn ends with something unfinished; reminds user to commit+push
+    it before ending a session since separate clones only sync via git.
+  - Added STATUS.md to "Documentation to keep up to date" list.
+  - Added STATUS.md check to the pre-response checklist (item 5).
+  Created initial ocean-ai/STATUS.md with current task = "Setting up AGENTS.md resumability", next step =
+  "discuss/add .github mirror, experiment-task template, personal global instructions", running jobs = none.
