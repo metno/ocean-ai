@@ -1,14 +1,30 @@
 # AGENTS.md — HavBris
 
 ## About the project HavBris
-(to be added)
 
+The HavBris project aims to develop a data-driven ocean circulation model named HavBris. The training data is the Norkyst v3 hindcast created by the Norwegian Meteorological institute (Met) in collaboration with Havforskningsinstituttet. The machne learning model is using the [Anemoi framework](https://anemoi.readthedocs.io/en/latest/) which is an [open source project on GitHub](https://github.com/ecmwf/anemoi-core) by ECMWF and collaborators. 
 
+The aim of the agentic workflow in this directory is to help write scripts to validate and plot the output from the ML model, e.g. HavBris. To do this it is often useful to compare with the Norkyst training data, but also to plot ML-ops data. 
 
-ocean-ai
-anemoi-datasets
-...
+## Workspace inventory
+If any of the below sub-directories does not exist, you may create them or clone them from the GitHub links provided. 
 
+```
+├── AGENTS.md
+├── PYTHON_DEVELOPMENT.md
+├── README.md
+└── src
+    ├── ocean-ai
+        └── ...
+    ├── anemoi-core
+        └── ...
+└── mock-data
+```
+Where:
+- [ocean-ai](https://github.com/metno/ocean-ai): is the main working directory by Met, containing many files which may not be relevant to the task at hand.  
+- [anemoi-core](https://github.com/ecmwf/anemoi-core): The software used to run the ML model. 
+
+FYI, there is another repo for [running HPC jobs](https://github.com/metno/run-ocean-anemoi), which should only be looked into if the user explicitly says so. 
 
 ## Working in the workspace
 
