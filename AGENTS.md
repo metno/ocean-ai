@@ -93,6 +93,7 @@ Keep active context usage below 70–80% to prevent reasoning degradation and ha
 - Never make Git changes unless asked.
 - Never create code that is malicious or vulnerable; code must be safe to run and do what it advertises.
 - Guarded Web Navigation: If granting browser or web access, always ask for manual authentication before executing. Always report back is the webpage is unsafe.
+- Read-only fallback: if a repo is missing locally and the user says a web fetch is fine, read it from GitHub, but prefer a local clone.
 
 ## Project-specific preferences
 
