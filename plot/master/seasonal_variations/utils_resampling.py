@@ -1,10 +1,6 @@
-import numpy as np
-import scipy as sp
 import xarray as xr
-import seaborn as sea
-import matplotlib.pyplot as plt
 import glob
-import argparse
+
 """ 
 Script for resampling datasets into: 
     - Yearly mean data
@@ -25,10 +21,10 @@ def open_files(filepath, output_path, Norkyst = False):
     if Norkyst is False:
         ds = xr.open_mfdataset(filenames, engine = 'netcdf4')
 
-    salinity = ds.salinity 
-    temperature = ds.temperature 
-    v_northward = ds.v_northward
-    u_eastward = ds.u_eastward
+    salinity = ds.salinity_0
+    temperature = ds.temperature_0
+    v_northward = ds.v_northward_0
+    u_eastward = ds.u_eastward_0
     zeta = ds.zeta
 
     ds_monthly_s = salinity.resample(time = 'MS').mean().compute() #computing before saving to save mem 
@@ -63,13 +59,7 @@ def open_files(filepath, output_path, Norkyst = False):
 
     print(f'All resampled means are saved to {output_path}!')
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Calculating and saving three resampled datasets: Yearly, monthly and seasonal means.')
-    parser.add_argument('filepath', help='Please provide full path to the directory containing the .nc files') 
-    parser.add_argument('output_path', help='Please provide full path to the directory where the three new .nc files are saved')
-    args = parser.parse_args()
 
-    filepath = args.filepath
-    output_path = args.output_path 
-
-open_files(filepath, output_path)
+filepath = '/lustre/storeB/project/fou/hi/foccus/malene/run-ocean-anemoi/ppi/external_checkpoint_inference/results/rollout_benchmark_lr3.5e6-rs3-i0-m3/step_51000_e14'
+output_path = '/lustre/storeB/project/fou/hi/foccus/malene/run-ocean-anemoi/ppi/external_checkpoint_inference/results/rollout_benchmark_lr3.5e6-rs3-i0-m3/step_51000_e14/resampled_means'
+open_files(filepath, output_path, Norkyst = False)
