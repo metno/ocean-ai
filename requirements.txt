@@ -1,0 +1,13 @@
+ipykernel
+numpy
+scipy
+pyyaml
+pandas
+zarr
+seaborn
+netcdf4
+dask
+xarray
+matplotlib
+cartopy 
+cmocean
