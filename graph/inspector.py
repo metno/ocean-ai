@@ -190,8 +190,8 @@ class Graph(Methods):
 
 if __name__ == '__main__':
 
-    graph = Graph('/lustre/storeB/project/fou/hi/foccus/ppi-experiments/make-graph/run-anemoi-ocean/ppi/trim_edge_10_res_10_scale_10_thinning_2_cutoff_06_max_num_neighbours_100.pt')  
-    #graph = Graph('/lustre/storeB/project/fou/hi/foccus/graphs/graph-2-12.pt')
+    graph = Graph('/lustre/storeB/project/fou/hi/havbris/ppi-experiments/make-graph/run-anemoi-ocean/ppi/trim_edge_10_res_10_scale_10_thinning_2_cutoff_06_max_num_neighbours_100.pt')  
+    #graph = Graph('/lustre/storeB/project/fou/hi/havbris/graphs/graph-2-12.pt')
     app = Flask(__name__)
 
     data_grid_html = to_html(graph.plot_data_grid(), full_html=False, include_plotlyjs='cdn')

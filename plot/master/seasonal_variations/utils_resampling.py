@@ -60,6 +60,6 @@ def open_files(filepath, output_path, Norkyst = False):
     print(f'All resampled means are saved to {output_path}!')
 
 
-filepath = '/lustre/storeB/project/fou/hi/foccus/malene/run-ocean-anemoi/ppi/external_checkpoint_inference/results/rollout_benchmark_lr3.5e6-rs3-i0-m3/step_51000_e14'
-output_path = '/lustre/storeB/project/fou/hi/foccus/malene/run-ocean-anemoi/ppi/external_checkpoint_inference/results/rollout_benchmark_lr3.5e6-rs3-i0-m3/step_51000_e14/resampled_means'
+filepath = '/lustre/storeB/project/fou/hi/havbris/malene/run-ocean-anemoi/ppi/external_checkpoint_inference/results/rollout_benchmark_lr3.5e6-rs3-i0-m3/step_51000_e14'
+output_path = '/lustre/storeB/project/fou/hi/havbris/malene/run-ocean-anemoi/ppi/external_checkpoint_inference/results/rollout_benchmark_lr3.5e6-rs3-i0-m3/step_51000_e14/resampled_means'
 open_files(filepath, output_path, Norkyst = False)

@@ -68,8 +68,8 @@ def plot(ax, data, lat_grid, lon_grid, **kwargs):
 
 #-----------------------------------------------------------------
 
-def plot_landmask(ax,color='black',file='/lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/surface_mask_contour_paths.npy'):
-    # See /lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/save_surface_contour.py
+def plot_landmask(ax,color='black',file='/lustre/storeB/project/fou/hi/havbris/ina/ocean-ai/plot/surface_mask_contour_paths.npy'):
+    # See /lustre/storeB/project/fou/hi/havbris/ina/ocean-ai/plot/save_surface_contour.py
     contour_loaded = np.load(file, allow_pickle=True)
 
     # Plot each contour path
@@ -136,7 +136,7 @@ def plot_variable(file_name, variable, year, datetime, time_indx, cbar_title, ne
     cbar = fig.colorbar(im, ax=ax, cax=cax, extend = "both")
     cbar.ax.set_title(cbar_title, fontsize = 14) #cbar_title: the title of the colorbar
     ax.set_title(f'+ {time_indx*3}h from {year} - {datetime}') #year of selected data + time_indx is multiplied with three because of three hour frequency in the interp forcings dataset
-    path = f'/lustre/storeB/project/fou/hi/foccus/datasets/zarr_figures_verif'
+    path = f'/lustre/storeB/project/fou/hi/havbris/datasets/zarr_figures_verif'
     name = new_file_name
     full_path = os.path.join(path, name)
     plt.savefig(full_path)

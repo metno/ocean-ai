@@ -1,7 +1,7 @@
 import os
 import xarray as xr
 
-dir_atm = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_forcing_oper/atm'
+dir_atm = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_forcing_oper/atm'
 print("Starting processing of dir:", dir_atm)
 
 # Get files larger than 6 GB from dir_atm

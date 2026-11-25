@@ -63,5 +63,5 @@ def get_s_layer(file, depth, time=0, output=None, plot=False):
       
 
 if __name__ == '__main__':
-    file = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240601.nc'
+    file = f'/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-20240601.nc'
     get_s_layer(file, 10, 0, plot=True)

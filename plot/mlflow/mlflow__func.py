@@ -4,7 +4,7 @@ import glob
 from cycler import cycler
 import matplotlib.pyplot as plt
 
-def get_mlflow_dirs(infile,exp_base_dir='/lustre/storeB/project/fou/hi/foccus/experiments/'):
+def get_mlflow_dirs(infile,exp_base_dir='/lustre/storeB/project/fou/hi/havbris/experiments/'):
     """
     Get all possible mlflow subdirs for a given `exp_name`
      e.g. the path `/{exp_base_dir}/{exp_name}/logs/mlflow/*/{run_id}/*`
@@ -306,4 +306,4 @@ if __name__ == "__main__":
                  suptitle=args.title)
 
 #Example run:
-#mlflow_plots('/lustre/storeB/project/fou/hi/foccus/experiments/min-max-all-2017-24/mlflow/187656373550779284/90ed5f0579a94e1cacec799fe5fcc6f1/metrics', 1, 'Min-max-all-2017-24')
+#mlflow_plots('/lustre/storeB/project/fou/hi/havbris/experiments/min-max-all-2017-24/mlflow/187656373550779284/90ed5f0579a94e1cacec799fe5fcc6f1/metrics', 1, 'Min-max-all-2017-24')

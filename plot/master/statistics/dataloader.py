@@ -172,8 +172,8 @@ class open_dataset(xr.DataArray):
         return str(self.ds)
 
 if __name__ == '__main__':
-    ds = open_dataset('/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/2024-05-27_24h_18d28_e011_s050000.nc')
+    ds = open_dataset('/lustre/storeB/project/fou/hi/havbris/mateuszm/results/may2024/2024-05-27_24h_18d28_e011_s050000.nc')
     #print(ds)
     #print('****************\n')
-    ds = open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20231221.nc')
+    ds = open_dataset('/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20231221.nc')
     #print(ds)

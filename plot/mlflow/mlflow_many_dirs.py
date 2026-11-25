@@ -2,7 +2,7 @@ import sys
 sys.path.append('../')
 from mlflow__func import mlflow_multiple_dirs, get_mlflow_dirs, get_mlflow_metadata, get_config_param
 
-infile = '../mlflow/experiment_list.csv' # default exp. base_dir = '/lustre/storeB/project/fou/hi/foccus/experiments/'
+infile = '../mlflow/experiment_list.csv' # default exp. base_dir = '/lustre/storeB/project/fou/hi/havbris/experiments/'
 mlflow_dirs, titles = get_mlflow_dirs(infile)
 
 #--------

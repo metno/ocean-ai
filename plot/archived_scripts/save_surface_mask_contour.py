@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the input file
-file='/lustre/storeB/project/fou/hi/foccus/datasets/surface_mask.nc'
+file='/lustre/storeB/project/fou/hi/havbris/datasets/surface_mask.nc'
 ds = xr.open_dataset(file)
 lat_norway = ds.lat.values
 lon_norway = ds.lon.values
@@ -26,7 +26,7 @@ for segs in contour.allsegs:
         contour_paths.append(seg)
 
 # Save the contour paths to a .npy file
-dir_save = '/lustre/storeB/project/fou/hi/foccus/ina/ocean-ai/plot/'
+dir_save = '/lustre/storeB/project/fou/hi/havbris/ina/ocean-ai/plot/'
 np.save(dir_save + 'surface_mask_contour_paths.npy', np.array(contour_paths, dtype=object), allow_pickle=True)
 
 """

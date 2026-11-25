@@ -14,8 +14,8 @@ else:
 
 # Years with neg salinity: 2024, 2022, 2020, 2019, 2017, 2015, 2013, 2012
 # (from anemoi-datasets inspect ../datasets/norkystv3_hindcast_2024_surface.zarr)
-filename = f'/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_{year}_surface.zarr'
-outfile= f'/lustre/storeB/project/fou/hi/foccus/datasets/negative_salinity_{year}.txt'
+filename = f'/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_hindcast_{year}_surface.zarr'
+outfile= f'/lustre/storeB/project/fou/hi/havbris/datasets/negative_salinity_{year}.txt'
 
 ds_sal = open_dataset(filename, select = "salinity_0")
 

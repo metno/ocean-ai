@@ -100,7 +100,7 @@ def create_validation_stats_from_infile():
     #df = pd.read_csv(infile, comment='#')
     inference_files_paths, plot_titles, inference_run_id, inferece_epoch, plot_dict = get_inference_file_info(infile)
     norkyst3, havbris_combined = open_datasets_inf(inference_files_paths,
-                        truth_norkyst3_path = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/',
+                        truth_norkyst3_path = '/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/',
                         truth_file_name_template = "{year}/norkyst800-{year}{month:02d}{day:02d}.nc",
                         variables=plot_dict['variables'],
                         s_rho = -1,
@@ -116,7 +116,7 @@ def create_histogram_rmse_corrmatrix():
     infile = 'inference_list.csv'
     inference_files_paths, plot_titles, inference_run_id, inferece_epoch, plot_dict = get_inference_file_info(infile)
     _, havbris_combined = open_datasets_inf(inference_files_paths,
-                    truth_norkyst3_path = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/',
+                    truth_norkyst3_path = '/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/',
                     truth_file_name_template = "{year}/norkyst800-{year}{month:02d}{day:02d}.nc",
                     variables=plot_dict['variables'],
                     s_rho = -1,
@@ -129,7 +129,7 @@ def create_histogram_rmse_corrmatrix():
 
 
 if __name__ == '__main__':
-    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
+    #files = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
     #ds = open_dataset(files).ds
     #plot_fields(ds, output='figures/mean_nk800.png')
 #
@@ -137,29 +137,29 @@ if __name__ == '__main__':
     #plot_fields(ds, output='figures/mean_nk800_lofoten.png')
     #plot_quiver(ds, output='figures/quiver_nk800_logoten.png')
     #
-    #files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
+    #files = '/lustre/storeB/project/fou/hi/havbris/mateuszm/results/may2024/*'
     #ds = open_dataset(files, mean_axis='time').ds
     #plot_fields(ds, output='figures/havbris.png')
 #
     #ds = open_dataset(files, mean_axis='time', region='lofoten').ds
     #plot_fields(ds, output='figures/mean_havbris_lofoten.png')
     #plot_quiver(ds, output='figures/quiver_havbris_logoten.png')
-    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
+    #files = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
     #ds1 = open_dataset(files).ds
-    #files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/may2024/*'
+    #files = '/lustre/storeB/project/fou/hi/havbris/mateuszm/results/may2024/*'
     #ds2 = open_dataset(files, mean_axis='time').ds
     #plot_difference(ds1, ds2)
     
 
-    #files = '/lustre/storeB/project/fou/hi/foccus/mateuszm/results/2024-05-01_744h_18d28_e011_s050000.nc'
+    #files = '/lustre/storeB/project/fou/hi/havbris/mateuszm/results/2024-05-01_744h_18d28_e011_s050000.nc'
     #ds = open_dataset(files, mean_axis='time').ds
     #plot_fields(ds, output='figures/mean_havbris_cont.png')
-    #files = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
+    #files = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_averages/norkyst800-202405_avg.nc'
     #ds1 = open_dataset(files).ds
     #plot_difference(ds1, ds, output='figures/diff_cont.png')
 
     create_validation_stats_from_infile()
-    inference_path = sys.argv[1] #'/lustre/storeB/project/fou/hi/foccus/ingvild/test_infrence/results/2024-04-02_72h_18d28_e011_s049990.nc'
+    inference_path = sys.argv[1] #'/lustre/storeB/project/fou/hi/havbris/ingvild/test_infrence/results/2024-04-02_72h_18d28_e011_s049990.nc'
     create_distribution_gifs(inference_path)
 
 

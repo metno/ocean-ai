@@ -534,9 +534,9 @@ def create_stat_csv_plot(norkyst3, havbris):
     variables = ['salinity','temperature','u_eastward','v_northward']
     for variable in variables:
         df = csv_stat_file_per_variable(norkyst3, havbris, variable, 
-                                        '/lustre/storeB/project/fou/hi/foccus/ingvild/ocean-ai/plot/notebooks/csv_output', f'stat_{variable}')
+                                        '/lustre/storeB/project/fou/hi/havbris/ingvild/ocean-ai/plot/notebooks/csv_output', f'stat_{variable}')
         plot_statistics_combined(df, variable=variable, 
-                                     save_path='/lustre/storeB/project/fou/hi/foccus/ingvild/ocean-ai/plot/notebooks/csv_output/',
+                                     save_path='/lustre/storeB/project/fou/hi/havbris/ingvild/ocean-ai/plot/notebooks/csv_output/',
                                      save_name=f'stat_{variable}')
         
 def create_stat_csv_plot_multiple_inf(norkyst3, havbris, plot_dict, plot_titles):

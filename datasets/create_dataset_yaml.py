@@ -75,7 +75,7 @@ def create_dataset_yaml_file(start = datetime.datetime(2024,1,1,0), end = dateti
     s_rho_layers = s_rho_layers[layers[0]:layers[1]]
     
     valid_files, invalid_files, path = find_valid_files(start, end, path)
-    path = '/lustre/storeB/project/fou/hi/foccus/datasets/'
+    path = '/lustre/storeB/project/fou/hi/havbris/datasets/'
     
     if not os.path.exists(path+'symlinks'):
         os.mkdir(path+'symlinks')

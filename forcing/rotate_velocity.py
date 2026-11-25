@@ -24,7 +24,7 @@ def rotate_vectorfield(U,V,alpha):
 if __name__ == '__main__':
     import xarray as xr
     import matplotlib.pyplot as plt
-    path = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_atm_forcing/interpolated/'
+    path = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_hindcast_atm_forcing/interpolated/'
     fileu = 'arome_meps_2_5km_2017010100-2017090606_ext_NK800_Uwind.nc'
     filev = 'arome_meps_2_5km_2017010100-2017090606_ext_NK800_Vwind.nc'
     dsu = xr.open_dataset(path+fileu).isel(time=0)

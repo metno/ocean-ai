@@ -24,6 +24,6 @@ def temporal_mean(files, output, depth=None):
 
 
 if __name__ == '__main__':
-    temporal_mean('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*', 
-                  '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/norkyst800-202405_avg.nc',
+    temporal_mean('/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2024/norkyst800-202405*', 
+                  '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_averages/norkyst800-202405_avg.nc',
                   depth=-1)

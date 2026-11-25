@@ -63,5 +63,5 @@ rename_srho_variables()
 # You can now check that setting frequency worked by:
 
 #from anemoi.datasets import open_dataset
-#ds = open_dataset("/lustre/storeB/project/fou/hi/foccus/aifs-mono-ocean/make-datasets/data/norkyst_v3_2024_01_01-02.zarr")
+#ds = open_dataset("/lustre/storeB/project/fou/hi/havbris/aifs-mono-ocean/make-datasets/data/norkyst_v3_2024_01_01-02.zarr")
 #ds.frequency

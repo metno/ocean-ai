@@ -17,8 +17,8 @@ else:
 #----------------------------------------------------------------------------
 # Load dataset and print some information to output file
 #----------------------------------------------------------------------------
-file = f'/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_hindcast_{year}_surface.zarr'
-outfile = f'/lustre/storeB/project/fou/hi/foccus/datasets/nan_in_vars_{year}.txt'
+file = f'/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_hindcast_{year}_surface.zarr'
+outfile = f'/lustre/storeB/project/fou/hi/havbris/datasets/nan_in_vars_{year}.txt'
 
 # e.g. dropping ubar and vbar
 variable_names = ['Uwind_eastward','Vwind_northward','h','salinity_0','sea_mask','temperature_0','u_eastward_0','v_northward_0','zeta']

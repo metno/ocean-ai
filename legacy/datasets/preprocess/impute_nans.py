@@ -431,11 +431,11 @@ def run(file,maskfile,dir_out,outfile_ending='_ml',varname_list=['salinity','tem
 if __name__ == "__main__":
     #/lustre/storeB/project/fou/hi/oper/norkyst_v3/forecast/his_zdepths/2024/01/01/
 
-    #dir = '/lustre/storeB/project/fou/hi/foccus/ina/norkyst-data/postpro_changes/' #+ 'postpro_changes/' 
+    #dir = '/lustre/storeB/project/fou/hi/havbris/ina/norkyst-data/postpro_changes/' #+ 'postpro_changes/' 
     #dir = '/home/inkul7832/Projects/aifs-mono-ocean/datasets/' #NOTE landseamask here might be outdated
     #file     = dir + 'norkyst800_his_zdepth_20240102T00Z_m00_AN.nc'
     #maskfile = dir + 'landsea_mask.nc'
-    dir_out = '/lustre/storeB/project/fou/hi/foccus/datasets/prepro_norkyst/' 
+    dir_out = '/lustre/storeB/project/fou/hi/havbris/datasets/prepro_norkyst/' 
     file = sys.argv[1]
     maskfile = sys.argv[2]
     

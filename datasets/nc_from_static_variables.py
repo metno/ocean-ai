@@ -48,7 +48,7 @@ def extract_variable_without_time(ds, var, outfile='h_no_time.nc'):
     ds.to_netcdf(outfile)
 
 def constant_landmask(outfile='surface_mask_no_time.nc'):
-    ds = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/surface_mask.nc').isel(time=0)
+    ds = xr.open_dataset('/lustre/storeB/project/fou/hi/havbris/datasets/surface_mask.nc').isel(time=0)
     ds.to_netcdf(outfile)
 
 if __name__ == '__main__':

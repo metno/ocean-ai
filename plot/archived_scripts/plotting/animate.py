@@ -50,7 +50,7 @@ def subset_dataset(ds, lon_min, lon_max, lat_min, lat_max, var_name='temperature
     return subset_ds
 
 # Load the dataset
-dir = '/lustre/storeB/project/fou/hi/foccus/experiments/temp-jan/'
+dir = '/lustre/storeB/project/fou/hi/havbris/experiments/temp-jan/'
 file = dir + '62677636-infer.nc'
 ds_org = xr.open_dataset(file)
 

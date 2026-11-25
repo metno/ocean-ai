@@ -12,8 +12,8 @@ def river_values():
     """
     Creates a netCDF file with river variables stored on the NK800 grid.
     """
-    river = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=slice(0,2))
-    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat']]
+    river = xr.open_dataset('/lustre/storeB/project/fou/hi/havbris/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=slice(0,2))
+    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat']]
     reference_date = np.datetime64('1970-01-01T00:00:00', 's')
 
     times = np.zeros_like(river.river_time.values, dtype='int')
@@ -57,8 +57,8 @@ def river_binary_mask():
     """
     Creates a netCDF file with river positions stored as a binary mask on the NK800 grid. 
     """
-    river = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=0)
-    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat', 'projection_stere']]
+    river = xr.open_dataset('/lustre/storeB/project/fou/hi/havbris/datasets/norkyst-v3-hindcast/forcing/misc/river.nc').isel(s_rho=0, river_time=0)
+    nk800 = xr.open_dataset('/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2023/norkyst800-20230726.nc').isel(time=0)[['lon','lat', 'projection_stere']]
     river_pos = np.zeros([len(nk800.Y), len(nk800.X)])
     for r in range(len(river.river.values)):
         pos = [int(river.isel(river=r).river_Xposition.values), int(river.isel(river=r).river_Eposition.values)]

@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import pandas
 import datetime as datetime
 
-file = '/lustre/storeB/project/fou/hi/foccus/datasets/symlink_folder/symlinks_norkystv3/norkyst800_his_zdepth_20240102T00Z_m00_AN.nc'
+file = '/lustre/storeB/project/fou/hi/havbris/datasets/symlink_folder/symlinks_norkystv3/norkyst800_his_zdepth_20240102T00Z_m00_AN.nc'
 ds = xr.open_dataset(file)
 
 def define_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end = datetime.datetime(2024,1,3,20)):
@@ -95,7 +95,7 @@ def only_surface_mask(ds, time_start = datetime.datetime(2024,1,1,0), time_end =
             lat=(['Y', 'X'], np.array(ds.lat.values), {'grid_mapping': 'projection_stere','units':'degree_north', 'standard_name':'latitude', 'long_name': 'latitude'}),
             land_binary_mask=(['time','Y', 'X'], full_mask, {'standard_name': 'land_binary_mask', 'long_name':'land_binary_mask'})))
     mask_array['projection_stere'] = ds.projection_stere
-    mask_array.to_netcdf('/lustre/storeB/project/fou/hi/foccus/mateuszm/OceanAI/datasets/surface_mask.nc', encoding={'time': {'dtype':'double'}, 'land_binary_mask':{'zlib': True, 'complevel': 4}})
+    mask_array.to_netcdf('/lustre/storeB/project/fou/hi/havbris/mateuszm/OceanAI/datasets/surface_mask.nc', encoding={'time': {'dtype':'double'}, 'land_binary_mask':{'zlib': True, 'complevel': 4}})
 
     return full_mask
 

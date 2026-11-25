@@ -11,7 +11,7 @@ import argparse
 #the files are too big, maybe do a month at a time? 
 
 def monthly_mean(save_path):
-    files = glob.glob("/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/*.nc")
+    files = glob.glob("/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2024/*.nc")
     files = sorted(files)
     print(f'Glob identified the following files: {files}')
 

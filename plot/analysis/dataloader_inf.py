@@ -496,7 +496,7 @@ def get_variables_ds_matching_time_havbris(ds_havbris: xr.Dataset,
 # GET NK AND HB DS OF SELECTED VARIABLES FOR MATCHING TIME-STEPS : 
 ###############################################################################################################################
 def open_dataset_inf(path_to_inf,
-                     truth_norkyst3_path = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/',
+                     truth_norkyst3_path = '/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/',
                      truth_file_name_template = "{year}/norkyst800-{year}{month:02d}{day:02d}.nc",
                      variables=["salinity", "temperature", "u_eastward", "v_northward"],
                      s_rho = -1,
@@ -533,7 +533,7 @@ def open_dataset_inf(path_to_inf,
 # GET NK AND HB DS OF SELECTED VARIABLES FOR MATCHING TIME-STEPS MULTIPLE HB FILES : 
 ###############################################################################################################################
 def open_datasets_inf(paths_to_inf,
-                     truth_norkyst3_path = '/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/',
+                     truth_norkyst3_path = '/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/',
                      truth_file_name_template = "{year}/norkyst800-{year}{month:02d}{day:02d}.nc",
                      variables=["salinity", "temperature", "u_eastward", "v_northward"],
                      s_rho = -1,

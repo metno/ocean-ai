@@ -8,7 +8,7 @@ This function is for salinity and may be adapted at a later time to include othe
 """
 
 import glob
-filepath_daily_avg = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/daily_avg'
+filepath_daily_avg = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_averages/daily_avg'
 ds_all_years = glob.glob(f'{filepath_daily_avg}/*/*.nc')
 ds = xr.open_mfdataset(ds_all_years, engine='netcdf4')
 
@@ -19,7 +19,7 @@ ds_monthly = ds.groupby('time.month').mean('time')
 print(f'successfully created the baseline month')
 
 #symlink info 
-symlink_path = f'/lustre/storeB/project/fou/hi/foccus/datasets/symlinks/norkystv3-hindcast/2024/' 
+symlink_path = f'/lustre/storeB/project/fou/hi/havbris/datasets/symlinks/norkystv3-hindcast/2024/' 
 
 def calculate_anomalies(monthly_files, m_indx, output):
     ds_calc = xr.open_mfdataset(monthly_files).isel(s_rho = -1, s_w = -1)
@@ -34,7 +34,7 @@ def calculate_anomalies(monthly_files, m_indx, output):
     ds_salinity.to_netcdf(output)     
     print(f'finished')
 
-output = '/lustre/storeB/project/fou/hi/foccus/datasets/norkystv3_averages/anomalies/november.nc'
+output = '/lustre/storeB/project/fou/hi/havbris/datasets/norkystv3_averages/anomalies/november.nc'
 ds_with_anomalies = calculate_anomalies(monthly_files=f'{symlink_path}norkyst800-202411*',
                         m_indx=11,
                         output=output)
